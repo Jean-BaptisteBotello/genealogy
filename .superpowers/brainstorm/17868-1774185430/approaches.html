@@ -1,0 +1,43 @@
+<h2>3 approches d'architecture</h2>
+<p class="subtitle">Clique sur celle qui te parle le plus — on peut en discuter en terminal</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>JAMstack moderne — ma recommandation ⭐</h3>
+      <p><strong>Next.js</strong> (React) + <strong>Supabase</strong> (BDD PostgreSQL, auth, stockage docs)</p>
+      <p>Visualisation arbre : <strong>React Flow</strong> · Vue carte : <strong>Leaflet</strong> · Timeline : composant custom</p>
+      <div class="pros-cons" style="margin-top:0.75rem">
+        <div class="pros"><h4>Avantages</h4><ul><li>Stack moderne, rapide à builder</li><li>Supabase gère auth + permissions + stockage docs en un</li><li>Collaboratif en temps réel natif (Supabase Realtime)</li><li>Coût faible au démarrage</li></ul></div>
+        <div class="cons"><h4>Limites</h4><ul><li>Dépendance Supabase (SaaS)</li><li>React Flow a une courbe d'apprentissage pour les arbres complexes</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Full-stack maîtrisé</h3>
+      <p><strong>Next.js</strong> + <strong>Node.js API</strong> + <strong>PostgreSQL</strong> auto-hébergé + <strong>S3/MinIO</strong> pour les docs</p>
+      <p>Visualisation : <strong>D3.js</strong> (puissant, sur-mesure)</p>
+      <div class="pros-cons" style="margin-top:0.75rem">
+        <div class="pros"><h4>Avantages</h4><ul><li>Contrôle total sur les données (RGPD, hébergement)</li><li>D3.js = visualisations très personnalisées</li><li>Pas de dépendance SaaS</li></ul></div>
+        <div class="cons"><h4>Limites</h4><ul><li>Plus long à mettre en place</li><li>Infra à gérer soi-même</li><li>D3.js plus complexe que React Flow</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>GEDCOM-compatible</h3>
+      <p><strong>Next.js</strong> + <strong>Supabase</strong> + support import/export <strong>GEDCOM 7</strong> (standard généalogique universel)</p>
+      <p>Permet d'importer depuis Ancestry, MyHeritage, FamilySearch</p>
+      <div class="pros-cons" style="margin-top:0.75rem">
+        <div class="pros"><h4>Avantages</h4><ul><li>Interopérabilité avec tous les outils généalogiques</li><li>Les généalogues professionnels adorent GEDCOM</li><li>Import de données existantes facilité</li></ul></div>
+        <div class="cons"><h4>Limites</h4><ul><li>GEDCOM 7 est complexe à implémenter proprement</li><li>Scope plus large = délai plus long</li><li>Sur-engineering si usage 100% interne</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,7 +1,5 @@
 // src/app/(app)/tree/page.tsx
-'use client'
-import { CosmosView } from '@/components/cosmos/CosmosView'
-
+// AppShell now owns view rendering — this page intentionally empty.
 export default function TreePage() {
-  return <CosmosView />
+  return null
 }

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vue Cosmos — Généalogie</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #050a14; color: #eee; font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; }
+
+  canvas { display: block; }
+
+  #ui {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    padding: 1.2rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(5,10,20,0.95), transparent);
+    z-index: 10;
+  }
+
+  #ui h1 { font-size: 1rem; font-weight: 600; color: #e94560; letter-spacing: 2px; text-transform: uppercase; }
+  #ui p { font-size: 0.75rem; color: #555; margin-top: 2px; }
+
+  .legend {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.7rem;
+    color: #666;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  #tooltip {
+    position: fixed;
+    background: rgba(14,20,35,0.95);
+    border: 1px solid #1e3a5f;
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.75rem;
+    pointer-events: none;
+    display: none;
+    z-index: 20;
+    max-width: 180px;
+    line-height: 1.6;
+  }
+  #tooltip .t-name { font-weight: 700; color: #fff; font-size: 0.85rem; }
+  #tooltip .t-relation { color: #e94560; font-size: 0.7rem; margin-bottom: 4px; }
+  #tooltip .t-info { color: #888; }
+
+  #bottom-hint {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: #333;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+
+  #views {
+    position: fixed;
+    top: 1.2rem;
+    right: 2rem;
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
+  }
+
+  .view-btn {
+    background: rgba(14,20,35,0.8);
+    border: 1px solid #1e3a5f;
+    color: #666;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .view-btn.active { border-color: #e94560; color: #e94560; background: rgba(233,69,96,0.1); }
+</style>
+</head>
+<body>
+
+<div id="ui">
+  <div>
+    <h1>🌌 Vue Cosmos</h1>
+    <p>La personne sélectionnée au centre · les proches en orbite</p>
+  </div>
+</div>
+
+<div id="views">
+  <button class="view-btn active">🌌 Cosmos</button>
+  <button class="view-btn">⧖ Sablier</button>
+  <button class="view-btn">🌀 Éventail</button>
+  <button class="view-btn">📅 Timeline</button>
+  <button class="view-btn">🗺 Carte</button>
+</div>
+
+<canvas id="c"></canvas>
+
+<div id="tooltip"></div>
+<div id="bottom-hint">Survole une personne pour voir ses infos · Clique pour centrer</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H, cx, cy, frame = 0, hoveredNode = null;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  cx = W / 2; cy = H / 2;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// Data: family tree
+const CENTER = {
+  id: 0, name: 'Jean-Baptiste B.', born: '1985 · Paris', died: null,
+  relation: 'Vous', color: '#e94560', size: 22, orbit: 0, angle: 0, speed: 0
+};
+
+const NODES = [
+  { id: 1, name: 'Marie B.', born: '1958 · Lyon', died: null, relation: 'Mère', color: '#7ec8e3', size: 12, orbit: 110, angle: 0.3, speed: 0.0008 },
+  { id: 2, name: 'Pierre B.', born: '1955 · Bordeaux', died: '2019 · Paris', relation: 'Père', color: '#7ec8e3', size: 12, orbit: 110, angle: Math.PI + 0.3, speed: 0.0008 },
+  { id: 3, name: 'Sophie B.', born: '1988 · Paris', died: null, relation: 'Sœur', color: '#4ade80', size: 9, orbit: 170, angle: 0.9, speed: 0.0005 },
+  { id: 4, name: 'Lucas B.', born: '2012 · Paris', died: null, relation: 'Fils', color: '#c084fc', size: 8, orbit: 200, angle: 1.8, speed: 0.0004 },
+  { id: 5, name: 'Emma B.', born: '2015 · Paris', died: null, relation: 'Fille', color: '#c084fc', size: 8, orbit: 200, angle: 4.2, speed: 0.0004 },
+  { id: 6, name: 'Hélène D.', born: '1932 · Marseille', died: '2010 · Lyon', relation: 'Grand-mère mat.', color: '#f59e0b', size: 8, orbit: 240, angle: 0.1, speed: 0.0003 },
+  { id: 7, name: 'André D.', born: '1928 · Marseille', died: '2005 · Lyon', relation: 'Grand-père mat.', color: '#f59e0b', size: 8, orbit: 240, angle: Math.PI * 0.8, speed: 0.0003 },
+  { id: 8, name: 'Claire B.', born: '1930 · Bordeaux', died: '2015 · Bordeaux', relation: 'Grand-mère pat.', color: '#f59e0b', size: 7, orbit: 280, angle: 2.5, speed: 0.00025 },
+  { id: 9, name: 'Robert B.', born: '1925 · Bordeaux', died: '2000 · Bordeaux', relation: 'Grand-père pat.', color: '#f59e0b', size: 7, orbit: 280, angle: 5.1, speed: 0.00025 },
+  { id: 10, name: 'Isabelle V.', born: '1987 · Nice', died: null, relation: 'Épouse', color: '#fb7185', size: 13, orbit: 80, angle: Math.PI / 2, speed: 0.0012 },
+];
+
+// Relation links
+const LINKS = [
+  [0, 1], [0, 2], // parents
+  [0, 10],        // épouse
+  [0, 3],         // sœur
+  [0, 4], [0, 5], // enfants
+  [1, 6], [1, 7], // grands-parents maternels
+  [2, 8], [2, 9], // grands-parents paternels
+];
+
+// Stars background
+const STARS = Array.from({length: 200}, () => ({
+  x: Math.random(), y: Math.random(),
+  r: Math.random() * 1.2 + 0.2,
+  alpha: Math.random() * 0.6 + 0.1,
+  twinkle: Math.random() * Math.PI * 2
+}));
+
+function getPos(node) {
+  if (node.orbit === 0) return { x: cx, y: cy };
+  const a = node.angle + frame * node.speed;
+  return {
+    x: cx + Math.cos(a) * node.orbit,
+    y: cy + Math.sin(a) * node.orbit * 0.45  // elliptical
+  };
+}
+
+function drawStars() {
+  STARS.forEach(s => {
+    const alpha = s.alpha + Math.sin(frame * 0.02 + s.twinkle) * 0.15;
+    ctx.beginPath();
+    ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+    ctx.fill();
+  });
+}
+
+function drawOrbitRings() {
+  const orbits = [...new Set(NODES.map(n => n.orbit))].filter(o => o > 0);
+  orbits.forEach(r => {
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, r, r * 0.45, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(30,58,95,0.3)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  });
+}
+
+function drawLinks() {
+  LINKS.forEach(([a, b]) => {
+    const posA = a === 0 ? { x: cx, y: cy } : getPos(NODES[a - 1]);
+    const posB = b === 0 ? { x: cx, y: cy } : getPos(NODES[b - 1]);
+
+    const grad = ctx.createLinearGradient(posA.x, posA.y, posB.x, posB.y);
+    grad.addColorStop(0, 'rgba(233,69,96,0.25)');
+    grad.addColorStop(1, 'rgba(126,200,227,0.1)');
+
+    ctx.beginPath();
+    ctx.moveTo(posA.x, posA.y);
+    // slight curve
+    const mx = (posA.x + posB.x) / 2 + (posB.y - posA.y) * 0.1;
+    const my = (posA.y + posB.y) / 2 - (posB.x - posA.x) * 0.1;
+    ctx.quadraticCurveTo(mx, my, posB.x, posB.y);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  });
+}
+
+function drawNode(node, pos) {
+  const isCenter = node.orbit === 0;
+  const isHovered = hoveredNode === node.id;
+
+  // Glow
+  if (isCenter || isHovered) {
+    const glow = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, node.size * 3);
+    glow.addColorStop(0, node.color + '40');
+    glow.addColorStop(1, 'transparent');
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, node.size * 3, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+  }
+
+  // Body
+  ctx.beginPath();
+  ctx.arc(pos.x, pos.y, node.size, 0, Math.PI * 2);
+  const bodyGrad = ctx.createRadialGradient(pos.x - node.size * 0.3, pos.y - node.size * 0.3, 0, pos.x, pos.y, node.size);
+  bodyGrad.addColorStop(0, node.color + 'ff');
+  bodyGrad.addColorStop(1, node.color + '88');
+  ctx.fillStyle = bodyGrad;
+  ctx.fill();
+
+  if (isHovered || isCenter) {
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  // Deceased indicator
+  if (node.died) {
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, node.size + 3, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Label
+  if (isCenter || isHovered || node.size >= 10) {
+    const parts = node.name.split(' ');
+    const shortName = parts[0] + (parts.length > 1 ? ' ' + parts[parts.length - 1][0] + '.' : '');
+    ctx.fillStyle = isCenter ? '#fff' : '#ccc';
+    ctx.font = `${isCenter ? 'bold ' : ''}${isCenter ? 11 : 9}px system-ui`;
+    ctx.textAlign = 'center';
+    ctx.fillText(shortName, pos.x, pos.y + node.size + 13);
+    if (isCenter) {
+      ctx.fillStyle = '#e94560';
+      ctx.font = '8px system-ui';
+      ctx.fillText(node.relation, pos.x, pos.y + node.size + 23);
+    }
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Deep space bg
+  const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.7);
+  bg.addColorStop(0, '#080f1f');
+  bg.addColorStop(1, '#020509');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  drawStars();
+  drawOrbitRings();
+  drawLinks();
+
+  // Draw all nodes
+  NODES.forEach(n => drawNode(n, getPos(n)));
+  drawNode(CENTER, { x: cx, y: cy });
+
+  frame++;
+  requestAnimationFrame(draw);
+}
+
+// Hover detection
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  let found = null;
+
+  // Check center
+  const dx0 = mx - cx, dy0 = my - cy;
+  if (Math.sqrt(dx0*dx0 + dy0*dy0) < CENTER.size + 8) {
+    found = { node: CENTER, x: e.clientX, y: e.clientY };
+  }
+
+  if (!found) {
+    NODES.forEach(n => {
+      const pos = getPos(n);
+      const dx = mx - pos.x, dy = my - pos.y;
+      if (Math.sqrt(dx*dx + dy*dy) < n.size + 8) {
+        found = { node: n, x: e.clientX, y: e.clientY };
+      }
+    });
+  }
+
+  const tooltip = document.getElementById('tooltip');
+  if (found) {
+    hoveredNode = found.node.id;
+    const n = found.node;
+    tooltip.style.display = 'block';
+    tooltip.style.left = (found.x + 16) + 'px';
+    tooltip.style.top = (found.y - 10) + 'px';
+    tooltip.innerHTML = `
+      <div class="t-relation">${n.relation}</div>
+      <div class="t-name">${n.name}</div>
+      <div class="t-info">🟢 ${n.born}</div>
+      ${n.died ? `<div class="t-info">✝ ${n.died}</div>` : ''}
+    `;
+  } else {
+    hoveredNode = null;
+    tooltip.style.display = 'none';
+  }
+});
+
+draw();
+</script>
+</body>
+</html>

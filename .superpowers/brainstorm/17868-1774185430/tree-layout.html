@@ -1,0 +1,116 @@
+<h2>Vue Arbre — disposition</h2>
+<p class="subtitle">Comment naviguer et visualiser l'arbre généalogique ?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="top-down" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0d1117;padding:1rem;min-height:180px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+      <svg width="220" height="150" viewBox="0 0 220 150" font-family="sans-serif">
+        <!-- Root -->
+        <rect x="75" y="8" width="70" height="32" rx="5" fill="#16213e" stroke="#e94560" stroke-width="1.5"/>
+        <text x="110" y="22" text-anchor="middle" font-size="7" fill="#eee" font-weight="bold">ANCÊTRE</text>
+        <text x="110" y="32" text-anchor="middle" font-size="6" fill="#888">1820 · Paris</text>
+        <!-- Lines to gen 2 -->
+        <line x1="110" y1="40" x2="110" y2="52" stroke="#0f3460" stroke-width="1.5"/>
+        <line x1="50" y1="52" x2="170" y2="52" stroke="#0f3460" stroke-width="1.5"/>
+        <line x1="50" y1="52" x2="50" y2="60" stroke="#0f3460" stroke-width="1.5"/>
+        <line x1="170" y1="52" x2="170" y2="60" stroke="#0f3460" stroke-width="1.5"/>
+        <!-- Gen 2 -->
+        <rect x="15" y="60" width="70" height="30" rx="5" fill="#16213e" stroke="#7ec8e3" stroke-width="1"/>
+        <text x="50" y="73" text-anchor="middle" font-size="7" fill="#eee">Marie D.</text>
+        <text x="50" y="83" text-anchor="middle" font-size="6" fill="#888">1845 · Lyon</text>
+        <rect x="135" y="60" width="70" height="30" rx="5" fill="#16213e" stroke="#7ec8e3" stroke-width="1"/>
+        <text x="170" y="73" text-anchor="middle" font-size="7" fill="#eee">Pierre D.</text>
+        <text x="170" y="83" text-anchor="middle" font-size="6" fill="#888">1848 · Lyon</text>
+        <!-- Lines to gen 3 -->
+        <line x1="50" y1="90" x2="50" y2="100" stroke="#0f3460" stroke-width="1.5"/>
+        <line x1="170" y1="90" x2="170" y2="100" stroke="#0f3460" stroke-width="1.5"/>
+        <!-- Gen 3 -->
+        <rect x="15" y="100" width="70" height="28" rx="5" fill="#16213e" stroke="#4ade80" stroke-width="1"/>
+        <text x="50" y="113" text-anchor="middle" font-size="7" fill="#eee">Louise D.</text>
+        <text x="50" y="122" text-anchor="middle" font-size="6" fill="#888">1870 · Bordeaux</text>
+        <rect x="135" y="100" width="70" height="28" rx="5" fill="#16213e" stroke="#4ade80" stroke-width="1"/>
+        <text x="170" y="113" text-anchor="middle" font-size="7" fill="#eee">Henri D.</text>
+        <text x="170" y="122" text-anchor="middle" font-size="6" fill="#888">1872 · Marseille</text>
+        <!-- Dots -->
+        <text x="50" y="145" text-anchor="middle" font-size="10" fill="#444">···</text>
+        <text x="170" y="145" text-anchor="middle" font-size="10" fill="#444">···</text>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>A — Top-down (ancêtres → descendants)</h3>
+      <p>Les ancêtres en haut, les descendants en bas. Lecture naturelle du temps. Idéal pour raconter l'histoire familiale.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="hourglass" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0d1117;padding:1rem;min-height:180px;display:flex;align-items:center;justify-content:center;">
+      <svg width="220" height="160" viewBox="0 0 220 160" font-family="sans-serif">
+        <!-- Center person -->
+        <rect x="75" y="64" width="70" height="32" rx="5" fill="#16213e" stroke="#e94560" stroke-width="2"/>
+        <text x="110" y="78" text-anchor="middle" font-size="7" fill="#e94560" font-weight="bold">VOUS</text>
+        <text x="110" y="88" text-anchor="middle" font-size="6" fill="#aaa">1985 · Paris</text>
+        <!-- Lines up (ancestors) -->
+        <line x1="110" y1="64" x2="110" y2="52" stroke="#0f3460" stroke-width="1.5"/>
+        <line x1="60" y1="52" x2="160" y2="52" stroke="#0f3460" stroke-width="1.5"/>
+        <line x1="60" y1="52" x2="60" y2="42" stroke="#0f3460" stroke-width="1.5"/>
+        <line x1="160" y1="52" x2="160" y2="42" stroke="#0f3460" stroke-width="1.5"/>
+        <rect x="25" y="14" width="70" height="28" rx="5" fill="#16213e" stroke="#7ec8e3" stroke-width="1"/>
+        <text x="60" y="27" text-anchor="middle" font-size="7" fill="#eee">Père</text>
+        <text x="60" y="37" text-anchor="middle" font-size="6" fill="#888">1955 · Lyon</text>
+        <rect x="125" y="14" width="70" height="28" rx="5" fill="#16213e" stroke="#7ec8e3" stroke-width="1"/>
+        <text x="160" y="27" text-anchor="middle" font-size="7" fill="#eee">Mère</text>
+        <text x="160" y="37" text-anchor="middle" font-size="6" fill="#888">1958 · Lyon</text>
+        <!-- Lines down (descendants) -->
+        <line x1="110" y1="96" x2="110" y2="108" stroke="#0f3460" stroke-width="1.5"/>
+        <line x1="70" y1="108" x2="150" y2="108" stroke="#0f3460" stroke-width="1.5"/>
+        <line x1="70" y1="108" x2="70" y2="116" stroke="#0f3460" stroke-width="1.5"/>
+        <line x1="150" y1="108" x2="150" y2="116" stroke="#0f3460" stroke-width="1.5"/>
+        <rect x="30" y="116" width="70" height="28" rx="5" fill="#16213e" stroke="#4ade80" stroke-width="1"/>
+        <text x="65" y="129" text-anchor="middle" font-size="7" fill="#eee">Enfant 1</text>
+        <text x="65" y="139" text-anchor="middle" font-size="6" fill="#888">2010 · Paris</text>
+        <rect x="120" y="116" width="70" height="28" rx="5" fill="#16213e" stroke="#4ade80" stroke-width="1"/>
+        <text x="155" y="129" text-anchor="middle" font-size="7" fill="#eee">Enfant 2</text>
+        <text x="155" y="139" text-anchor="middle" font-size="6" fill="#888">2013 · Paris</text>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>B — Sablier ⭐ (centré sur une personne)</h3>
+      <p>Une personne au centre, ancêtres au-dessus, descendants en dessous. Parfait pour naviguer en se "déplaçant" de personne en personne.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="fan" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0d1117;padding:1rem;min-height:180px;display:flex;align-items:center;justify-content:center;">
+      <svg width="220" height="160" viewBox="0 0 220 160" font-family="sans-serif">
+        <!-- Fan chart approximation -->
+        <circle cx="110" cy="150" r="20" fill="#16213e" stroke="#e94560" stroke-width="2"/>
+        <text x="110" y="148" text-anchor="middle" font-size="6" fill="#e94560" font-weight="bold">VOUS</text>
+        <text x="110" y="157" text-anchor="middle" font-size="5" fill="#aaa">1985</text>
+        <!-- Gen 2 arcs approximated with rects -->
+        <path d="M 55 130 A 65 65 0 0 1 110 85" stroke="#7ec8e3" stroke-width="1.5" fill="none"/>
+        <path d="M 110 85 A 65 65 0 0 1 165 130" stroke="#7ec8e3" stroke-width="1.5" fill="none"/>
+        <text x="68" y="108" text-anchor="middle" font-size="6.5" fill="#7ec8e3">Père</text>
+        <text x="75" y="116" text-anchor="middle" font-size="5.5" fill="#555">1955</text>
+        <text x="152" y="108" text-anchor="middle" font-size="6.5" fill="#7ec8e3">Mère</text>
+        <text x="145" y="116" text-anchor="middle" font-size="5.5" fill="#555">1958</text>
+        <!-- Gen 3 -->
+        <path d="M 20 100 A 110 110 0 0 1 70 30" stroke="#4ade80" stroke-width="1" fill="none" stroke-dasharray="3,2"/>
+        <path d="M 70 30 A 110 110 0 0 1 150 30" stroke="#4ade80" stroke-width="1" fill="none" stroke-dasharray="3,2"/>
+        <path d="M 150 30 A 110 110 0 0 1 200 100" stroke="#4ade80" stroke-width="1" fill="none" stroke-dasharray="3,2"/>
+        <text x="30" y="72" font-size="5.5" fill="#4ade80">GP</text>
+        <text x="105" y="20" text-anchor="middle" font-size="5.5" fill="#4ade80">GP</text>
+        <text x="185" y="72" font-size="5.5" fill="#4ade80">GP</text>
+        <text x="30" y="82" font-size="5" fill="#555">maternel</text>
+        <text x="185" y="82" font-size="5" fill="#555">paternel</text>
+        <!-- label -->
+        <text x="110" y="12" text-anchor="middle" font-size="6" fill="#555">Vue en éventail — générations en cercles concentriques</text>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>C — Éventail (Fan chart)</h3>
+      <p>Vous au centre, générations en arcs concentriques. Très visuel et impressionnant, mais moins pratique pour naviguer ou éditer.</p>
+    </div>
+  </div>
+
+</div>

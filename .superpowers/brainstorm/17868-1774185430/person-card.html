@@ -1,0 +1,65 @@
+<h2>La carte personne</h2>
+<p class="subtitle">Comment afficher une personne dans l'arbre ? Choisis le format qui te parle.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="compact" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:1rem;min-height:140px;display:flex;align-items:center;justify-content:center;">
+      <div style="background:#16213e;border:1px solid #0f3460;border-radius:8px;padding:0.75rem 1rem;width:160px;font-family:sans-serif;">
+        <div style="font-size:0.65rem;color:#e94560;font-weight:700;letter-spacing:1px;margin-bottom:0.25rem;">BOTELLO</div>
+        <div style="font-size:0.9rem;color:#eee;font-weight:600;margin-bottom:0.5rem;">Jean-Baptiste</div>
+        <div style="font-size:0.6rem;color:#888;line-height:1.6;">
+          🗓 12 Mar 1985 · Paris<br>
+          📍 Vivant
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Compacte</h3>
+      <p>Nom, prénom, date & lieu de naissance. Idéale pour voir beaucoup de personnes dans l'arbre sans encombrer. Détails au survol.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="standard" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:1rem;min-height:140px;display:flex;align-items:center;justify-content:center;">
+      <div style="background:#16213e;border:1px solid #e94560;border-radius:8px;padding:0.75rem 1rem;width:185px;font-family:sans-serif;">
+        <div style="font-size:0.65rem;color:#e94560;font-weight:700;letter-spacing:1px;margin-bottom:0.25rem;">BOTELLO · Branche Maternelle</div>
+        <div style="font-size:0.95rem;color:#eee;font-weight:600;margin-bottom:0.5rem;">Jean-Baptiste</div>
+        <div style="height:1px;background:#0f3460;margin-bottom:0.5rem;"></div>
+        <div style="font-size:0.6rem;color:#aaa;line-height:1.8;">
+          🟢 Naissance : 12 Mar 1985<br>
+          📍 Paris, France<br>
+          ✝ —
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Standard ⭐</h3>
+      <p>Tous les champs visibles : naissance, lieu de naissance, décès, lieu de décès + branche colorée. Équilibre information / lisibilité.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="expanded" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:1rem;min-height:140px;display:flex;align-items:center;justify-content:center;">
+      <div style="background:#16213e;border:2px solid #0f3460;border-radius:8px;padding:0.75rem 1rem;width:200px;font-family:sans-serif;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+          <div style="font-size:0.65rem;color:#e94560;font-weight:700;letter-spacing:1px;">BOTELLO</div>
+          <div style="font-size:0.55rem;background:#0f3460;color:#7ec8e3;padding:2px 6px;border-radius:10px;">2 docs</div>
+        </div>
+        <div style="font-size:0.95rem;color:#eee;font-weight:600;margin-bottom:0.4rem;">Jean-Baptiste</div>
+        <div style="height:1px;background:#0f3460;margin-bottom:0.4rem;"></div>
+        <div style="font-size:0.58rem;color:#aaa;line-height:1.8;">
+          🟢 12 Mar 1985 · Paris, France<br>
+          ✝ — · —<br>
+          🌿 Branche Maternelle<br>
+          📎 Acte de naissance, Mariage
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Détaillée</h3>
+      <p>Tout + indicateur de documents attachés + branche. Plus d'info d'un coup d'œil, mais cartes plus grandes dans l'arbre.</p>
+    </div>
+  </div>
+
+</div>

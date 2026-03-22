@@ -1,0 +1,9 @@
+{"type":"server-started","port":52757,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:52757","screen_dir":"/Users/jbbotello/Genealogy/.superpowers/brainstorm/17868-1774185430"}
+{"type":"screen-added","file":"/Users/jbbotello/Genealogy/.superpowers/brainstorm/17868-1774185430/welcome.html"}
+{"type":"screen-added","file":"/Users/jbbotello/Genealogy/.superpowers/brainstorm/17868-1774185430/approaches.html"}
+{"type":"screen-added","file":"/Users/jbbotello/Genealogy/.superpowers/brainstorm/17868-1774185430/waiting-1.html"}
+{"type":"screen-added","file":"/Users/jbbotello/Genealogy/.superpowers/brainstorm/17868-1774185430/person-card.html"}
+{"type":"screen-added","file":"/Users/jbbotello/Genealogy/.superpowers/brainstorm/17868-1774185430/tree-layout.html"}
+{"type":"screen-added","file":"/Users/jbbotello/Genealogy/.superpowers/brainstorm/17868-1774185430/cosmos-view.html"}
+{"type":"screen-added","file":"/Users/jbbotello/Genealogy/.superpowers/brainstorm/17868-1774185430/app-shell.html"}
+{"type":"server-stopped","reason":"idle timeout"}
