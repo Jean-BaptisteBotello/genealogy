@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { getSignedUrl, uploadDocument, deleteDocument } from '@/server-actions/documents'
 import type { Person, Branch, Relationship, PersonBranch, Document } from '@/lib/types/database'
+import { useTree } from '@/lib/context/tree-context'
 
 interface DetailPanelProps {
   isOpen: boolean
@@ -57,6 +58,7 @@ export function DetailPanel({
   onDeletePerson,
   onShowToast,
 }: DetailPanelProps) {
+  const { currentRole } = useTree()
   const [documents, setDocuments] = useState<Document[]>([])
   const [docsLoading, setDocsLoading] = useState(false)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
@@ -247,15 +249,17 @@ export function DetailPanel({
           <div>
             <div className="flex items-center justify-between mb-1">
               <div className="text-[10px] text-gray-600 uppercase tracking-widest">Documents</div>
-              <button
-                type="button"
-                onClick={handleUploadClick}
-                disabled={isUploading}
-                className="text-[10px] text-gray-600 hover:text-gray-300 disabled:opacity-50"
-                title="Ajouter un document PDF"
-              >
-                {isUploading ? '…' : '+ PDF'}
-              </button>
+              {currentRole !== 'VIEWER' && (
+                <button
+                  type="button"
+                  onClick={handleUploadClick}
+                  disabled={isUploading}
+                  className="text-[10px] text-gray-600 hover:text-gray-300 disabled:opacity-50"
+                  title="Ajouter un document PDF"
+                >
+                  {isUploading ? '…' : '+ PDF'}
+                </button>
+              )}
             </div>
             {/* Hidden file input — PDF only */}
             <input
@@ -289,14 +293,16 @@ export function DetailPanel({
                     >
                       {downloadingId === doc.id ? '…' : '⬇'}
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteDoc(doc)}
-                      className="text-[10px] text-gray-600 hover:text-red-400 shrink-0"
-                      title="Supprimer"
-                    >
-                      ✕
-                    </button>
+                    {currentRole === 'ADMIN' && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteDoc(doc)}
+                        className="text-[10px] text-gray-600 hover:text-red-400 shrink-0"
+                        title="Supprimer"
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -304,22 +310,26 @@ export function DetailPanel({
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2 mt-auto pt-2 border-t border-[#1e3a5f]">
-            <button
-              type="button"
-              onClick={() => onEditPerson(person.id)}
-              className="flex-1 text-xs py-1.5 bg-white/5 text-gray-300 hover:bg-white/10 rounded transition-colors"
-            >
-              Modifier
-            </button>
-            <button
-              type="button"
-              onClick={() => onDeletePerson(person.id)}
-              className="flex-1 text-xs py-1.5 bg-red-900/20 text-red-400 hover:bg-red-900/40 rounded transition-colors"
-            >
-              Supprimer
-            </button>
-          </div>
+          {currentRole !== 'VIEWER' && (
+            <div className="flex gap-2 mt-auto pt-2 border-t border-[#1e3a5f]">
+              <button
+                type="button"
+                onClick={() => onEditPerson(person.id)}
+                className="flex-1 text-xs py-1.5 bg-white/5 text-gray-300 hover:bg-white/10 rounded transition-colors"
+              >
+                Modifier
+              </button>
+              {currentRole === 'ADMIN' && (
+                <button
+                  type="button"
+                  onClick={() => onDeletePerson(person.id)}
+                  className="flex-1 text-xs py-1.5 bg-red-900/20 text-red-400 hover:bg-red-900/40 rounded transition-colors"
+                >
+                  Supprimer
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
     </aside>

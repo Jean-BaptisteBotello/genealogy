@@ -2,15 +2,17 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { Branch } from '@/lib/types/database'
+import type { Branch, Role } from '@/lib/types/database'
 import { BranchModal } from '@/components/branch/BranchModal'
 import { deleteBranch } from '@/server-actions/branches'
 
 interface SidebarProps {
   branches: Branch[]
+  currentRole: Role
+  onManageMembers: () => void
 }
 
-export function Sidebar({ branches }: SidebarProps) {
+export function Sidebar({ branches, currentRole, onManageMembers }: SidebarProps) {
   const router = useRouter()
   const [branchModalMode, setBranchModalMode] = useState<
     'add' | { type: 'edit'; branch: Branch } | null
@@ -62,33 +64,39 @@ export function Sidebar({ branches }: SidebarProps) {
                 />
                 <span className="truncate">{branch.nom}</span>
               </button>
-              <button
-                type="button"
-                onClick={() => setBranchModalMode({ type: 'edit', branch })}
-                className="hidden group-hover:flex text-gray-600 hover:text-gray-300 text-[10px] px-1"
-                title="Modifier"
-              >
-                ✎
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDeleteBranch(branch)}
-                className="hidden group-hover:flex text-gray-600 hover:text-red-400 text-[10px] px-1"
-                title="Supprimer"
-              >
-                ✕
-              </button>
+              {currentRole !== 'VIEWER' && (
+                <button
+                  type="button"
+                  onClick={() => setBranchModalMode({ type: 'edit', branch })}
+                  className="hidden group-hover:flex text-gray-600 hover:text-gray-300 text-[10px] px-1"
+                  title="Modifier"
+                >
+                  ✎
+                </button>
+              )}
+              {currentRole === 'ADMIN' && (
+                <button
+                  type="button"
+                  onClick={() => handleDeleteBranch(branch)}
+                  className="hidden group-hover:flex text-gray-600 hover:text-red-400 text-[10px] px-1"
+                  title="Supprimer"
+                >
+                  ✕
+                </button>
+              )}
             </div>
           ))
         )}
 
-        <button
-          type="button"
-          onClick={() => setBranchModalMode('add')}
-          className="text-left text-[10px] text-gray-600 px-2 py-1 hover:text-gray-400 mt-1"
-        >
-          + Nouvelle branche
-        </button>
+        {currentRole !== 'VIEWER' && (
+          <button
+            type="button"
+            onClick={() => setBranchModalMode('add')}
+            className="text-left text-[10px] text-gray-600 px-2 py-1 hover:text-gray-400 mt-1"
+          >
+            + Nouvelle branche
+          </button>
+        )}
 
         <div className="flex-1" />
 
@@ -104,7 +112,7 @@ export function Sidebar({ branches }: SidebarProps) {
         </label>
 
         <div className="border-t border-[#1e3a5f] mt-3 pt-3">
-          <button type="button" className="text-left text-xs text-gray-500 px-2 py-1 hover:text-gray-300 w-full">👥 Gérer les accès</button>
+          <button type="button" onClick={onManageMembers} className="text-left text-xs text-gray-500 px-2 py-1 hover:text-gray-300 w-full">👥 Gérer les accès</button>
           <button type="button" className="text-left text-xs text-gray-500 px-2 py-1 hover:text-gray-300 w-full">⚙️ Paramètres</button>
         </div>
       </aside>
