@@ -1,6 +1,9 @@
 // src/components/layout/DetailPanel.tsx
 'use client'
-import type { Person, Branch, Relationship, PersonBranch } from '@/lib/types/database'
+import { useState, useEffect, useRef, useTransition } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { getSignedUrl, uploadDocument, deleteDocument } from '@/server-actions/documents'
+import type { Person, Branch, Relationship, PersonBranch, Document } from '@/lib/types/database'
 
 interface DetailPanelProps {
   isOpen: boolean
@@ -13,6 +16,7 @@ interface DetailPanelProps {
   onSelectPerson: (id: string | null) => void
   onEditPerson: (id: string) => void
   onDeletePerson: (id: string) => Promise<void>
+  onShowToast?: (message: string, type?: 'error' | 'info') => void
 }
 
 function formatDate(date: string | null): string {
@@ -33,6 +37,13 @@ const RELATION_LABEL: Record<string, string> = {
   STEP: 'Beau-parent / Bel-enfant',
 }
 
+const DOC_TYPE_LABEL: Record<string, string> = {
+  ACTE_NAISSANCE: 'Acte de naissance',
+  ACTE_MARIAGE: 'Acte de mariage',
+  ACTE_DECES: 'Acte de décès',
+  AUTRE: 'Autre',
+}
+
 export function DetailPanel({
   isOpen,
   onClose,
@@ -44,7 +55,86 @@ export function DetailPanel({
   onSelectPerson,
   onEditPerson,
   onDeletePerson,
+  onShowToast,
 }: DetailPanelProps) {
+  const [documents, setDocuments] = useState<Document[]>([])
+  const [docsLoading, setDocsLoading] = useState(false)
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const [isUploading, startUpload] = useTransition()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Load documents when selected person changes
+  useEffect(() => {
+    if (!person) {
+      setDocuments([])
+      return
+    }
+    setDocsLoading(true)
+    const supabase = createClient()
+    supabase
+      .from('document')
+      .select('*')
+      .eq('person_id', person.id)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        setDocuments((data ?? []) as Document[])
+        setDocsLoading(false)
+      })
+  }, [person?.id])
+
+  async function handleDownload(doc: Document) {
+    setDownloadingId(doc.id)
+    const result = await getSignedUrl(doc.url_stockage)
+    setDownloadingId(null)
+    if (result.url) {
+      window.open(result.url, '_blank', 'noopener,noreferrer')
+    } else if (result.error) {
+      onShowToast?.(result.error, 'error')
+    }
+  }
+
+  function handleUploadClick() {
+    fileInputRef.current?.click()
+  }
+
+  function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !person) return
+    // Reset input so same file can be re-selected
+    e.target.value = ''
+
+    startUpload(async () => {
+      const form = new FormData()
+      form.set('person_id', person.id)
+      form.set('nom', file.name.replace(/\.pdf$/i, ''))
+      form.set('type', 'AUTRE')
+      form.set('file', file)
+      const result = await uploadDocument(form)
+      if (result.error) {
+        onShowToast?.(result.error, 'error')
+      } else {
+        // Reload documents list
+        const supabase = createClient()
+        const { data } = await supabase
+          .from('document')
+          .select('*')
+          .eq('person_id', person.id)
+          .order('created_at', { ascending: false })
+        setDocuments((data ?? []) as Document[])
+      }
+    })
+  }
+
+  async function handleDeleteDoc(doc: Document) {
+    if (!confirm(`Supprimer « ${doc.nom} » ?`)) return
+    const result = await deleteDocument(doc.id, doc.url_stockage)
+    if (result.error) {
+      onShowToast?.(result.error, 'error')
+    } else {
+      setDocuments(prev => prev.filter(d => d.id !== doc.id))
+    }
+  }
+
   if (!isOpen) return null
 
   const personBranchIds = person
@@ -130,9 +220,7 @@ export function DetailPanel({
           {/* Relations */}
           {personRelationships.length > 0 && (
             <div>
-              <div className="text-[10px] text-gray-600 uppercase tracking-widest mb-1">
-                Relations
-              </div>
+              <div className="text-[10px] text-gray-600 uppercase tracking-widest mb-1">Relations</div>
               <div className="flex flex-col gap-1">
                 {personRelationships.map(rel => {
                   const other = getOtherPerson(rel)
@@ -144,10 +232,10 @@ export function DetailPanel({
                       onClick={() => onSelectPerson(other.id)}
                       className="text-left text-xs text-blue-300 hover:text-blue-200 py-0.5 flex items-center gap-1"
                     >
-                      <span className="text-[10px] text-gray-600">
+                      <span className="text-[10px] text-gray-600 mr-1">
                         {RELATION_LABEL[rel.type] ?? rel.type}
                       </span>
-                      <span>{other.prenom} {other.nom}</span>
+                      {other.prenom} {other.nom}
                     </button>
                   )
                 })}
@@ -155,12 +243,64 @@ export function DetailPanel({
             </div>
           )}
 
-          {/* Documents placeholder — wired in Chunk 2 */}
+          {/* Documents */}
           <div>
-            <div className="text-[10px] text-gray-600 uppercase tracking-widest mb-1">
-              Documents
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-[10px] text-gray-600 uppercase tracking-widest">Documents</div>
+              <button
+                type="button"
+                onClick={handleUploadClick}
+                disabled={isUploading}
+                className="text-[10px] text-gray-600 hover:text-gray-300 disabled:opacity-50"
+                title="Ajouter un document PDF"
+              >
+                {isUploading ? '…' : '+ PDF'}
+              </button>
             </div>
-            <p className="text-xs text-gray-600 italic">Chargement en Chunk 2…</p>
+            {/* Hidden file input — PDF only */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={handleFileSelected}
+            />
+            {docsLoading ? (
+              <p className="text-xs text-gray-600 animate-pulse">Chargement…</p>
+            ) : documents.length === 0 ? (
+              <p className="text-xs text-gray-600 italic">Aucun document</p>
+            ) : (
+              <div className="flex flex-col gap-1">
+                {documents.map(doc => (
+                  <div key={doc.id} className="flex items-center gap-1">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-300 truncate">{doc.nom}</p>
+                      <p className="text-[10px] text-gray-600">
+                        {DOC_TYPE_LABEL[doc.type] ?? doc.type} ·{' '}
+                        {(doc.taille_bytes / 1024).toFixed(0)} ko
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDownload(doc)}
+                      disabled={downloadingId === doc.id}
+                      className="text-[10px] text-blue-400 hover:text-blue-200 shrink-0 disabled:opacity-50"
+                      title="Télécharger"
+                    >
+                      {downloadingId === doc.id ? '…' : '⬇'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteDoc(doc)}
+                      className="text-[10px] text-gray-600 hover:text-red-400 shrink-0"
+                      title="Supprimer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Actions */}
