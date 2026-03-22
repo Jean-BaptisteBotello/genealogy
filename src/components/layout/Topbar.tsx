@@ -18,7 +18,7 @@ const VIEWS: { id: View; label: string; icon: string }[] = [
 ]
 
 export function Topbar({ userEmail, activeView = 'cosmos', onViewChange }: TopbarProps) {
-  const initials = userEmail.slice(0, 2).toUpperCase()
+  const initials = userEmail.slice(0, 2).toUpperCase() || '?'
 
   return (
     <header className="h-12 bg-[#0d1117] border-b border-[#1e3a5f] flex items-center px-4 gap-4 shrink-0">
@@ -30,6 +30,7 @@ export function Topbar({ userEmail, activeView = 'cosmos', onViewChange }: Topba
           <button
             key={view.id}
             onClick={() => onViewChange?.(view.id)}
+            aria-pressed={activeView === view.id}
             className={[
               'px-3 py-1.5 rounded text-xs transition-colors',
               activeView === view.id
