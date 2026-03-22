@@ -15,9 +15,15 @@ interface BranchModalProps {
   onClose: () => void
 }
 
-const PRESET_COLORS = [
-  '#3b82f6', '#ef4444', '#22c55e', '#f59e0b',
-  '#8b5cf6', '#ec4899', '#06b6d4', '#f97316',
+const PRESET_COLORS: { value: string; label: string }[] = [
+  { value: '#3b82f6', label: 'Bleu' },
+  { value: '#ef4444', label: 'Rouge' },
+  { value: '#22c55e', label: 'Vert' },
+  { value: '#f59e0b', label: 'Ambre' },
+  { value: '#8b5cf6', label: 'Violet' },
+  { value: '#ec4899', label: 'Rose' },
+  { value: '#06b6d4', label: 'Cyan' },
+  { value: '#f97316', label: 'Orange' },
 ]
 
 export function BranchModal({ mode, onClose }: BranchModalProps) {
@@ -27,7 +33,7 @@ export function BranchModal({ mode, onClose }: BranchModalProps) {
 
   const isEdit = mode !== 'add'
   const branch = isEdit ? (mode as EditMode).branch : null
-  const [selectedColor, setSelectedColor] = useState(branch?.couleur ?? PRESET_COLORS[0])
+  const [selectedColor, setSelectedColor] = useState(branch?.couleur ?? PRESET_COLORS[0].value)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -86,18 +92,18 @@ export function BranchModal({ mode, onClose }: BranchModalProps) {
               aria-label="Couleur"
               className="flex gap-2 flex-wrap"
             >
-              {PRESET_COLORS.map(color => (
+              {PRESET_COLORS.map(({ value, label }) => (
                 <button
-                  key={color}
+                  key={value}
                   type="button"
-                  onClick={() => setSelectedColor(color)}
+                  onClick={() => setSelectedColor(value)}
                   className={[
                     'w-6 h-6 rounded-full border-2 transition-all',
-                    selectedColor === color ? 'border-white scale-110' : 'border-transparent',
+                    selectedColor === value ? 'border-white scale-110' : 'border-transparent',
                   ].join(' ')}
-                  style={{ backgroundColor: color }}
-                  aria-label={color}
-                  aria-pressed={selectedColor === color}
+                  style={{ backgroundColor: value }}
+                  aria-label={label}
+                  aria-pressed={selectedColor === value}
                 />
               ))}
             </div>
