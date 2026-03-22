@@ -62,7 +62,7 @@ describe('getMembers', () => {
         { user_id: 'u1', role: 'EDITOR', invited_at: '2026-01-01', invited_by: 'admin-1', users: { email: 'a@b.com', display_name: 'Alice' } },
       ],
       error: null,
-    })
+    } as any)
 
     const { getMembers } = await import('../members')
     const result = await getMembers()
@@ -71,7 +71,7 @@ describe('getMembers', () => {
   })
 
   it('returns empty array on error', async () => {
-    mockMembersSelect.mockReturnValueOnce({ data: null, error: { message: 'DB error' } })
+    mockMembersSelect.mockReturnValueOnce({ data: null, error: { message: 'DB error' } } as any)
     const { getMembers } = await import('../members')
     const result = await getMembers()
     expect(result).toEqual([])
@@ -128,7 +128,7 @@ describe('updateMemberRole', () => {
   })
 
   it('returns error on DB failure', async () => {
-    mockUpdateRoleEq.mockReturnValueOnce({ error: { message: 'Not found' } })
+    mockUpdateRoleEq.mockReturnValueOnce({ error: { message: 'Not found' } } as any)
     const { updateMemberRole } = await import('../members')
     const result = await updateMemberRole('u999', 'VIEWER')
     expect(result).toEqual({ error: 'Not found' })
@@ -153,7 +153,7 @@ describe('removeMember', () => {
   })
 
   it('returns error on DB failure', async () => {
-    mockDeleteMemberEq.mockReturnValueOnce({ error: { message: 'Constraint violation' } })
+    mockDeleteMemberEq.mockReturnValueOnce({ error: { message: 'Constraint violation' } } as any)
     const { removeMember } = await import('../members')
     const result = await removeMember('u1')
     expect(result).toEqual({ error: 'Constraint violation' })
