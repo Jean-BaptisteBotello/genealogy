@@ -1,13 +1,42 @@
-export function Sidebar() {
+// src/components/layout/Sidebar.tsx
+'use client'
+import type { Branch } from '@/lib/types/database'
+
+interface SidebarProps {
+  branches: Branch[]
+}
+
+export function Sidebar({ branches }: SidebarProps) {
   return (
     <aside className="w-48 bg-[#080d16] border-r border-[#1e3a5f] flex flex-col gap-1 p-3 overflow-y-auto shrink-0">
       <div className="text-[10px] text-gray-600 uppercase tracking-widest mb-1">Branches</div>
-      <button type="button" className="text-left text-xs text-blue-300 bg-blue-900/20 px-2 py-1.5 rounded border-l-2 border-blue-400">
+      <button
+        type="button"
+        className="text-left text-xs text-blue-300 bg-blue-900/20 px-2 py-1.5 rounded border-l-2 border-blue-400"
+      >
         🌿 Toutes les branches
       </button>
-      {/* Branch list — populated dynamically in Plan 2 */}
-      <div className="text-xs text-gray-600 px-2 py-1 italic">Aucune branche</div>
-      <button type="button" className="text-left text-[10px] text-gray-600 px-2 py-1 hover:text-gray-400">
+      {branches.length === 0 ? (
+        <div className="text-xs text-gray-600 px-2 py-1 italic">Aucune branche</div>
+      ) : (
+        branches.map(branch => (
+          <button
+            key={branch.id}
+            type="button"
+            className="text-left text-xs text-gray-300 px-2 py-1.5 rounded hover:bg-white/5 flex items-center gap-2"
+          >
+            <span
+              className="w-2 h-2 rounded-full shrink-0"
+              style={{ backgroundColor: branch.couleur }}
+            />
+            {branch.nom}
+          </button>
+        ))
+      )}
+      <button
+        type="button"
+        className="text-left text-[10px] text-gray-600 px-2 py-1 hover:text-gray-400"
+      >
         + Nouvelle branche
       </button>
       <div className="flex-1" />

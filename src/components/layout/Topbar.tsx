@@ -1,3 +1,4 @@
+// src/components/layout/Topbar.tsx
 'use client'
 import { signout } from '@/server-actions/auth'
 
@@ -7,6 +8,8 @@ interface TopbarProps {
   userEmail: string
   activeView?: View
   onViewChange?: (view: View) => void
+  onAddPerson?: () => void
+  onSearchOpen?: () => void
 }
 
 const VIEWS: { id: View; label: string; icon: string }[] = [
@@ -17,7 +20,13 @@ const VIEWS: { id: View; label: string; icon: string }[] = [
   { id: 'eventail', label: 'Éventail', icon: '🌀' },
 ]
 
-export function Topbar({ userEmail, activeView = 'cosmos', onViewChange }: TopbarProps) {
+export function Topbar({
+  userEmail,
+  activeView = 'cosmos',
+  onViewChange,
+  onAddPerson,
+  onSearchOpen,
+}: TopbarProps) {
   const initials = userEmail.slice(0, 2).toUpperCase() || '?'
 
   return (
@@ -44,10 +53,21 @@ export function Topbar({ userEmail, activeView = 'cosmos', onViewChange }: Topba
         ))}
       </nav>
       <div className="flex-1" />
-      <button type="button" className="px-3 py-1.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded text-xs hover:bg-red-500/30 transition-colors">
+      <button
+        type="button"
+        onClick={onAddPerson}
+        className="px-3 py-1.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded text-xs hover:bg-red-500/30 transition-colors"
+      >
         + Ajouter
       </button>
-      <button type="button" className="text-gray-500 hover:text-gray-300 text-sm">🔍</button>
+      <button
+        type="button"
+        onClick={onSearchOpen}
+        className="text-gray-500 hover:text-gray-300 text-sm"
+        aria-label="Rechercher"
+      >
+        🔍
+      </button>
       <form action={signout}>
         <button
           type="submit"
