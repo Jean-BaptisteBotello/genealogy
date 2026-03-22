@@ -3,11 +3,18 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { geocodeLieu } from '@/lib/geocode'
+import { getCurrentRole } from '@/lib/auth/role-guard'
 
 export async function createPerson(
   formData: FormData
 ): Promise<{ error?: string; id?: string }> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non authentifié.' }
+
+  const role = await getCurrentRole(supabase, user.id)
+  if (role === 'VIEWER') return { error: 'Permission refusée.' }
+
   const lieu_naissance = (formData.get('lieu_naissance') as string) || null
   const lieu_deces = (formData.get('lieu_deces') as string) || null
 
@@ -43,6 +50,12 @@ export async function updatePerson(
   formData: FormData
 ): Promise<{ error?: string; id?: string }> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non authentifié.' }
+
+  const role = await getCurrentRole(supabase, user.id)
+  if (role === 'VIEWER') return { error: 'Permission refusée.' }
+
   const id = formData.get('id') as string
   const lieu_naissance = (formData.get('lieu_naissance') as string) || null
   const lieu_deces = (formData.get('lieu_deces') as string) || null
@@ -81,6 +94,12 @@ export async function deletePerson(
   id: string
 ): Promise<{ error?: string }> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non authentifié.' }
+
+  const role = await getCurrentRole(supabase, user.id)
+  if (role !== 'ADMIN') return { error: 'Permission refusée.' }
+
   const { error } = await supabase.from('person').delete().eq('id', id)
   if (error) return { error: error.message }
   revalidatePath('/tree', 'layout')

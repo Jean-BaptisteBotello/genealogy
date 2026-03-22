@@ -2,6 +2,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { randomUUID } from 'crypto'
+import { getCurrentRole } from '@/lib/auth/role-guard'
 
 const MAX_SIZE_BYTES = 20 * 1024 * 1024 // 20 MB
 const SIGNED_URL_EXPIRY = 7 * 24 * 60 * 60 // 7 days in seconds
@@ -13,6 +14,9 @@ export async function uploadDocument(
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non authentifié.' }
+
+  const role = await getCurrentRole(supabase, user.id)
+  if (role === 'VIEWER') return { error: 'Permission refusée.' }
 
   const file = formData.get('file') as File | null
   if (!file) return { error: 'Aucun fichier fourni.' }
@@ -62,6 +66,11 @@ export async function deleteDocument(
   storagePath: string
 ): Promise<{ error?: string }> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non authentifié.' }
+
+  const role = await getCurrentRole(supabase, user.id)
+  if (role !== 'ADMIN') return { error: 'Permission refusée.' }
 
   const { error: dbError } = await supabase
     .from('document')

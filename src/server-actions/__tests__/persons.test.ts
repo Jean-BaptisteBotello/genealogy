@@ -8,10 +8,14 @@ vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('@/lib/geocode', () => ({
   geocodeLieu: vi.fn().mockResolvedValue(null),
 }))
+vi.mock('@/lib/auth/role-guard', () => ({
+  getCurrentRole: vi.fn().mockResolvedValue('ADMIN'),
+}))
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { geocodeLieu } from '@/lib/geocode'
+import { getCurrentRole } from '@/lib/auth/role-guard'
 
 const mockSingle = vi.fn()
 const mockInsert = vi.fn(() => ({ select: () => ({ single: mockSingle }) }))
@@ -25,11 +29,14 @@ const mockFrom = vi.fn((_table: string) => ({
   select: vi.fn(() => ({ eq: vi.fn(() => ({ single: mockSingle })) })),
 }))
 
-const mockSupabase = { from: mockFrom }
+const mockGetUser = vi.fn().mockResolvedValue({ data: { user: { id: 'user-1' } } })
+const mockSupabase = { from: mockFrom, auth: { getUser: mockGetUser } }
 
 beforeEach(() => {
   vi.clearAllMocks()
   vi.mocked(createClient).mockResolvedValue(mockSupabase as any)
+  vi.mocked(getCurrentRole).mockResolvedValue('ADMIN')
+  mockGetUser.mockResolvedValue({ data: { user: { id: 'user-1' } } })
 })
 
 describe('createPerson', () => {
@@ -87,6 +94,30 @@ describe('createPerson', () => {
     await createPerson(form)
 
     expect(revalidatePath).toHaveBeenCalledWith('/tree', 'layout')
+  })
+
+  it('returns error when user is not authenticated', async () => {
+    mockGetUser.mockResolvedValueOnce({ data: { user: null } })
+
+    const { createPerson } = await import('../persons')
+    const form = new FormData()
+    form.set('prenom', 'Marie')
+    form.set('nom', 'Curie')
+
+    const result = await createPerson(form)
+    expect(result).toEqual({ error: 'Non authentifié.' })
+  })
+
+  it('returns error for VIEWER role', async () => {
+    vi.mocked(getCurrentRole).mockResolvedValueOnce('VIEWER')
+
+    const { createPerson } = await import('../persons')
+    const form = new FormData()
+    form.set('prenom', 'Marie')
+    form.set('nom', 'Curie')
+
+    const result = await createPerson(form)
+    expect(result).toEqual({ error: 'Permission refusée.' })
   })
 })
 
@@ -150,6 +181,19 @@ describe('updatePerson', () => {
       expect.objectContaining({ updated_at: expect.any(String) })
     )
   })
+
+  it('returns error for VIEWER role', async () => {
+    vi.mocked(getCurrentRole).mockResolvedValueOnce('VIEWER')
+
+    const { updatePerson } = await import('../persons')
+    const form = new FormData()
+    form.set('id', 'uuid-123')
+    form.set('prenom', 'Marie')
+    form.set('nom', 'Curie')
+
+    const result = await updatePerson(form)
+    expect(result).toEqual({ error: 'Permission refusée.' })
+  })
 })
 
 describe('deletePerson', () => {
@@ -168,5 +212,21 @@ describe('deletePerson', () => {
     const result = await deletePerson('uuid-123')
     expect(result).toEqual({})
     expect(revalidatePath).toHaveBeenCalledWith('/tree', 'layout')
+  })
+
+  it('returns error for EDITOR role', async () => {
+    vi.mocked(getCurrentRole).mockResolvedValueOnce('EDITOR')
+
+    const { deletePerson } = await import('../persons')
+    const result = await deletePerson('uuid-123')
+    expect(result).toEqual({ error: 'Permission refusée.' })
+  })
+
+  it('returns error for VIEWER role', async () => {
+    vi.mocked(getCurrentRole).mockResolvedValueOnce('VIEWER')
+
+    const { deletePerson } = await import('../persons')
+    const result = await deletePerson('uuid-123')
+    expect(result).toEqual({ error: 'Permission refusée.' })
   })
 })

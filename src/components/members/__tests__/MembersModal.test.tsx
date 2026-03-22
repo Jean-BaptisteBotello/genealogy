@@ -36,7 +36,7 @@ describe('MembersModal', () => {
   it('lists members with their email and role', () => {
     render(<MembersModal members={[mockMember]} currentRole="ADMIN" onClose={vi.fn()} />)
     expect(screen.getByText('alice@example.com')).toBeTruthy()
-    expect(screen.getByText('EDITOR')).toBeTruthy()
+    expect(screen.getAllByText('Éditeur').length).toBeGreaterThan(0)
   })
 
   it('shows invite form for ADMIN', () => {

@@ -6,6 +6,7 @@ import type { Role } from '@/lib/types/database'
 import { useRouter } from 'next/navigation'
 
 const ROLES: Role[] = ['ADMIN', 'EDITOR', 'VIEWER']
+const INVITE_ROLES: Role[] = ['EDITOR', 'VIEWER']
 const ROLE_LABELS: Record<Role, string> = {
   ADMIN: 'Administrateur',
   EDITOR: 'Éditeur',
@@ -88,7 +89,7 @@ export function MembersModal({ members, currentRole, onClose }: MembersModalProp
                   className="text-xs bg-[#0d1117] border border-[#1e3a5f] text-gray-300 rounded px-1 py-0.5"
                 >
                   {ROLES.map(r => (
-                    <option key={r} value={r}>{r}</option>
+                    <option key={r} value={r}>{ROLE_LABELS[r]}</option>
                   ))}
                 </select>
               ) : (
@@ -126,7 +127,7 @@ export function MembersModal({ members, currentRole, onClose }: MembersModalProp
                 aria-label="Rôle à attribuer"
                 className="text-xs bg-[#0d1117] border border-[#1e3a5f] text-gray-300 rounded px-1 py-1.5"
               >
-                {ROLES.map(r => (
+                {INVITE_ROLES.map(r => (
                   <option key={r} value={r}>{ROLE_LABELS[r]}</option>
                 ))}
               </select>
