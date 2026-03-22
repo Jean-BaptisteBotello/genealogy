@@ -53,13 +53,15 @@ export function Topbar({
         ))}
       </nav>
       <div className="flex-1" />
-      <button
-        type="button"
-        onClick={onAddPerson}
-        className="px-3 py-1.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded text-xs hover:bg-red-500/30 transition-colors"
-      >
-        + Ajouter
-      </button>
+      {onAddPerson && (
+        <button
+          type="button"
+          onClick={onAddPerson}
+          className="px-3 py-1.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded text-xs hover:bg-red-500/30 transition-colors"
+        >
+          + Ajouter
+        </button>
+      )}
       <button
         type="button"
         onClick={onSearchOpen}

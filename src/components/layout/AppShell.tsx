@@ -7,9 +7,11 @@ import { Sidebar } from '@/components/layout/Sidebar'
 import { DetailPanel } from '@/components/layout/DetailPanel'
 import { PersonModal } from '@/components/person/PersonModal'
 import { SearchOverlay } from '@/components/search/SearchOverlay'
+import { MembersModal } from '@/components/members/MembersModal'
 import { TreeContext } from '@/lib/context/tree-context'
 import { ViewRouter } from '@/components/views/ViewRouter'
 import type { Person, Branch, Relationship, PersonBranch, Role } from '@/lib/types/database'
+import type { MemberWithUser } from '@/server-actions/members'
 
 type View = 'cosmos' | 'sablier' | 'timeline' | 'carte' | 'eventail'
 
@@ -20,6 +22,7 @@ interface AppShellProps {
   initialRelationships: Relationship[]
   initialPersonBranches: PersonBranch[]
   currentRole: Role
+  initialMembers: MemberWithUser[]
 }
 
 type PersonModalMode = 'add' | { type: 'edit'; person: Person } | null
@@ -36,6 +39,7 @@ export function AppShell({
   initialRelationships,
   initialPersonBranches,
   currentRole,
+  initialMembers,
 }: AppShellProps) {
   const router = useRouter()
   const [activeView, setActiveView] = useState<View>('cosmos')
@@ -44,6 +48,7 @@ export function AppShell({
   const [personModalMode, setPersonModalMode] = useState<PersonModalMode>(null)
   const [toast, setToast] = useState<Toast | null>(null)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [membersModalOpen, setMembersModalOpen] = useState(false)
 
   // Auto-dismiss toast after 4 seconds
   useEffect(() => {
@@ -95,11 +100,15 @@ export function AppShell({
           userEmail={userEmail}
           activeView={activeView}
           onViewChange={setActiveView}
-          onAddPerson={openAddPerson}
+          onAddPerson={currentRole !== 'VIEWER' ? openAddPerson : undefined}
           onSearchOpen={() => setSearchOpen(true)}
         />
         <div className="flex flex-1 overflow-hidden">
-          <Sidebar branches={initialBranches} />
+          <Sidebar
+            branches={initialBranches}
+            currentRole={currentRole}
+            onManageMembers={() => setMembersModalOpen(true)}
+          />
           <main className="flex-1 overflow-hidden relative">
             <ViewRouter activeView={activeView} />
           </main>
@@ -133,6 +142,14 @@ export function AppShell({
         <PersonModal
           mode={personModalMode === 'add' ? 'add' : personModalMode}
           onClose={() => setPersonModalMode(null)}
+        />
+      )}
+
+      {membersModalOpen && (
+        <MembersModal
+          members={initialMembers}
+          currentRole={currentRole}
+          onClose={() => setMembersModalOpen(false)}
         />
       )}
 
