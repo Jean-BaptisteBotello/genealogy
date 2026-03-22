@@ -2,9 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/supabase/server', () => ({ createClient: vi.fn() }))
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
+vi.mock('@/lib/auth/role-guard', () => ({
+  getCurrentRole: vi.fn().mockResolvedValue('ADMIN'),
+}))
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { getCurrentRole } from '@/lib/auth/role-guard'
 
 const mockSingle = vi.fn()
 const mockInsert = vi.fn(() => ({ select: () => ({ single: mockSingle }) }))
@@ -29,6 +33,8 @@ const mockSupabase = { from: mockFrom, auth: { getUser: mockGetUser } }
 beforeEach(() => {
   vi.clearAllMocks()
   vi.mocked(createClient).mockResolvedValue(mockSupabase as any)
+  vi.mocked(getCurrentRole).mockResolvedValue('ADMIN')
+  mockGetUser.mockResolvedValue({ data: { user: { id: 'user-1' } } })
 })
 
 describe('createBranch', () => {
@@ -71,6 +77,18 @@ describe('createBranch', () => {
     const result = await createBranch(form)
     expect(result).toEqual({ error: 'DB error' })
   })
+
+  it('returns error for VIEWER role', async () => {
+    vi.mocked(getCurrentRole).mockResolvedValueOnce('VIEWER')
+
+    const { createBranch } = await import('../branches')
+    const form = new FormData()
+    form.set('nom', 'Test')
+    form.set('couleur', '#ff0000')
+
+    const result = await createBranch(form)
+    expect(result).toEqual({ error: 'Permission refusée.' })
+  })
 })
 
 describe('updateBranch', () => {
@@ -103,6 +121,19 @@ describe('updateBranch', () => {
     const result = await updateBranch(form)
     expect(result).toEqual({ error: 'Not found' })
   })
+
+  it('returns error for VIEWER role', async () => {
+    vi.mocked(getCurrentRole).mockResolvedValueOnce('VIEWER')
+
+    const { updateBranch } = await import('../branches')
+    const form = new FormData()
+    form.set('id', 'branch-1')
+    form.set('nom', 'Test')
+    form.set('couleur', '#000')
+
+    const result = await updateBranch(form)
+    expect(result).toEqual({ error: 'Permission refusée.' })
+  })
 })
 
 describe('deleteBranch', () => {
@@ -123,6 +154,14 @@ describe('deleteBranch', () => {
     const { deleteBranch } = await import('../branches')
     const result = await deleteBranch('branch-1')
     expect(result).toEqual({ error: 'Constraint violation' })
+  })
+
+  it('returns error for EDITOR role', async () => {
+    vi.mocked(getCurrentRole).mockResolvedValueOnce('EDITOR')
+
+    const { deleteBranch } = await import('../branches')
+    const result = await deleteBranch('branch-1')
+    expect(result).toEqual({ error: 'Permission refusée.' })
   })
 })
 
@@ -147,6 +186,14 @@ describe('assignPersonToBranch', () => {
     const result = await assignPersonToBranch('person-1', 'branch-1')
     expect(result).toEqual({ error: 'Already assigned' })
   })
+
+  it('returns error for VIEWER role', async () => {
+    vi.mocked(getCurrentRole).mockResolvedValueOnce('VIEWER')
+
+    const { assignPersonToBranch } = await import('../branches')
+    const result = await assignPersonToBranch('person-1', 'branch-1')
+    expect(result).toEqual({ error: 'Permission refusée.' })
+  })
 })
 
 describe('removePersonFromBranch', () => {
@@ -167,5 +214,13 @@ describe('removePersonFromBranch', () => {
     const { removePersonFromBranch } = await import('../branches')
     const result = await removePersonFromBranch('person-1', 'branch-1')
     expect(result).toEqual({ error: 'Not found' })
+  })
+
+  it('returns error for EDITOR role', async () => {
+    vi.mocked(getCurrentRole).mockResolvedValueOnce('EDITOR')
+
+    const { removePersonFromBranch } = await import('../branches')
+    const result = await removePersonFromBranch('person-1', 'branch-1')
+    expect(result).toEqual({ error: 'Permission refusée.' })
   })
 })

@@ -1,4 +1,5 @@
 // src/lib/supabase/admin.ts
+import 'server-only'
 import { createClient } from '@supabase/supabase-js'
 
 // Server-only — never import this in client components

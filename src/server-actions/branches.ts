@@ -1,6 +1,7 @@
 'use server'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { getCurrentRole } from '@/lib/auth/role-guard'
 
 export async function createBranch(
   formData: FormData
@@ -8,6 +9,9 @@ export async function createBranch(
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non authentifié.' }
+
+  const role = await getCurrentRole(supabase, user.id)
+  if (role === 'VIEWER') return { error: 'Permission refusée.' }
 
   const { data, error } = await supabase
     .from('branch')
@@ -29,6 +33,12 @@ export async function updateBranch(
   formData: FormData
 ): Promise<{ error?: string; id?: string }> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non authentifié.' }
+
+  const role = await getCurrentRole(supabase, user.id)
+  if (role === 'VIEWER') return { error: 'Permission refusée.' }
+
   const id = formData.get('id') as string
 
   const { data, error } = await supabase
@@ -51,6 +61,12 @@ export async function deleteBranch(
   id: string
 ): Promise<{ error?: string }> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non authentifié.' }
+
+  const role = await getCurrentRole(supabase, user.id)
+  if (role !== 'ADMIN') return { error: 'Permission refusée.' }
+
   const { error } = await supabase.from('branch').delete().eq('id', id)
   if (error) return { error: error.message }
   revalidatePath('/tree', 'layout')
@@ -62,6 +78,12 @@ export async function assignPersonToBranch(
   branchId: string
 ): Promise<{ error?: string }> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non authentifié.' }
+
+  const role = await getCurrentRole(supabase, user.id)
+  if (role === 'VIEWER') return { error: 'Permission refusée.' }
+
   const { error } = await supabase
     .from('person_branch')
     .insert({ person_id: personId, branch_id: branchId })
@@ -75,6 +97,12 @@ export async function removePersonFromBranch(
   branchId: string
 ): Promise<{ error?: string }> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non authentifié.' }
+
+  const role = await getCurrentRole(supabase, user.id)
+  if (role !== 'ADMIN') return { error: 'Permission refusée.' }
+
   const { error } = await supabase
     .from('person_branch')
     .delete()

@@ -3,9 +3,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('@/lib/supabase/server', () => ({ createClient: vi.fn() }))
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
+vi.mock('@/lib/auth/role-guard', () => ({
+  getCurrentRole: vi.fn().mockResolvedValue('ADMIN'),
+}))
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { getCurrentRole } from '@/lib/auth/role-guard'
 
 // Storage mock
 const mockStorageUpload = vi.fn()
@@ -34,6 +38,8 @@ const mockSupabase = {
 beforeEach(() => {
   vi.clearAllMocks()
   vi.mocked(createClient).mockResolvedValue(mockSupabase as any)
+  vi.mocked(getCurrentRole).mockResolvedValue('ADMIN')
+  mockGetUser.mockResolvedValue({ data: { user: { id: 'user-1' } } })
 })
 
 describe('uploadDocument', () => {
@@ -144,6 +150,22 @@ describe('uploadDocument', () => {
     expect(result).toEqual({ error: 'DB error' })
     expect(mockStorageRemove).toHaveBeenCalled()
   })
+
+  it('returns error for VIEWER role', async () => {
+    vi.mocked(getCurrentRole).mockResolvedValueOnce('VIEWER')
+
+    const file = makeFile('acte.pdf', 'application/pdf', 1024)
+    const { uploadDocument } = await import('../documents')
+    const form = new FormData()
+    form.set('person_id', 'person-1')
+    form.set('nom', 'Acte')
+    form.set('type', 'ACTE_NAISSANCE')
+    form.set('file', file)
+
+    const result = await uploadDocument(form)
+    expect(result).toEqual({ error: 'Permission refusée.' })
+    expect(mockStorageUpload).not.toHaveBeenCalled()
+  })
 })
 
 describe('deleteDocument', () => {
@@ -172,6 +194,24 @@ describe('deleteDocument', () => {
     const { deleteDocument } = await import('../documents')
     const result = await deleteDocument('doc-1', 'user-1/doc-1.pdf')
     expect(result).toEqual({ error: 'Constraint error' })
+    expect(mockStorageRemove).not.toHaveBeenCalled()
+  })
+
+  it('returns error for EDITOR role', async () => {
+    vi.mocked(getCurrentRole).mockResolvedValueOnce('EDITOR')
+
+    const { deleteDocument } = await import('../documents')
+    const result = await deleteDocument('doc-1', 'user-1/doc-1.pdf')
+    expect(result).toEqual({ error: 'Permission refusée.' })
+    expect(mockStorageRemove).not.toHaveBeenCalled()
+  })
+
+  it('returns error for VIEWER role', async () => {
+    vi.mocked(getCurrentRole).mockResolvedValueOnce('VIEWER')
+
+    const { deleteDocument } = await import('../documents')
+    const result = await deleteDocument('doc-1', 'user-1/doc-1.pdf')
+    expect(result).toEqual({ error: 'Permission refusée.' })
     expect(mockStorageRemove).not.toHaveBeenCalled()
   })
 })
