@@ -1,5 +1,10 @@
 -- supabase/migrations/003_storage_bucket.sql
 
+-- DEPENDS ON: 002_rls_policies.sql must be applied first (uses current_user_role() function)
+-- NOTE: PDF MIME type validation (PDF only) must be enforced in application code.
+-- DB constraint on document.taille_bytes enforces max 20 Mo.
+-- Signed URL expiry (7 days) is configured in application code, not at DB layer.
+
 -- Create the documents storage bucket
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('documents', 'documents', false);
