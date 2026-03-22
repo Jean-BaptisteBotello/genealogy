@@ -63,18 +63,18 @@ export async function deleteDocument(
 ): Promise<{ error?: string }> {
   const supabase = await createClient()
 
-  const { error: storageError } = await supabase.storage
-    .from(BUCKET)
-    .remove([storagePath])
-
-  if (storageError) return { error: storageError.message }
-
   const { error: dbError } = await supabase
     .from('document')
     .delete()
     .eq('id', documentId)
 
   if (dbError) return { error: dbError.message }
+
+  const { error: storageError } = await supabase.storage
+    .from(BUCKET)
+    .remove([storagePath])
+
+  if (storageError) return { error: storageError.message }
 
   revalidatePath('/tree', 'layout')
   return {}
