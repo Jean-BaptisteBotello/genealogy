@@ -28,8 +28,8 @@ describe('PersonModal', () => {
 
   it('renders the add form with prenom and nom fields', async () => {
     await renderModal()
-    expect(screen.getByLabelText(/prénom/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/nom/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/^prénom$/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/^nom$/i)).toBeInTheDocument()
   })
 
   it('shows "Ajouter une personne" title in add mode', async () => {
@@ -70,8 +70,8 @@ describe('PersonModal', () => {
     const user = userEvent.setup()
     await renderModal()
 
-    await user.type(screen.getByLabelText(/prénom/i), 'Jean')
-    await user.type(screen.getByLabelText(/nom/i), 'Dupont')
+    await user.type(screen.getByLabelText(/^prénom$/i), 'Jean')
+    await user.type(screen.getByLabelText(/^nom$/i), 'Dupont')
     await user.click(screen.getByRole('button', { name: /ajouter/i }))
 
     await waitFor(() => {
@@ -84,8 +84,8 @@ describe('PersonModal', () => {
     const user = userEvent.setup()
     await renderModal()
 
-    await user.type(screen.getByLabelText(/prénom/i), 'Jean')
-    await user.type(screen.getByLabelText(/nom/i), 'Dupont')
+    await user.type(screen.getByLabelText(/^prénom$/i), 'Jean')
+    await user.type(screen.getByLabelText(/^nom$/i), 'Dupont')
     await user.click(screen.getByRole('button', { name: /ajouter/i }))
 
     await waitFor(() => {
