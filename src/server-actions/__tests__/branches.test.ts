@@ -85,6 +85,9 @@ describe('updateBranch', () => {
 
     const result = await updateBranch(form)
     expect(result).toEqual({ id: 'branch-1' })
+    expect(mockUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ nom: 'Nouveau Nom', couleur: '#ef4444' })
+    )
     expect(revalidatePath).toHaveBeenCalledWith('/tree', 'layout')
   })
 
@@ -109,6 +112,8 @@ describe('deleteBranch', () => {
     const { deleteBranch } = await import('../branches')
     const result = await deleteBranch('branch-1')
     expect(result).toEqual({})
+    expect(mockDelete).toHaveBeenCalled()
+    expect(mockDeleteEq).toHaveBeenCalledWith('id', 'branch-1')
     expect(revalidatePath).toHaveBeenCalledWith('/tree', 'layout')
   })
 
@@ -153,5 +158,14 @@ describe('removePersonFromBranch', () => {
     const result = await removePersonFromBranch('person-1', 'branch-1')
     expect(result).toEqual({})
     expect(revalidatePath).toHaveBeenCalledWith('/tree', 'layout')
+  })
+
+  it('returns error when delete fails', async () => {
+    const mockSecondEq = vi.fn(() => ({ error: { message: 'Not found' } }))
+    mockDeleteJunctionEq.mockReturnValue({ eq: mockSecondEq })
+
+    const { removePersonFromBranch } = await import('../branches')
+    const result = await removePersonFromBranch('person-1', 'branch-1')
+    expect(result).toEqual({ error: 'Not found' })
   })
 })
