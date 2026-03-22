@@ -49,6 +49,11 @@ export function AppShell({
   const [toast, setToast] = useState<Toast | null>(null)
   const [searchOpen, setSearchOpen] = useState(false)
   const [membersModalOpen, setMembersModalOpen] = useState(false)
+  const [members, setMembers] = useState<MemberWithUser[]>(initialMembers)
+
+  useEffect(() => {
+    setMembers(initialMembers)
+  }, [initialMembers])
 
   // Auto-dismiss toast after 4 seconds
   useEffect(() => {
@@ -147,7 +152,7 @@ export function AppShell({
 
       {membersModalOpen && (
         <MembersModal
-          members={initialMembers}
+          members={members}
           currentRole={currentRole}
           onClose={() => setMembersModalOpen(false)}
         />
