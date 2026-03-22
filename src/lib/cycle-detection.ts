@@ -18,14 +18,16 @@ export function hasAncestorCycle(
   }
 
   const visited = new Set<string>()
+  visited.add(proposedParentId)
   const queue = [proposedParentId]
   while (queue.length > 0) {
     const current = queue.shift()!
     if (current === personId) return true
-    if (visited.has(current)) continue
-    visited.add(current)
     for (const parent of parentOf[current] ?? []) {
-      queue.push(parent)
+      if (!visited.has(parent)) {
+        visited.add(parent)
+        queue.push(parent)
+      }
     }
   }
   return false
