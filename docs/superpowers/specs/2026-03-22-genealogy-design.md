@@ -199,7 +199,7 @@ Les lieux de naissance et de décès géolocalisés sur Leaflet + OpenStreetMap.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ Topbar: Logo · 🌌 Cosmos ⧖ Sablier 📅 Timeline 🗺 Carte 🌀 Fan │
+│ Topbar: Logo · 🌌 Cosmos ⧖ Sablier 📅 Timeline 🗺 Carte 🌀 Éventail │
 │          · + Ajouter · 🔍 Recherche · Avatar/Profil             │
 ├──────────────┬──────────────────────────────┬───────────────────┤
 │  Sidebar     │                              │  Panneau détail   │
