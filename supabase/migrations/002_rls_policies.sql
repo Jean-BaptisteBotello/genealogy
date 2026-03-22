@@ -7,6 +7,7 @@ ALTER TABLE branch ENABLE ROW LEVEL SECURITY;
 ALTER TABLE person_branch ENABLE ROW LEVEL SECURITY;
 ALTER TABLE document ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tree_member ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_profile ENABLE ROW LEVEL SECURITY;
 
 -- Helper function: get current user's role
 CREATE OR REPLACE FUNCTION current_user_role()
@@ -66,6 +67,9 @@ CREATE POLICY person_branch_insert ON person_branch FOR INSERT
 CREATE POLICY person_branch_delete ON person_branch FOR DELETE
   USING (current_user_role() = 'ADMIN');
 
+-- person_branch has no UPDATE (insert/delete pattern for assignments)
+-- Reassigning a person to different branches = delete old + insert new
+
 -- DOCUMENT policies
 CREATE POLICY document_select ON document FOR SELECT
   USING (EXISTS (SELECT 1 FROM tree_member WHERE user_id = auth.uid()));
@@ -75,6 +79,9 @@ CREATE POLICY document_insert ON document FOR INSERT
 
 CREATE POLICY document_delete ON document FOR DELETE
   USING (current_user_role() = 'ADMIN');
+
+-- Documents are immutable after creation (no UPDATE policy by design)
+-- To replace a document: delete + re-upload
 
 -- TREE_MEMBER policies
 CREATE POLICY tree_member_select ON tree_member FOR SELECT
@@ -89,3 +96,16 @@ CREATE POLICY tree_member_update ON tree_member FOR UPDATE
 
 CREATE POLICY tree_member_delete ON tree_member FOR DELETE
   USING (current_user_role() = 'ADMIN');
+
+-- USER_PROFILE policies
+-- SELECT: any tree member can see profiles
+CREATE POLICY user_profile_select ON user_profile FOR SELECT
+  USING (EXISTS (SELECT 1 FROM tree_member WHERE user_id = auth.uid()));
+
+-- INSERT/UPDATE: user can only manage their own profile
+CREATE POLICY user_profile_insert ON user_profile FOR INSERT
+  WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY user_profile_update ON user_profile FOR UPDATE
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());

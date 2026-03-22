@@ -73,6 +73,17 @@ CREATE TABLE document (
 
 CREATE INDEX idx_document_person ON document(person_id);
 
+-- Index for Timeline view (persons with known birth date)
+CREATE INDEX idx_person_date_naissance ON person(date_naissance) WHERE date_naissance IS NOT NULL;
+
+-- Index for Map view (persons with known coordinates)
+CREATE INDEX idx_person_coordinates ON person(lat_naissance, lon_naissance)
+  WHERE lat_naissance IS NOT NULL AND lon_naissance IS NOT NULL;
+
+-- Index for search (ilike on name fields)
+CREATE INDEX idx_person_nom ON person(nom);
+CREATE INDEX idx_person_prenom ON person(prenom);
+
 -- Tree members (permissions)
 CREATE TABLE tree_member (
   user_id     UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -92,4 +103,17 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER person_updated_at
   BEFORE UPDATE ON person
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- User profile (extends auth.users with app-specific fields)
+CREATE TABLE user_profile (
+  user_id      UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  display_name TEXT,
+  avatar_url   TEXT,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TRIGGER user_profile_updated_at
+  BEFORE UPDATE ON user_profile
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
