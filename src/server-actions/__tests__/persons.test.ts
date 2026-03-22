@@ -117,6 +117,39 @@ describe('updatePerson', () => {
     expect(result).toEqual({ id: 'uuid-123' })
     expect(revalidatePath).toHaveBeenCalledWith('/tree', 'layout')
   })
+
+  it('geocodes lieu_naissance and stores lat/lon on update', async () => {
+    vi.mocked(geocodeLieu).mockResolvedValueOnce({ lat: 48.86, lon: 2.35 })
+    mockSingle.mockResolvedValue({ data: { id: 'uuid-123' }, error: null })
+
+    const { updatePerson } = await import('../persons')
+    const form = new FormData()
+    form.set('id', 'uuid-123')
+    form.set('prenom', 'Marie')
+    form.set('nom', 'Curie')
+    form.set('lieu_naissance', 'Paris')
+
+    await updatePerson(form)
+    expect(geocodeLieu).toHaveBeenCalledWith('Paris')
+    expect(mockUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ lat_naissance: 48.86, lon_naissance: 2.35 })
+    )
+  })
+
+  it('includes updated_at in the update payload', async () => {
+    mockSingle.mockResolvedValue({ data: { id: 'uuid-123' }, error: null })
+
+    const { updatePerson } = await import('../persons')
+    const form = new FormData()
+    form.set('id', 'uuid-123')
+    form.set('prenom', 'Marie')
+    form.set('nom', 'Curie')
+
+    await updatePerson(form)
+    expect(mockUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ updated_at: expect.any(String) })
+    )
+  })
 })
 
 describe('deletePerson', () => {
