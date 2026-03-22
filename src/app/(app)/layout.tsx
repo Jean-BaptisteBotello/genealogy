@@ -6,7 +6,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import type { Person, Branch, Relationship, PersonBranch } from '@/lib/types/database'
 
 export default async function AppLayout({
-  children,
+  children: _children,
 }: {
   children: React.ReactNode
 }) {
@@ -33,8 +33,6 @@ export default async function AppLayout({
       initialBranches={(branches ?? []) as Branch[]}
       initialRelationships={(relationships ?? []) as Relationship[]}
       initialPersonBranches={(personBranches ?? []) as PersonBranch[]}
-    >
-      {children}
-    </AppShell>
+    />
   )
 }

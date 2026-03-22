@@ -8,7 +8,10 @@ import { DetailPanel } from '@/components/layout/DetailPanel'
 import { PersonModal } from '@/components/person/PersonModal'
 import { SearchOverlay } from '@/components/search/SearchOverlay'
 import { TreeContext } from '@/lib/context/tree-context'
+import { ViewRouter } from '@/components/views/ViewRouter'
 import type { Person, Branch, Relationship, PersonBranch } from '@/lib/types/database'
+
+type View = 'cosmos' | 'sablier' | 'timeline' | 'carte' | 'eventail'
 
 interface AppShellProps {
   userEmail: string
@@ -16,7 +19,6 @@ interface AppShellProps {
   initialBranches: Branch[]
   initialRelationships: Relationship[]
   initialPersonBranches: PersonBranch[]
-  children: React.ReactNode
 }
 
 type PersonModalMode = 'add' | { type: 'edit'; person: Person } | null
@@ -32,9 +34,9 @@ export function AppShell({
   initialBranches,
   initialRelationships,
   initialPersonBranches,
-  children,
 }: AppShellProps) {
   const router = useRouter()
+  const [activeView, setActiveView] = useState<View>('cosmos')
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
   const [personModalMode, setPersonModalMode] = useState<PersonModalMode>(null)
@@ -88,12 +90,16 @@ export function AppShell({
       <div className="flex flex-col h-screen overflow-hidden">
         <Topbar
           userEmail={userEmail}
+          activeView={activeView}
+          onViewChange={setActiveView}
           onAddPerson={openAddPerson}
           onSearchOpen={() => setSearchOpen(true)}
         />
         <div className="flex flex-1 overflow-hidden">
           <Sidebar branches={initialBranches} />
-          <main className="flex-1 overflow-hidden relative">{children}</main>
+          <main className="flex-1 overflow-hidden relative">
+            <ViewRouter activeView={activeView} />
+          </main>
           <DetailPanel
             isOpen={detailOpen}
             onClose={() => { setDetailOpen(false); setSelectedPersonId(null) }}
