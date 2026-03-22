@@ -6,6 +6,7 @@ import { Topbar } from '@/components/layout/Topbar'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { DetailPanel } from '@/components/layout/DetailPanel'
 import { PersonModal } from '@/components/person/PersonModal'
+import { SearchOverlay } from '@/components/search/SearchOverlay'
 import { TreeContext } from '@/lib/context/tree-context'
 import type { Person, Branch, Relationship, PersonBranch } from '@/lib/types/database'
 
@@ -114,6 +115,7 @@ export function AppShell({
                 router.refresh()
               }
             }}
+            onShowToast={showToast}
           />
         </div>
       </div>
@@ -140,10 +142,12 @@ export function AppShell({
       )}
 
       {searchOpen && (
-        // SearchOverlay wired in Chunk 2 Task 8
-        <div
-          className="fixed inset-0 z-40 bg-black/40"
-          onClick={() => setSearchOpen(false)}
+        <SearchOverlay
+          onClose={() => setSearchOpen(false)}
+          onSelectPerson={(id) => {
+            selectPerson(id)
+            setSearchOpen(false)
+          }}
         />
       )}
     </TreeContext.Provider>
