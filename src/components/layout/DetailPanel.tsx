@@ -1,9 +1,10 @@
 'use client'
+import type { ReactNode } from 'react'
 
 interface DetailPanelProps {
   isOpen: boolean
   onClose: () => void
-  children?: React.ReactNode
+  children?: ReactNode
 }
 
 export function DetailPanel({ isOpen, onClose, children }: DetailPanelProps) {
