@@ -127,6 +127,23 @@ describe('uploadDocument', () => {
     const result = await uploadDocument(form)
     expect(result).toEqual({ error: 'Storage full' })
   })
+
+  it('cleans up storage when DB insert fails', async () => {
+    const file = makeFile('acte.pdf', 'application/pdf', 1024)
+    mockStorageUpload.mockResolvedValue({ data: { path: 'user-1/doc-id.pdf' }, error: null })
+    mockSingle.mockResolvedValue({ data: null, error: { message: 'DB error' } })
+
+    const { uploadDocument } = await import('../documents')
+    const form = new FormData()
+    form.set('person_id', 'person-1')
+    form.set('nom', 'Acte')
+    form.set('type', 'ACTE_NAISSANCE')
+    form.set('file', file)
+
+    const result = await uploadDocument(form)
+    expect(result).toEqual({ error: 'DB error' })
+    expect(mockStorageRemove).toHaveBeenCalled()
+  })
 })
 
 describe('deleteDocument', () => {
@@ -147,6 +164,15 @@ describe('deleteDocument', () => {
     const { deleteDocument } = await import('../documents')
     const result = await deleteDocument('doc-1', 'user-1/doc-1.pdf')
     expect(result).toEqual({ error: 'Not found' })
+  })
+
+  it('returns error when DB delete fails', async () => {
+    mockDeleteEq.mockReturnValueOnce({ error: { message: 'Constraint error' } } as any)
+
+    const { deleteDocument } = await import('../documents')
+    const result = await deleteDocument('doc-1', 'user-1/doc-1.pdf')
+    expect(result).toEqual({ error: 'Constraint error' })
+    expect(mockStorageRemove).not.toHaveBeenCalled()
   })
 })
 
