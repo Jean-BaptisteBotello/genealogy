@@ -71,6 +71,13 @@ export interface TreeMember {
   invited_by: string
 }
 
+export interface User {
+  id: string
+  email: string
+  display_name: string
+  avatar_url: string | null
+}
+
 // Graph representation for views
 export interface GraphNode {
   id: string
