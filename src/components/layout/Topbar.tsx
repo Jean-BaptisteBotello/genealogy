@@ -29,6 +29,7 @@ export function Topbar({ userEmail, activeView = 'cosmos', onViewChange }: Topba
         {VIEWS.map(view => (
           <button
             key={view.id}
+            type="button"
             onClick={() => onViewChange?.(view.id)}
             aria-pressed={activeView === view.id}
             className={[
@@ -43,10 +44,10 @@ export function Topbar({ userEmail, activeView = 'cosmos', onViewChange }: Topba
         ))}
       </nav>
       <div className="flex-1" />
-      <button className="px-3 py-1.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded text-xs hover:bg-red-500/30 transition-colors">
+      <button type="button" className="px-3 py-1.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded text-xs hover:bg-red-500/30 transition-colors">
         + Ajouter
       </button>
-      <button className="text-gray-500 hover:text-gray-300 text-sm">🔍</button>
+      <button type="button" className="text-gray-500 hover:text-gray-300 text-sm">🔍</button>
       <form action={signout}>
         <button
           type="submit"
