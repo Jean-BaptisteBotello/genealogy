@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import type { Role } from '@/lib/types/database'
+import { getCurrentRole } from '@/lib/auth/role-guard'
 
 export interface MemberWithUser {
   user_id: string
@@ -30,29 +31,15 @@ export async function inviteMember(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Non authentifié.' }
 
+  const role_check = await getCurrentRole(supabase, user.id)
+  if (role_check !== 'ADMIN') return { error: 'Permission refusée.' }
+
   const admin = createAdminClient()
-  const { data: inviteData, error: inviteError } = await admin.auth.admin.inviteUserByEmail(
+  const { error: inviteError } = await admin.auth.admin.inviteUserByEmail(
     email,
     { data: { role } }
   )
-  if (inviteError || !inviteData.user) return { error: inviteError?.message ?? 'Erreur invitation.' }
-
-  const newUserId = inviteData.user.id
-
-  // Upsert the user in the public users table
-  await supabase.from('users').upsert({
-    id: newUserId,
-    email,
-    display_name: email.split('@')[0],
-  })
-
-  // Create tree_member
-  const { error: memberError } = await supabase.from('tree_member').insert({
-    user_id: newUserId,
-    role,
-    invited_by: user.id,
-  })
-  if (memberError) return { error: memberError.message }
+  if (inviteError) return { error: inviteError.message }
 
   revalidatePath('/tree', 'layout')
   return {}
@@ -63,6 +50,12 @@ export async function updateMemberRole(
   role: Role
 ): Promise<{ error?: string }> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non authentifié.' }
+
+  const role_check = await getCurrentRole(supabase, user.id)
+  if (role_check !== 'ADMIN') return { error: 'Permission refusée.' }
+
   const { error } = await supabase
     .from('tree_member')
     .update({ role })
@@ -76,6 +69,12 @@ export async function removeMember(
   userId: string
 ): Promise<{ error?: string }> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Non authentifié.' }
+
+  const role_check = await getCurrentRole(supabase, user.id)
+  if (role_check !== 'ADMIN') return { error: 'Permission refusée.' }
+
   const { error } = await supabase
     .from('tree_member')
     .delete()
