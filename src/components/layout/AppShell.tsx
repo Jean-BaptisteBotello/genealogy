@@ -9,7 +9,7 @@ import { PersonModal } from '@/components/person/PersonModal'
 import { SearchOverlay } from '@/components/search/SearchOverlay'
 import { TreeContext } from '@/lib/context/tree-context'
 import { ViewRouter } from '@/components/views/ViewRouter'
-import type { Person, Branch, Relationship, PersonBranch } from '@/lib/types/database'
+import type { Person, Branch, Relationship, PersonBranch, Role } from '@/lib/types/database'
 
 type View = 'cosmos' | 'sablier' | 'timeline' | 'carte' | 'eventail'
 
@@ -19,6 +19,7 @@ interface AppShellProps {
   initialBranches: Branch[]
   initialRelationships: Relationship[]
   initialPersonBranches: PersonBranch[]
+  currentRole: Role
 }
 
 type PersonModalMode = 'add' | { type: 'edit'; person: Person } | null
@@ -34,6 +35,7 @@ export function AppShell({
   initialBranches,
   initialRelationships,
   initialPersonBranches,
+  currentRole,
 }: AppShellProps) {
   const router = useRouter()
   const [activeView, setActiveView] = useState<View>('cosmos')
@@ -80,6 +82,7 @@ export function AppShell({
         branches: initialBranches,
         relationships: initialRelationships,
         personBranches: initialPersonBranches,
+        currentRole,
         selectedPersonId,
         selectPerson,
         openAddPerson,

@@ -43,6 +43,7 @@ describe('CarteView', () => {
   it('shows empty state when no persons', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [], relationships: [], branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -54,6 +55,7 @@ describe('CarteView', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [mkPerson('p1', null, null)],
       relationships: [], branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -65,6 +67,7 @@ describe('CarteView', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [mkPerson('p1', null, null), mkPerson('p2', null, null)],
       relationships: [], branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -76,6 +79,7 @@ describe('CarteView', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [mkPerson('p1', 48.8566, 2.3522)],
       relationships: [], branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
