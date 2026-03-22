@@ -22,6 +22,7 @@ describe('TimelineView', () => {
   it('shows empty state when no persons', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [], relationships: [], branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -33,6 +34,7 @@ describe('TimelineView', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [mkPerson('p1', 'Jean', 'Dupont', '1920-01-01')],
       relationships: [], branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -44,6 +46,7 @@ describe('TimelineView', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [mkPerson('p1', 'Jean', 'Dupont', '1920-01-01')],
       relationships: [], branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -58,6 +61,7 @@ describe('TimelineView', () => {
         mkPerson('p2', 'Marie', 'Martin', null),
       ],
       relationships: [], branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -72,6 +76,7 @@ describe('TimelineView', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [mkPerson('p1', 'Jean', 'Dupont', '1920-01-01')],
       relationships: [], branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson,
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })

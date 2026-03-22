@@ -26,6 +26,7 @@ describe('CosmosView', () => {
   it('shows empty state when no persons', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [], relationships: [], branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -36,6 +37,7 @@ describe('CosmosView', () => {
   it('shows add-person button when no persons', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [], relationships: [], branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -47,6 +49,7 @@ describe('CosmosView', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [mockPerson('p1', 'Jean', 'Dupont')],
       relationships: [], branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -61,6 +64,7 @@ describe('CosmosView', () => {
       persons: [p1, p2],
       relationships: [mockRel('p1', 'p2')],
       branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -77,6 +81,7 @@ describe('CosmosView', () => {
       persons: [p1, p2],
       relationships: [mockRel('p1', 'p2')],
       branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson,
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -92,6 +97,7 @@ describe('CosmosView', () => {
       persons: [p1],
       relationships: [],
       branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson,
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -106,6 +112,7 @@ describe('CosmosView', () => {
       persons: [p1, p2],
       relationships: [mockRel('p1', 'p2')],
       branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -120,6 +127,7 @@ describe('CosmosView', () => {
       persons: [p1, p2],
       relationships: [],
       branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -134,6 +142,7 @@ describe('CosmosView', () => {
       relationships: [],
       branches: [{ id: 'b1', nom: 'A', couleur: '#ff0000', description: null, created_by: 'u1', created_at: '2024-01-01' }],
       personBranches: [{ person_id: 'p1', branch_id: 'b1' }],
+      currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })

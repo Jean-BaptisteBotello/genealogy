@@ -37,6 +37,7 @@ describe('SablierView', () => {
   it('shows empty state when no persons', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [], relationships: [], branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -49,6 +50,7 @@ describe('SablierView', () => {
       persons: [mkPerson('p1')],
       relationships: [],
       branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -61,6 +63,7 @@ describe('SablierView', () => {
       persons: [mkPerson('p1'), mkPerson('p2')],
       relationships: [mkRel('p1', 'p2')],
       branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -74,6 +77,7 @@ describe('SablierView', () => {
       persons: [mkPerson('p1'), mkPerson('p2'), mkPerson('p3')],
       relationships: [mkRel('p1', 'p2')],
       branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -87,6 +91,7 @@ describe('SablierView', () => {
       persons: [mkPerson('p1')],
       relationships: [],
       branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson,
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })

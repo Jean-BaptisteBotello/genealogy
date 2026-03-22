@@ -1,6 +1,6 @@
 'use client'
 import { createContext, useContext } from 'react'
-import type { Person, Branch, Relationship, PersonBranch } from '@/lib/types/database'
+import type { Person, Branch, Relationship, PersonBranch, Role } from '@/lib/types/database'
 
 export interface TreeContextValue {
   // Data (fed from Server Component via AppShell props)
@@ -8,6 +8,8 @@ export interface TreeContextValue {
   branches: Branch[]
   relationships: Relationship[]
   personBranches: PersonBranch[]
+  // Role
+  currentRole: Role
   // Selection
   selectedPersonId: string | null
   selectPerson: (id: string | null) => void

@@ -29,6 +29,7 @@ describe('EventailView', () => {
   it('shows empty state when no persons', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [], relationships: [], branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -41,6 +42,7 @@ describe('EventailView', () => {
       persons: [mkPerson('p1', 'Jean', 'Dupont')],
       relationships: [],
       branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -53,6 +55,7 @@ describe('EventailView', () => {
       persons: [mkPerson('p1', 'Jean', 'Dupont')],
       relationships: [],
       branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -67,6 +70,7 @@ describe('EventailView', () => {
       persons: [p1, p2],
       relationships: [mkRel('p2', 'p1')], // p2 is parent of p1
       branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -81,6 +85,7 @@ describe('EventailView', () => {
       persons: [mkPerson('p1', 'Jean', 'Dupont')],
       relationships: [],
       branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson,
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
@@ -96,6 +101,7 @@ describe('EventailView', () => {
       persons: [p1, p2],
       relationships: [mkRel('p2', 'p1')], // p2 is parent of p1
       branches: [], personBranches: [],
+      currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson,
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
     })
