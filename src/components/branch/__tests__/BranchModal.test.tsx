@@ -55,6 +55,24 @@ describe('BranchModal', () => {
     })
   })
 
+  it('calls updateBranch on submit in edit mode', async () => {
+    vi.mocked(updateBranch).mockResolvedValue({ id: 'b1' })
+    const user = userEvent.setup()
+    const branch = {
+      id: 'b1', nom: 'Côté Paternel', couleur: '#3b82f6',
+      description: '', created_by: 'u1', created_at: '',
+    }
+    const { BranchModal } = await import('../BranchModal')
+    render(<BranchModal mode={{ type: 'edit', branch }} onClose={vi.fn()} />)
+
+    await user.click(screen.getByRole('button', { name: /enregistrer/i }))
+
+    await waitFor(() => {
+      expect(updateBranch).toHaveBeenCalled()
+      expect(createBranch).not.toHaveBeenCalled()
+    })
+  })
+
   it('displays error when server action returns error', async () => {
     vi.mocked(createBranch).mockResolvedValue({ error: 'Nom requis' })
     const user = userEvent.setup()
