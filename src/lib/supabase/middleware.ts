@@ -26,7 +26,10 @@ export async function updateSession(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   const publicPaths = ['/login', '/signup', '/auth/callback', '/accept-invite']
-  const isPublicPath = publicPaths.some(p => request.nextUrl.pathname.startsWith(p))
+  const isPublicPath = publicPaths.some(p =>
+    request.nextUrl.pathname === p ||
+    request.nextUrl.pathname.startsWith(p + '/')
+  )
 
   if (!user && !isPublicPath) {
     const url = request.nextUrl.clone()
