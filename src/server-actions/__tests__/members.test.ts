@@ -3,10 +3,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 vi.mock('@/lib/supabase/server', () => ({ createClient: vi.fn() }))
 vi.mock('@/lib/supabase/admin', () => ({ createAdminClient: vi.fn() }))
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
+vi.mock('@/lib/auth/role-guard', () => ({ getCurrentRole: vi.fn() }))
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { getCurrentRole } from '@/lib/auth/role-guard'
 
 // ── Supabase regular client mocks ──────────────────────────────────────
 const mockMembersSingle = vi.fn()
@@ -50,6 +52,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   vi.mocked(createClient).mockResolvedValue(mockSupabase as any)
   vi.mocked(createAdminClient).mockReturnValue(mockAdminClient as any)
+  vi.mocked(getCurrentRole).mockResolvedValue('ADMIN')
 })
 
 describe('getMembers', () => {
@@ -76,7 +79,7 @@ describe('getMembers', () => {
 })
 
 describe('inviteMember', () => {
-  it('invites user and creates tree_member row', async () => {
+  it('invites user and sends invite email', async () => {
     mockInvite.mockResolvedValue({
       data: { user: { id: 'new-user-1' } },
       error: null,
@@ -86,9 +89,7 @@ describe('inviteMember', () => {
     const result = await inviteMember('alice@example.com', 'EDITOR')
     expect(result).toEqual({})
     expect(mockInvite).toHaveBeenCalledWith('alice@example.com', expect.objectContaining({ data: { role: 'EDITOR' } }))
-    expect(mockInsertMember).toHaveBeenCalledWith(
-      expect.objectContaining({ user_id: 'new-user-1', role: 'EDITOR', invited_by: 'admin-1' })
-    )
+    // No longer inserts tree_member here — that's done in auth/callback
     expect(revalidatePath).toHaveBeenCalledWith('/tree', 'layout')
   })
 
@@ -105,6 +106,14 @@ describe('inviteMember', () => {
     const { inviteMember } = await import('../members')
     const result = await inviteMember('existing@example.com', 'EDITOR')
     expect(result).toEqual({ error: 'Email already registered' })
+  })
+
+  it('returns error when non-ADMIN calls inviteMember', async () => {
+    vi.mocked(getCurrentRole).mockResolvedValueOnce('EDITOR')
+    const { inviteMember } = await import('../members')
+    const result = await inviteMember('alice@example.com', 'EDITOR')
+    expect(result).toEqual({ error: 'Permission refusée.' })
+    expect(mockInvite).not.toHaveBeenCalled()
   })
 })
 
@@ -124,6 +133,13 @@ describe('updateMemberRole', () => {
     const result = await updateMemberRole('u999', 'VIEWER')
     expect(result).toEqual({ error: 'Not found' })
   })
+
+  it('returns error when non-ADMIN calls updateMemberRole', async () => {
+    vi.mocked(getCurrentRole).mockResolvedValueOnce('EDITOR')
+    const { updateMemberRole } = await import('../members')
+    const result = await updateMemberRole('u1', 'VIEWER')
+    expect(result).toEqual({ error: 'Permission refusée.' })
+  })
 })
 
 describe('removeMember', () => {
@@ -141,5 +157,12 @@ describe('removeMember', () => {
     const { removeMember } = await import('../members')
     const result = await removeMember('u1')
     expect(result).toEqual({ error: 'Constraint violation' })
+  })
+
+  it('returns error when non-ADMIN calls removeMember', async () => {
+    vi.mocked(getCurrentRole).mockResolvedValueOnce('EDITOR')
+    const { removeMember } = await import('../members')
+    const result = await removeMember('u1')
+    expect(result).toEqual({ error: 'Permission refusée.' })
   })
 })
