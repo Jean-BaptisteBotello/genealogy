@@ -91,3 +91,29 @@ export interface GraphEdge {
   type: RelationshipType
   metadata: Record<string, unknown>
 }
+
+export type SuggestionType =
+  | 'EDIT_PERSON'
+  | 'ADD_PERSON'
+  | 'DELETE_PERSON'
+  | 'ADD_RELATIONSHIP'
+  | 'DELETE_RELATIONSHIP'
+
+export type SuggestionStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+
+export interface Suggestion {
+  id: string
+  type: SuggestionType
+  target_id: string | null
+  payload: Record<string, unknown>
+  status: SuggestionStatus
+  suggested_by: string
+  reviewed_by: string | null
+  rejection_reason: string | null
+  created_at: string
+  reviewed_at: string | null
+}
+
+export interface SuggestionWithProposer extends Suggestion {
+  users: { email: string; display_name: string } | null
+}
