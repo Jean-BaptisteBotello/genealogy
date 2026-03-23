@@ -31,7 +31,7 @@ CREATE UNIQUE INDEX suggestion_no_duplicate_pending
 ALTER TABLE suggestion ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "suggestion_insert" ON suggestion
-  FOR INSERT WITH CHECK (auth.uid() = suggested_by);
+  FOR INSERT WITH CHECK (auth.uid() = suggested_by AND current_user_role() = 'VIEWER');
 
 CREATE POLICY "suggestion_select_own" ON suggestion
   FOR SELECT USING (auth.uid() = suggested_by);
@@ -40,7 +40,8 @@ CREATE POLICY "suggestion_select_reviewers" ON suggestion
   FOR SELECT USING (current_user_role() IN ('ADMIN', 'EDITOR'));
 
 CREATE POLICY "suggestion_update_reviewers" ON suggestion
-  FOR UPDATE USING (current_user_role() IN ('ADMIN', 'EDITOR'));
+  FOR UPDATE USING (current_user_role() IN ('ADMIN', 'EDITOR'))
+  WITH CHECK (current_user_role() IN ('ADMIN', 'EDITOR'));
 
 CREATE POLICY "suggestion_delete_own_pending" ON suggestion
   FOR DELETE USING (
