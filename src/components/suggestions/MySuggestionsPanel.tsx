@@ -33,18 +33,28 @@ export function MySuggestionsPanel({ onClose }: MySuggestionsPanelProps) {
   const router = useRouter()
   const [suggestions, setSuggestions] = useState<SuggestionWithProposer[]>([])
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
-    getMySuggestions().then(data => {
-      setSuggestions(data)
-      setLoading(false)
-    })
+    getMySuggestions()
+      .then(data => {
+        setSuggestions(data)
+        setLoading(false)
+      })
+      .catch(() => {
+        setFetchError('Impossible de charger vos propositions.')
+        setLoading(false)
+      })
   }, [])
 
   function handleCancel(id: string) {
     startTransition(async () => {
-      await cancelSuggestion(id)
+      const result = await cancelSuggestion(id)
+      if (result.error) {
+        setFetchError(result.error)
+        return
+      }
       setSuggestions(prev => prev.filter(s => s.id !== id))
       router.refresh()
     })
@@ -60,6 +70,7 @@ export function MySuggestionsPanel({ onClose }: MySuggestionsPanelProps) {
 
         <div className="flex-1 overflow-y-auto space-y-2">
           {loading && <p className="text-xs text-gray-600 italic">Chargement…</p>}
+          {fetchError && <p className="text-xs text-red-400 italic">{fetchError}</p>}
           {!loading && suggestions.length === 0 && (
             <p className="text-xs text-gray-600 italic">Aucune proposition pour l'instant.</p>
           )}
