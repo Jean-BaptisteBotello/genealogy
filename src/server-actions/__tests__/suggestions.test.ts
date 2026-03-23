@@ -180,8 +180,8 @@ describe('rejectSuggestion', () => {
       })
     )
     // reviewed_at should be a recent ISO string
-    const updateCall = mockSuggestionUpdate.mock.calls[0][0]
-    expect(typeof updateCall.reviewed_at).toBe('string')
+    const updateCall = (mockSuggestionUpdate.mock.calls as any[][])[0]?.[0]
+    expect(typeof updateCall?.reviewed_at).toBe('string')
     expect(revalidatePath).toHaveBeenCalledWith('/tree', 'layout')
   })
 
