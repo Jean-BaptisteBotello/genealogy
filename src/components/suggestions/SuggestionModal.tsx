@@ -88,6 +88,10 @@ export function SuggestionModal({ mode, onClose }: SuggestionModalProps) {
 
   function handleAddRelationship() {
     setError(null)
+    if (relPersonAId === relPersonBId) {
+      setError('Les deux personnes doivent être différentes.')
+      return
+    }
     startTransition(async () => {
       const result = await createSuggestion('ADD_RELATIONSHIP', {
         person_a_id: relPersonAId,
@@ -206,7 +210,7 @@ export function SuggestionModal({ mode, onClose }: SuggestionModalProps) {
             </select>
             <div className="flex gap-2 justify-end pt-2">
               <button type="button" onClick={onClose} className="px-3 py-1.5 text-xs text-gray-500 hover:text-gray-300">Annuler</button>
-              <button type="button" disabled={isPending} onClick={handleAddRelationship}
+              <button type="button" disabled={isPending || !relPersonAId || !relPersonBId} onClick={handleAddRelationship}
                 className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 disabled:opacity-50">
                 Proposer
               </button>
