@@ -26,12 +26,12 @@ function SuggestionDiff({ suggestion }: { suggestion: SuggestionWithProposer }) 
     return <div className="flex flex-wrap gap-1 mt-1">{fields}</div>
   }
   if (suggestion.type === 'ADD_PERSON') {
-    const p = suggestion.payload as any
-    return <span className="text-xs text-green-400">{p.prenom} {p.nom}</span>
+    const p = suggestion.payload as Record<string, unknown>
+    return <span className="text-xs text-green-400">{String(p.prenom ?? '')} {String(p.nom ?? '')}</span>
   }
   if (suggestion.type === 'ADD_RELATIONSHIP') {
-    const r = suggestion.payload as any
-    return <span className="text-xs text-yellow-400">{r.type}</span>
+    const r = suggestion.payload as Record<string, unknown>
+    return <span className="text-xs text-yellow-400">{String(r.type ?? '')}</span>
   }
   return <span className="text-xs text-red-400">Suppression</span>
 }

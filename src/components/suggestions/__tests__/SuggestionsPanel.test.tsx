@@ -2,11 +2,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 
+const mockRefresh = vi.fn()
+
 vi.mock('@/server-actions/suggestions', () => ({
   approveSuggestion: vi.fn(),
   rejectSuggestion: vi.fn(),
 }))
-vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }))
+vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: mockRefresh }) }))
 
 import { approveSuggestion, rejectSuggestion } from '@/server-actions/suggestions'
 import { SuggestionsPanel } from '../SuggestionsPanel'
@@ -26,7 +28,7 @@ const mockSuggestion: SuggestionWithProposer = {
   users: { email: 'alice@example.com', display_name: 'alice' },
 }
 
-beforeEach(() => { vi.clearAllMocks() })
+beforeEach(() => { vi.clearAllMocks(); mockRefresh.mockReset() })
 
 describe('SuggestionsPanel', () => {
   it('renders title and suggestion list', () => {
@@ -62,5 +64,14 @@ describe('SuggestionsPanel', () => {
     render(<SuggestionsPanel suggestions={[]} onClose={onClose} />)
     fireEvent.click(screen.getByRole('button', { name: /fermer/i }))
     expect(onClose).toHaveBeenCalled()
+  })
+
+  it('shows error when approveSuggestion fails', async () => {
+    vi.mocked(approveSuggestion).mockResolvedValue({ error: 'Erreur serveur' })
+    render(<SuggestionsPanel suggestions={[mockSuggestion]} onClose={vi.fn()} />)
+    fireEvent.click(screen.getByRole('button', { name: /approuver/i }))
+    await waitFor(() => {
+      expect(screen.getByText('Erreur serveur')).toBeTruthy()
+    })
   })
 })
