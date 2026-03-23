@@ -53,7 +53,7 @@ export default async function AppLayout({
       initialPersonBranches={(personBranches ?? []) as PersonBranch[]}
       currentRole={currentRole}
       initialMembers={(membersData ?? []) as MemberWithUser[]}
-      initialPendingSuggestions={pendingSuggestionsData as SuggestionWithProposer[]}
+      initialPendingSuggestions={pendingSuggestionsData}
     />
   )
 }
