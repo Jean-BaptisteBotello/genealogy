@@ -115,6 +115,36 @@ describe('SuggestionModal — DELETE_RELATIONSHIP', () => {
   })
 })
 
+describe('SuggestionModal — ADD_RELATIONSHIP', () => {
+  it('renders person selects', () => {
+    render(
+      <SuggestionModal
+        mode={{ type: 'ADD_RELATIONSHIP', persons: [mockPerson] }}
+        onClose={vi.fn()}
+      />
+    )
+    expect(screen.getByText(/Parent \/ Personne A/i)).toBeTruthy()
+    expect(screen.getByText(/Enfant \/ Personne B/i)).toBeTruthy()
+  })
+
+  it('calls createSuggestion with ADD_RELATIONSHIP payload', async () => {
+    vi.mocked(createSuggestion).mockResolvedValue({})
+    render(
+      <SuggestionModal
+        mode={{ type: 'ADD_RELATIONSHIP', persons: [mockPerson] }}
+        onClose={vi.fn()}
+      />
+    )
+    fireEvent.click(screen.getByRole('button', { name: /^proposer$/i }))
+    await waitFor(() => {
+      expect(createSuggestion).toHaveBeenCalledWith(
+        'ADD_RELATIONSHIP',
+        expect.objectContaining({ type: 'UNION' })
+      )
+    })
+  })
+})
+
 describe('SuggestionModal — error handling', () => {
   it('shows error when createSuggestion fails', async () => {
     vi.mocked(createSuggestion).mockResolvedValue({ error: 'Doublon détecté' })
