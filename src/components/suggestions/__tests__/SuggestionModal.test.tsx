@@ -16,6 +16,13 @@ const mockPerson: Person = {
   notes: null, created_at: '', updated_at: '',
 }
 
+const mockPerson2: Person = {
+  id: 'p2', prenom: 'Alice', nom: 'Martin',
+  date_naissance: null, lieu_naissance: null, lat_naissance: null, lon_naissance: null,
+  date_deces: null, lieu_deces: null, lat_deces: null, lon_deces: null,
+  notes: null, created_at: '', updated_at: '',
+}
+
 const mockRel: Relationship = {
   id: 'r1', person_a_id: 'p1', person_b_id: 'p2', type: 'UNION', metadata: {},
 }
@@ -119,7 +126,7 @@ describe('SuggestionModal — ADD_RELATIONSHIP', () => {
   it('renders person selects', () => {
     render(
       <SuggestionModal
-        mode={{ type: 'ADD_RELATIONSHIP', persons: [mockPerson] }}
+        mode={{ type: 'ADD_RELATIONSHIP', persons: [mockPerson, mockPerson2] }}
         onClose={vi.fn()}
       />
     )
@@ -131,16 +138,35 @@ describe('SuggestionModal — ADD_RELATIONSHIP', () => {
     vi.mocked(createSuggestion).mockResolvedValue({})
     render(
       <SuggestionModal
-        mode={{ type: 'ADD_RELATIONSHIP', persons: [mockPerson] }}
+        mode={{ type: 'ADD_RELATIONSHIP', persons: [mockPerson, mockPerson2] }}
         onClose={vi.fn()}
       />
     )
+    const selects = screen.getAllByRole('combobox')
+    fireEvent.change(selects[0], { target: { value: 'p1' } })
+    fireEvent.change(selects[1], { target: { value: 'p2' } })
     fireEvent.click(screen.getByRole('button', { name: /^proposer$/i }))
     await waitFor(() => {
       expect(createSuggestion).toHaveBeenCalledWith(
         'ADD_RELATIONSHIP',
-        expect.objectContaining({ type: 'UNION' })
+        expect.objectContaining({ type: 'UNION', person_a_id: 'p1', person_b_id: 'p2' })
       )
+    })
+  })
+
+  it('shows error when same person selected for A and B', async () => {
+    render(
+      <SuggestionModal
+        mode={{ type: 'ADD_RELATIONSHIP', persons: [mockPerson, mockPerson2] }}
+        onClose={vi.fn()}
+      />
+    )
+    const selects = screen.getAllByRole('combobox')
+    fireEvent.change(selects[0], { target: { value: 'p1' } })
+    fireEvent.change(selects[1], { target: { value: 'p1' } })
+    fireEvent.click(screen.getByRole('button', { name: /^proposer$/i }))
+    await waitFor(() => {
+      expect(screen.getByText(/Les deux personnes doivent être différentes/i)).toBeTruthy()
     })
   })
 })
