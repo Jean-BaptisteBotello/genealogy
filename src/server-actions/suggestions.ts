@@ -29,6 +29,8 @@ export async function createSuggestion(
     if (existing) return { error: 'Vous avez déjà une proposition identique en attente.' }
   }
 
+  // Note: payload is not validated at creation — only validated at approval time via parsePayload.
+  // This is intentional: validation requirements depend on the reviewer's decision to apply the change.
   const { error } = await supabase.from('suggestion').insert({
     type,
     payload,
@@ -43,6 +45,10 @@ export async function createSuggestion(
 
 export async function getSuggestionsPending(): Promise<SuggestionWithProposer[]> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+  const role = await getCurrentRole(supabase, user.id)
+  if (!['ADMIN', 'EDITOR'].includes(role)) return []
   const { data, error } = await supabase
     .from('suggestion')
     .select('*, users(email, display_name)')
@@ -84,6 +90,7 @@ export async function rejectSuggestion(
       reviewed_at: new Date().toISOString(),
     })
     .eq('id', id)
+    .eq('status', 'PENDING')
   if (error) return { error: error.message }
 
   revalidatePath('/tree', 'layout')
@@ -184,6 +191,10 @@ export async function approveSuggestion(id: string): Promise<{ error?: string }>
     }
   }
 
+  // NOTE: Two-step pattern (apply change, then mark APPROVED) is non-atomic.
+  // If the network drops between steps, the business change is applied but the
+  // suggestion stays PENDING. An admin re-approving will apply the change again.
+  // TODO: Replace with a Supabase RPC/transaction when available for RLS-enabled tables.
   if (applyError) return { error: applyError }
 
   const { error: updateError } = await supabase
