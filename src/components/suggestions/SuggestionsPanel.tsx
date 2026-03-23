@@ -53,6 +53,10 @@ export function SuggestionsPanel({ suggestions, onClose }: SuggestionsPanelProps
   }
 
   function handleRejectConfirm(id: string) {
+    if (!rejectReason.trim()) {
+      setError('Veuillez indiquer une raison.')
+      return
+    }
     setError(null)
     startTransition(async () => {
       const result = await rejectSuggestion(id, rejectReason)

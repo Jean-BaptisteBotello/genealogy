@@ -64,6 +64,11 @@ export function SuggestionModal({ mode, onClose }: SuggestionModalProps) {
       }
     }
 
+    if (mode.type === 'EDIT_PERSON' && Object.keys(payload).length === 0) {
+      setError('Aucune modification détectée.')
+      return
+    }
+
     startTransition(async () => {
       const result = await createSuggestion(
         mode.type === 'EDIT_PERSON' ? 'EDIT_PERSON' : 'ADD_PERSON',
