@@ -31,7 +31,7 @@ describe('EventailView', () => {
       persons: [], relationships: [], branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<EventailView />)
     expect(screen.getByText(/votre arbre vous attend/i)).toBeTruthy()
@@ -44,7 +44,7 @@ describe('EventailView', () => {
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     const { container } = render(<EventailView />)
     expect(container.querySelector('svg')).toBeTruthy()
@@ -57,7 +57,7 @@ describe('EventailView', () => {
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<EventailView />)
     expect(screen.getByText('JD')).toBeTruthy()
@@ -72,7 +72,7 @@ describe('EventailView', () => {
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<EventailView />)
     expect(screen.getByText('JD')).toBeTruthy()
@@ -87,7 +87,7 @@ describe('EventailView', () => {
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson,
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<EventailView />)
     expect(selectPerson).toHaveBeenCalledWith('p1')
@@ -103,7 +103,7 @@ describe('EventailView', () => {
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson,
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<EventailView />)
     screen.getByText('MM').click()
