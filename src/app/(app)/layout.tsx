@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/AppShell'
 import type { Person, Branch, Relationship, PersonBranch, Role } from '@/lib/types/database'
 import type { MemberWithUser } from '@/server-actions/members'
+import { getSuggestionsPending } from '@/server-actions/suggestions'
+import type { SuggestionWithProposer } from '@/lib/types/database'
 
 export default async function AppLayout({
   children: _children,
@@ -23,6 +25,7 @@ export default async function AppLayout({
     { data: memberRow },
     { data: membersData },
     { count: memberCount },
+    pendingSuggestionsData,
   ] = await Promise.all([
     supabase.from('person').select('*').order('nom'),
     supabase.from('branch').select('*').order('nom'),
@@ -31,6 +34,7 @@ export default async function AppLayout({
     supabase.from('tree_member').select('role').eq('user_id', user.id).single(),
     supabase.from('tree_member').select('*, users(email, display_name)'),
     supabase.from('tree_member').select('*', { count: 'exact', head: true }),
+    getSuggestionsPending(),
   ])
 
   // If no tree_member row for this user:
@@ -49,6 +53,7 @@ export default async function AppLayout({
       initialPersonBranches={(personBranches ?? []) as PersonBranch[]}
       currentRole={currentRole}
       initialMembers={(membersData ?? []) as MemberWithUser[]}
+      initialPendingSuggestions={pendingSuggestionsData as SuggestionWithProposer[]}
     />
   )
 }

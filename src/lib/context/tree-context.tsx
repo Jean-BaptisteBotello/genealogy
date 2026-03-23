@@ -16,6 +16,8 @@ export interface TreeContextValue {
   // Modals
   openAddPerson: () => void
   openEditPerson: (id: string) => void
+  // Suggestions
+  pendingSuggestionsCount: number
   // Toast
   showToast: (message: string, type?: 'error' | 'info') => void
 }

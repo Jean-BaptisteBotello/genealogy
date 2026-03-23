@@ -10,8 +10,11 @@ import { SearchOverlay } from '@/components/search/SearchOverlay'
 import { MembersModal } from '@/components/members/MembersModal'
 import { TreeContext } from '@/lib/context/tree-context'
 import { ViewRouter } from '@/components/views/ViewRouter'
-import type { Person, Branch, Relationship, PersonBranch, Role } from '@/lib/types/database'
+import type { Person, Branch, Relationship, PersonBranch, Role, SuggestionWithProposer } from '@/lib/types/database'
 import type { MemberWithUser } from '@/server-actions/members'
+import { SuggestionModal, type SuggestionModalMode } from '@/components/suggestions/SuggestionModal'
+import { SuggestionsPanel } from '@/components/suggestions/SuggestionsPanel'
+import { MySuggestionsPanel } from '@/components/suggestions/MySuggestionsPanel'
 
 type View = 'cosmos' | 'sablier' | 'timeline' | 'carte' | 'eventail'
 
@@ -23,6 +26,7 @@ interface AppShellProps {
   initialPersonBranches: PersonBranch[]
   currentRole: Role
   initialMembers: MemberWithUser[]
+  initialPendingSuggestions: SuggestionWithProposer[]
 }
 
 type PersonModalMode = 'add' | { type: 'edit'; person: Person } | null
@@ -40,6 +44,7 @@ export function AppShell({
   initialPersonBranches,
   currentRole,
   initialMembers,
+  initialPendingSuggestions,
 }: AppShellProps) {
   const router = useRouter()
   const [activeView, setActiveView] = useState<View>('cosmos')
@@ -50,10 +55,18 @@ export function AppShell({
   const [searchOpen, setSearchOpen] = useState(false)
   const [membersModalOpen, setMembersModalOpen] = useState(false)
   const [members, setMembers] = useState<MemberWithUser[]>(initialMembers)
+  const [pendingSuggestions, setPendingSuggestions] = useState<SuggestionWithProposer[]>(initialPendingSuggestions)
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false)
+  const [mySuggestionsOpen, setMySuggestionsOpen] = useState(false)
+  const [suggestionModalMode, setSuggestionModalMode] = useState<SuggestionModalMode | null>(null)
 
   useEffect(() => {
     setMembers(initialMembers)
   }, [initialMembers])
+
+  useEffect(() => {
+    setPendingSuggestions(initialPendingSuggestions)
+  }, [initialPendingSuggestions])
 
   // Auto-dismiss toast after 4 seconds
   useEffect(() => {
@@ -93,6 +106,7 @@ export function AppShell({
         relationships: initialRelationships,
         personBranches: initialPersonBranches,
         currentRole,
+        pendingSuggestionsCount: pendingSuggestions.length,
         selectedPersonId,
         selectPerson,
         openAddPerson,
@@ -106,7 +120,11 @@ export function AppShell({
           activeView={activeView}
           onViewChange={setActiveView}
           onAddPerson={currentRole !== 'VIEWER' ? openAddPerson : undefined}
+          onProposePerson={currentRole === 'VIEWER' ? () => setSuggestionModalMode({ type: 'ADD_PERSON' }) : undefined}
           onSearchOpen={() => setSearchOpen(true)}
+          pendingSuggestionsCount={currentRole !== 'VIEWER' ? pendingSuggestions.length : 0}
+          onSuggestionsOpen={currentRole !== 'VIEWER' ? () => setSuggestionsOpen(true) : undefined}
+          onMySuggestionsOpen={() => setMySuggestionsOpen(true)}
         />
         <div className="flex flex-1 overflow-hidden">
           <Sidebar
@@ -139,6 +157,8 @@ export function AppShell({
               }
             }}
             onShowToast={showToast}
+            onProposeSuggestion={(mode) => setSuggestionModalMode(mode)}
+            pendingSuggestions={pendingSuggestions.filter(s => s.target_id === selectedPersonId)}
           />
         </div>
       </div>
@@ -155,6 +175,22 @@ export function AppShell({
           members={members}
           currentRole={currentRole}
           onClose={() => setMembersModalOpen(false)}
+        />
+      )}
+
+      {suggestionsOpen && (
+        <SuggestionsPanel
+          suggestions={pendingSuggestions}
+          onClose={() => setSuggestionsOpen(false)}
+        />
+      )}
+      {mySuggestionsOpen && (
+        <MySuggestionsPanel onClose={() => setMySuggestionsOpen(false)} />
+      )}
+      {suggestionModalMode !== null && (
+        <SuggestionModal
+          mode={suggestionModalMode}
+          onClose={() => setSuggestionModalMode(null)}
         />
       )}
 

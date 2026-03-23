@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { getSignedUrl, uploadDocument, deleteDocument } from '@/server-actions/documents'
-import type { Person, Branch, Relationship, PersonBranch, Document } from '@/lib/types/database'
+import type { Person, Branch, Relationship, PersonBranch, Document, SuggestionWithProposer } from '@/lib/types/database'
+import type { SuggestionModalMode } from '@/components/suggestions/SuggestionModal'
 import { useTree } from '@/lib/context/tree-context'
 
 interface DetailPanelProps {
@@ -18,6 +19,8 @@ interface DetailPanelProps {
   onEditPerson: (id: string) => void
   onDeletePerson: (id: string) => Promise<void>
   onShowToast?: (message: string, type?: 'error' | 'info') => void
+  onProposeSuggestion?: (mode: SuggestionModalMode) => void
+  pendingSuggestions?: SuggestionWithProposer[]
 }
 
 function formatDate(date: string | null): string {
@@ -57,6 +60,8 @@ export function DetailPanel({
   onEditPerson,
   onDeletePerson,
   onShowToast,
+  onProposeSuggestion,
+  pendingSuggestions,
 }: DetailPanelProps) {
   const { currentRole } = useTree()
   const [documents, setDocuments] = useState<Document[]>([])
@@ -193,6 +198,20 @@ export function DetailPanel({
             {person.notes && (
               <p className="text-xs text-gray-500 mt-2 italic">{person.notes}</p>
             )}
+            {currentRole === 'VIEWER' && onProposeSuggestion && (
+              <div className="flex gap-2 mt-2">
+                <button type="button"
+                  onClick={() => onProposeSuggestion({ type: 'EDIT_PERSON', person })}
+                  className="text-xs text-blue-400 hover:text-blue-300">
+                  Proposer une modification
+                </button>
+                <button type="button"
+                  onClick={() => onProposeSuggestion({ type: 'DELETE_PERSON', person })}
+                  className="text-xs text-red-400 hover:text-red-300">
+                  Proposer la suppression
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Branches */}
@@ -228,20 +247,41 @@ export function DetailPanel({
                   const other = getOtherPerson(rel)
                   if (!other) return null
                   return (
-                    <button
-                      key={rel.id}
-                      type="button"
-                      onClick={() => onSelectPerson(other.id)}
-                      className="text-left text-xs text-blue-300 hover:text-blue-200 py-0.5 flex items-center gap-1"
-                    >
-                      <span className="text-[10px] text-gray-600 mr-1">
-                        {RELATION_LABEL[rel.type] ?? rel.type}
-                      </span>
-                      {other.prenom} {other.nom}
-                    </button>
+                    <div key={rel.id} className="flex items-center">
+                      <button
+                        type="button"
+                        onClick={() => onSelectPerson(other.id)}
+                        className="text-left text-xs text-blue-300 hover:text-blue-200 py-0.5 flex items-center gap-1 flex-1 min-w-0"
+                      >
+                        <span className="text-[10px] text-gray-600 mr-1">
+                          {RELATION_LABEL[rel.type] ?? rel.type}
+                        </span>
+                        {other.prenom} {other.nom}
+                      </button>
+                      {currentRole === 'VIEWER' && onProposeSuggestion && (
+                        <button type="button"
+                          onClick={() => onProposeSuggestion({ type: 'DELETE_RELATIONSHIP', relationship: rel, persons: allPersons })}
+                          className="text-xs text-gray-600 hover:text-red-400 ml-2">✕</button>
+                      )}
+                    </div>
                   )
                 })}
               </div>
+            </div>
+          )}
+
+          {/* Pending suggestions for ADMIN/EDITOR */}
+          {currentRole !== 'VIEWER' && pendingSuggestions && pendingSuggestions.length > 0 && (
+            <div className="mt-4 border-t border-[#1e3a5f]/40 pt-3">
+              <p className="text-[10px] text-gray-600 uppercase tracking-widest mb-2">
+                {pendingSuggestions.length} suggestion{pendingSuggestions.length > 1 ? 's' : ''} en attente
+              </p>
+              {pendingSuggestions.map(s => (
+                <div key={s.id} className="text-xs text-gray-400 py-1 border-b border-[#1e3a5f]/20 flex items-center justify-between">
+                  <span>{s.type} · {s.users?.email ?? s.suggested_by}</span>
+                </div>
+              ))}
+              <p className="text-xs text-gray-600 mt-2 italic">Gérez-les depuis le panneau dans la barre du haut.</p>
             </div>
           )}
 

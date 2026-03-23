@@ -24,7 +24,7 @@ describe('TimelineView', () => {
       persons: [], relationships: [], branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<TimelineView />)
     expect(screen.getByText(/votre arbre vous attend/i)).toBeTruthy()
@@ -36,7 +36,7 @@ describe('TimelineView', () => {
       relationships: [], branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     const { container } = render(<TimelineView />)
     expect(container.querySelector('svg')).toBeTruthy()
@@ -48,7 +48,7 @@ describe('TimelineView', () => {
       relationships: [], branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<TimelineView />)
     expect(screen.getByText('Jean Dupont')).toBeTruthy()
@@ -63,7 +63,7 @@ describe('TimelineView', () => {
       relationships: [], branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<TimelineView />)
     expect(screen.getByText('Jean Dupont')).toBeTruthy()
@@ -78,7 +78,7 @@ describe('TimelineView', () => {
       relationships: [], branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson,
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<TimelineView />)
     screen.getByText('Jean Dupont').click()

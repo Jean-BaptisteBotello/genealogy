@@ -39,7 +39,7 @@ describe('SablierView', () => {
       persons: [], relationships: [], branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<SablierView />)
     expect(screen.getByText(/votre arbre vous attend/i)).toBeTruthy()
@@ -52,7 +52,7 @@ describe('SablierView', () => {
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<SablierView />)
     expect(screen.getByTestId('react-flow')).toBeTruthy()
@@ -65,7 +65,7 @@ describe('SablierView', () => {
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<SablierView />)
     expect(screen.getByTestId('rf-node-p1')).toBeTruthy()
@@ -79,7 +79,7 @@ describe('SablierView', () => {
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<SablierView />)
     expect(screen.getByText(/1 non connecté/i)).toBeTruthy()
@@ -93,7 +93,7 @@ describe('SablierView', () => {
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson,
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<SablierView />)
     expect(selectPerson).toHaveBeenCalledWith('p1')

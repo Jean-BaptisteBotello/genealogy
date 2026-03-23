@@ -28,7 +28,7 @@ describe('CosmosView', () => {
       persons: [], relationships: [], branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<CosmosView />)
     expect(screen.getByText(/votre arbre vous attend/i)).toBeTruthy()
@@ -39,7 +39,7 @@ describe('CosmosView', () => {
       persons: [], relationships: [], branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<CosmosView />)
     expect(screen.getByRole('button', { name: /ajouter une personne/i })).toBeTruthy()
@@ -51,7 +51,7 @@ describe('CosmosView', () => {
       relationships: [], branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     const { container } = render(<CosmosView />)
     expect(container.querySelector('svg')).toBeTruthy()
@@ -66,7 +66,7 @@ describe('CosmosView', () => {
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<CosmosView />)
     expect(screen.getByText('JD')).toBeTruthy()
@@ -83,7 +83,7 @@ describe('CosmosView', () => {
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson,
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<CosmosView />)
     fireEvent.click(screen.getByText('MM'))
@@ -99,7 +99,7 @@ describe('CosmosView', () => {
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson,
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<CosmosView />)
     expect(selectPerson).toHaveBeenCalledWith('p1')
@@ -114,7 +114,7 @@ describe('CosmosView', () => {
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     const { container } = render(<CosmosView />)
     expect(container.querySelector('path')).toBeTruthy()
@@ -129,7 +129,7 @@ describe('CosmosView', () => {
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<CosmosView />)
     expect(screen.getByText(/1 non connecté/i)).toBeTruthy()
@@ -144,7 +144,7 @@ describe('CosmosView', () => {
       personBranches: [{ person_id: 'p1', branch_id: 'b1' }],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     const { container } = render(<CosmosView />)
     const circles = container.querySelectorAll('circle')

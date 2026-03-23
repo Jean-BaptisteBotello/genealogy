@@ -45,7 +45,7 @@ describe('CarteView', () => {
       persons: [], relationships: [], branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<CarteView />)
     expect(screen.getByText(/votre arbre vous attend/i)).toBeTruthy()
@@ -57,7 +57,7 @@ describe('CarteView', () => {
       relationships: [], branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<CarteView />)
     expect(screen.getByText(/1 lieu non géolocalisé/i)).toBeTruthy()
@@ -69,7 +69,7 @@ describe('CarteView', () => {
       relationships: [], branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<CarteView />)
     expect(screen.getByText(/2 lieux non géolocalisés/i)).toBeTruthy()
@@ -81,7 +81,7 @@ describe('CarteView', () => {
       relationships: [], branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
-      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(),
+      openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
     render(<CarteView />)
     expect(screen.getByTestId('dynamic-map')).toBeTruthy()
