@@ -25,8 +25,8 @@ export const addPersonPayloadSchema = z.object({
 export const addRelationshipPayloadSchema = z.object({
   person_a_id: z.string().uuid(),
   person_b_id: z.string().uuid(),
-  type: z.enum(['PARENT_CHILD', 'UNION', 'ADOPTION', 'SIBLING', 'HALF_SIBLING', 'STEP']),
-  metadata: z.record(z.unknown()).optional(),
+  type: z.enum(['PARENT_CHILD', 'UNION', 'ADOPTION', 'SIBLING', 'HALF_SIBLING', 'STEP'] as const, {}),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
 export type EditPersonPayload = z.infer<typeof editPersonPayloadSchema>
