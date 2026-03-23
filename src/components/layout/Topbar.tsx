@@ -89,7 +89,7 @@ export function Topbar({
           💡
           {(pendingSuggestionsCount ?? 0) > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center">
-              {pendingSuggestionsCount}
+              {(pendingSuggestionsCount ?? 0) > 9 ? '9+' : pendingSuggestionsCount}
             </span>
           )}
         </button>

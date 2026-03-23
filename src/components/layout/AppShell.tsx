@@ -124,7 +124,7 @@ export function AppShell({
           onSearchOpen={() => setSearchOpen(true)}
           pendingSuggestionsCount={currentRole !== 'VIEWER' ? pendingSuggestions.length : 0}
           onSuggestionsOpen={currentRole !== 'VIEWER' ? () => setSuggestionsOpen(true) : undefined}
-          onMySuggestionsOpen={() => setMySuggestionsOpen(true)}
+          onMySuggestionsOpen={currentRole === 'VIEWER' ? () => setMySuggestionsOpen(true) : undefined}
         />
         <div className="flex flex-1 overflow-hidden">
           <Sidebar
