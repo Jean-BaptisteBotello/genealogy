@@ -56,6 +56,8 @@ describe('LinkPersonForm', () => {
 
   it('excludes the current person from the list', async () => {
     await renderForm()
+    const input = screen.getByPlaceholderText(/rechercher/i)
+    await userEvent.type(input, 'dupont')
     expect(screen.queryByText(/jean-baptiste/i)).not.toBeInTheDocument()
     expect(screen.getByText(/pierre/i)).toBeInTheDocument()
   })
@@ -72,6 +74,7 @@ describe('LinkPersonForm', () => {
     const btn = screen.getByRole('button', { name: /lier/i })
     expect(btn).toBeDisabled()
 
+    await userEvent.type(screen.getByPlaceholderText(/rechercher/i), 'pierre')
     await userEvent.click(screen.getByText(/pierre/i))
     expect(btn).toBeDisabled()
 
@@ -81,6 +84,7 @@ describe('LinkPersonForm', () => {
 
   it('calls createRelationship with correct FormData on submit', async () => {
     await renderForm()
+    await userEvent.type(screen.getByPlaceholderText(/rechercher/i), 'pierre')
     await userEvent.click(screen.getByText(/pierre/i))
     await userEvent.click(screen.getByText('père'))
     await userEvent.click(screen.getByRole('button', { name: /lier/i }))
@@ -98,6 +102,7 @@ describe('LinkPersonForm', () => {
   it('calls onClose after successful submit', async () => {
     const onClose = vi.fn()
     await renderForm(onClose)
+    await userEvent.type(screen.getByPlaceholderText(/rechercher/i), 'pierre')
     await userEvent.click(screen.getByText(/pierre/i))
     await userEvent.click(screen.getByText('père'))
     await userEvent.click(screen.getByRole('button', { name: /lier/i }))
@@ -107,6 +112,7 @@ describe('LinkPersonForm', () => {
   it('shows error message when createRelationship returns error', async () => {
     vi.mocked(createRelationship).mockResolvedValueOnce({ error: 'Cycle détecté' })
     await renderForm()
+    await userEvent.type(screen.getByPlaceholderText(/rechercher/i), 'pierre')
     await userEvent.click(screen.getByText(/pierre/i))
     await userEvent.click(screen.getByText('père'))
     await userEvent.click(screen.getByRole('button', { name: /lier/i }))
@@ -133,6 +139,7 @@ describe('LinkPersonForm', () => {
     const { unmount } = await renderForm()
 
     // trigger an error
+    await userEvent.type(screen.getByPlaceholderText(/rechercher/i), 'pierre')
     await userEvent.click(screen.getByText(/pierre/i))
     await userEvent.click(screen.getByText('père'))
     await userEvent.click(screen.getByRole('button', { name: /lier/i }))

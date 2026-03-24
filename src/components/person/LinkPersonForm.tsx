@@ -79,8 +79,8 @@ export function LinkPersonForm({ currentPersonId, persons, onClose }: LinkPerson
         }}
       />
 
-      {filtered.length > 0 && (
-        <div className="max-h-28 overflow-y-auto flex flex-col gap-0.5">
+      {searchQuery.length > 0 && filtered.length > 0 && (
+        <div className="max-h-24 overflow-y-auto flex flex-col gap-0.5" style={{ border: '1px solid var(--divider-light, rgba(60,30,45,0.08))', borderRadius: 6, padding: 2 }}>
           {filtered.map(p => (
             <button
               key={p.id}
