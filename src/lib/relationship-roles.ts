@@ -1,4 +1,21 @@
-import type { RelationshipType } from '@/lib/types/database'
+import type { Relationship, RelationshipType } from '@/lib/types/database'
+
+// Roles that represent indirect/extended family links (skip generations or lateral)
+const INDIRECT_ROLES = new Set([
+  'grand-père', 'grand-mère',
+  'arrière-grand-père', 'arrière-grand-mère',
+  'arrière-arrière-grand-père', 'arrière-arrière-grand-mère',
+  'oncle', 'tante',
+  'cousin', 'cousine',
+])
+
+export function isIndirectRelationship(rel: Relationship): boolean {
+  const meta = rel.metadata as { role?: unknown }
+  if (typeof meta?.role === 'string') {
+    return INDIRECT_ROLES.has(meta.role)
+  }
+  return false
+}
 
 export type RelationshipRole =
   | 'père' | 'mère'

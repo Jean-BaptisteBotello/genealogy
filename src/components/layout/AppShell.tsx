@@ -10,6 +10,7 @@ import { SearchOverlay } from '@/components/search/SearchOverlay'
 import { MembersModal } from '@/components/members/MembersModal'
 import { TreeContext } from '@/lib/context/tree-context'
 import { ViewRouter } from '@/components/views/ViewRouter'
+import { isIndirectRelationship } from '@/lib/relationship-roles'
 import type { Person, Branch, Relationship, PersonBranch, Role, SuggestionWithProposer } from '@/lib/types/database'
 import type { MemberWithUser } from '@/server-actions/members'
 import { SuggestionModal, type SuggestionModalMode } from '@/components/suggestions/SuggestionModal'
@@ -59,6 +60,15 @@ export function AppShell({
   const [suggestionsOpen, setSuggestionsOpen] = useState(false)
   const [mySuggestionsOpen, setMySuggestionsOpen] = useState(false)
   const [suggestionModalMode, setSuggestionModalMode] = useState<SuggestionModalMode | null>(null)
+  const [showDirectFiliation, setShowDirectFiliation] = useState(true)
+  const [showIndirectFiliation, setShowIndirectFiliation] = useState(true)
+
+  const filteredRelationships = initialRelationships.filter(rel => {
+    const indirect = isIndirectRelationship(rel)
+    if (indirect && !showIndirectFiliation) return false
+    if (!indirect && !showDirectFiliation) return false
+    return true
+  })
 
   useEffect(() => {
     setMembers(initialMembers)
@@ -112,6 +122,11 @@ export function AppShell({
         openAddPerson,
         openEditPerson,
         showToast,
+        showDirectFiliation,
+        setShowDirectFiliation,
+        showIndirectFiliation,
+        setShowIndirectFiliation,
+        filteredRelationships,
       }}
     >
       <div className="flex flex-col h-screen overflow-hidden">

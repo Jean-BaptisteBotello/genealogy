@@ -20,6 +20,12 @@ export interface TreeContextValue {
   pendingSuggestionsCount: number
   // Toast
   showToast: (message: string, type?: 'error' | 'info') => void
+  // Filters
+  showDirectFiliation: boolean
+  setShowDirectFiliation: (v: boolean) => void
+  showIndirectFiliation: boolean
+  setShowIndirectFiliation: (v: boolean) => void
+  filteredRelationships: Relationship[]
 }
 
 export const TreeContext = createContext<TreeContextValue | null>(null)

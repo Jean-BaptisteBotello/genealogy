@@ -57,6 +57,7 @@ export function CosmosView() {
   const {
     persons,
     relationships,
+    filteredRelationships,
     branches,
     personBranches,
     selectedPersonId,
@@ -129,7 +130,7 @@ export function CosmosView() {
     const map = new Map<string, string>()
     const centerId = selectedPersonId ?? (persons.length > 0 ? persons[0].id : null)
     if (!centerId) return map
-    for (const rel of relationships) {
+    for (const rel of filteredRelationships) {
       let neighborId: string | null = null
       if (rel.person_a_id === centerId) neighborId = rel.person_b_id
       else if (rel.person_b_id === centerId) neighborId = rel.person_a_id
@@ -139,14 +140,14 @@ export function CosmosView() {
       if (!map.has(neighborId)) map.set(neighborId, role)
     }
     return map
-  }, [relationships, selectedPersonId, persons])
+  }, [filteredRelationships, selectedPersonId, persons])
 
   const centerId = selectedPersonId ?? (persons.length > 0 ? persons[0].id : null)
   const personIds = persons.map(p => p.id)
   const { nodes, orphans } = useMemo(() => {
     if (!centerId || persons.length === 0) return { nodes: [], orphans: [] }
-    return computeCosmosLayout(personIds, relationships, centerId)
-  }, [personIds, relationships, centerId]) // eslint-disable-line react-hooks/exhaustive-deps
+    return computeCosmosLayout(personIds, filteredRelationships, centerId)
+  }, [personIds, filteredRelationships, centerId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Non-center nodes only
   const nonCenterNodes = useMemo(

@@ -36,10 +36,11 @@ beforeEach(() => {
 describe('SablierView', () => {
   it('shows empty state when no persons', () => {
     vi.mocked(useTree).mockReturnValue({
-      persons: [], relationships: [], branches: [], personBranches: [],
+      persons: [], relationships: [], filteredRelationships: [], branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
+      showDirectFiliation: true, setShowDirectFiliation: vi.fn(), showIndirectFiliation: true, setShowIndirectFiliation: vi.fn(),
     })
     render(<SablierView />)
     expect(screen.getByText(/votre arbre vous attend/i)).toBeTruthy()
@@ -48,11 +49,12 @@ describe('SablierView', () => {
   it('renders React Flow when persons exist', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [mkPerson('p1')],
-      relationships: [],
+      relationships: [], filteredRelationships: [],
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
+      showDirectFiliation: true, setShowDirectFiliation: vi.fn(), showIndirectFiliation: true, setShowIndirectFiliation: vi.fn(),
     })
     render(<SablierView />)
     expect(screen.getByTestId('react-flow')).toBeTruthy()
@@ -61,11 +63,12 @@ describe('SablierView', () => {
   it('creates a React Flow node for each reachable person', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [mkPerson('p1'), mkPerson('p2')],
-      relationships: [mkRel('p1', 'p2')],
+      relationships: [mkRel('p1', 'p2')], filteredRelationships: [mkRel('p1', 'p2')],
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
+      showDirectFiliation: true, setShowDirectFiliation: vi.fn(), showIndirectFiliation: true, setShowIndirectFiliation: vi.fn(),
     })
     render(<SablierView />)
     expect(screen.getByTestId('rf-node-p1')).toBeTruthy()
@@ -75,11 +78,12 @@ describe('SablierView', () => {
   it('shows orphan badge when there are unconnected persons', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [mkPerson('p1'), mkPerson('p2'), mkPerson('p3')],
-      relationships: [mkRel('p1', 'p2')],
+      relationships: [mkRel('p1', 'p2')], filteredRelationships: [mkRel('p1', 'p2')],
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
+      showDirectFiliation: true, setShowDirectFiliation: vi.fn(), showIndirectFiliation: true, setShowIndirectFiliation: vi.fn(),
     })
     render(<SablierView />)
     expect(screen.getByText(/1 non connecté/i)).toBeTruthy()
@@ -89,11 +93,12 @@ describe('SablierView', () => {
     const selectPerson = vi.fn()
     vi.mocked(useTree).mockReturnValue({
       persons: [mkPerson('p1')],
-      relationships: [],
+      relationships: [], filteredRelationships: [],
       branches: [], personBranches: [],
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson,
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
+      showDirectFiliation: true, setShowDirectFiliation: vi.fn(), showIndirectFiliation: true, setShowIndirectFiliation: vi.fn(),
     })
     render(<SablierView />)
     expect(selectPerson).toHaveBeenCalledWith('p1')

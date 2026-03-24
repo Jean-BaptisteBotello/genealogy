@@ -31,6 +31,8 @@ const mockRel = (a: string, b: string, type: Relationship['type'] = 'PARENT_CHIL
 const baseTree = {
   branches: [], personBranches: [], currentRole: 'ADMIN' as const,
   openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
+  showDirectFiliation: true, setShowDirectFiliation: vi.fn(),
+  showIndirectFiliation: true, setShowIndirectFiliation: vi.fn(),
 }
 
 beforeEach(() => { vi.clearAllMocks() })
@@ -39,7 +41,7 @@ describe('CosmosView', () => {
   it('shows empty state when no persons', () => {
     vi.mocked(useTree).mockReturnValue({
       ...baseTree,
-      persons: [], relationships: [],
+      persons: [], relationships: [], filteredRelationships: [],
       selectedPersonId: null, selectPerson: vi.fn(),
     })
     render(<CosmosView />)
@@ -49,7 +51,7 @@ describe('CosmosView', () => {
   it('shows add-person button when no persons', () => {
     vi.mocked(useTree).mockReturnValue({
       ...baseTree,
-      persons: [], relationships: [],
+      persons: [], relationships: [], filteredRelationships: [],
       selectedPersonId: null, selectPerson: vi.fn(),
     })
     render(<CosmosView />)
@@ -60,7 +62,7 @@ describe('CosmosView', () => {
     vi.mocked(useTree).mockReturnValue({
       ...baseTree,
       persons: [mockPerson('p1', 'Jean', 'Dupont')],
-      relationships: [],
+      relationships: [], filteredRelationships: [],
       selectedPersonId: 'p1', selectPerson: vi.fn(),
     })
     const { container } = render(<CosmosView />)
@@ -71,7 +73,7 @@ describe('CosmosView', () => {
     vi.mocked(useTree).mockReturnValue({
       ...baseTree,
       persons: [mockPerson('p1', 'Jean', 'Dupont')],
-      relationships: [],
+      relationships: [], filteredRelationships: [],
       selectedPersonId: 'p1', selectPerson: vi.fn(),
     })
     render(<CosmosView />)
@@ -83,7 +85,7 @@ describe('CosmosView', () => {
     vi.mocked(useTree).mockReturnValue({
       ...baseTree,
       persons: [mockPerson('p1', 'Jean', 'Dupont')],
-      relationships: [],
+      relationships: [], filteredRelationships: [],
       selectedPersonId: null, selectPerson,
     })
     render(<CosmosView />)
@@ -94,7 +96,7 @@ describe('CosmosView', () => {
     vi.mocked(useTree).mockReturnValue({
       ...baseTree,
       persons: [mockPerson('p1', 'Jean', 'Dupont')],
-      relationships: [],
+      relationships: [], filteredRelationships: [],
       selectedPersonId: 'p1', selectPerson: vi.fn(),
     })
     render(<CosmosView />)
@@ -106,7 +108,7 @@ describe('CosmosView', () => {
     vi.mocked(useTree).mockReturnValue({
       ...baseTree,
       persons: [mockPerson('p1', 'Jean', 'Dupont'), mockPerson('p2', 'Marie', 'Martin')],
-      relationships: [],
+      relationships: [], filteredRelationships: [],
       selectedPersonId: 'p1', selectPerson: vi.fn(),
     })
     render(<CosmosView />)
@@ -118,6 +120,7 @@ describe('CosmosView', () => {
       ...baseTree,
       persons: [mockPerson('p1', 'Jean', 'Dupont'), mockPerson('p2', 'Marie', 'Martin')],
       relationships: [mockRel('p2', 'p1', 'PARENT_CHILD', 'père')],
+      filteredRelationships: [mockRel('p2', 'p1', 'PARENT_CHILD', 'père')],
       selectedPersonId: 'p1', selectPerson: vi.fn(),
     })
     const { container } = render(<CosmosView />)

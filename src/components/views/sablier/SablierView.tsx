@@ -39,7 +39,7 @@ function savePositions(positions: SavedPositions) {
 }
 
 export function SablierView() {
-  const { persons, relationships, selectedPersonId, selectPerson, openAddPerson } = useTree()
+  const { persons, relationships, filteredRelationships, selectedPersonId, selectPerson, openAddPerson } = useTree()
 
   const [customPositions, setCustomPositions] = useState<SavedPositions>({})
 
@@ -101,7 +101,7 @@ export function SablierView() {
   }, [initialNodes])
 
   const nodeIds = useMemo(() => new Set(layoutNodes.map(n => n.id)), [layoutNodes])
-  const rfEdges = useMemo(() => relationships
+  const rfEdges = useMemo(() => filteredRelationships
     .filter(r => nodeIds.has(r.person_a_id) && nodeIds.has(r.person_b_id))
     .map(r => {
       const isUnion = r.type === 'UNION'
