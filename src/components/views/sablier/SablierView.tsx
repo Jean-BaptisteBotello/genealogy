@@ -172,7 +172,7 @@ export function SablierView() {
         nodesDraggable
         fitView
       >
-        <Background color="var(--divider, #1e3a5f)" gap={40} />
+        <Background variant={"dots" as any} color="rgba(0,0,0,0.35)" gap={30} size={1} />
         <Controls />
       </ReactFlow>
 
