@@ -127,4 +127,23 @@ describe('LinkPersonForm', () => {
     await userEvent.click(screen.getByRole('button', { name: /annuler/i }))
     expect(onClose).toHaveBeenCalledOnce()
   })
+
+  it('clears error state when form is closed and reopened', async () => {
+    vi.mocked(createRelationship).mockResolvedValueOnce({ error: 'Cycle détecté' })
+    const { unmount } = await renderForm()
+
+    // trigger an error
+    await userEvent.click(screen.getByText(/pierre/i))
+    await userEvent.click(screen.getByText('père'))
+    await userEvent.click(screen.getByRole('button', { name: /lier/i }))
+    await waitFor(() => expect(screen.getByText(/cycle détecté/i)).toBeInTheDocument())
+
+    // close and reopen (simulate parent toggle without unmount)
+    unmount()
+    vi.mocked(createRelationship).mockResolvedValue({})
+    await renderForm()
+
+    // error should not appear on fresh open
+    expect(screen.queryByText(/cycle détecté/i)).not.toBeInTheDocument()
+  })
 })
