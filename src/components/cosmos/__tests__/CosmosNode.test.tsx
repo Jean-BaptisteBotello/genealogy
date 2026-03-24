@@ -5,6 +5,7 @@ import { CosmosNode } from '../CosmosNode'
 const baseProps = {
   id: 'p1',
   cx: 350, cy: 350, orbit: 1,
+  prenom: 'Jacques',
   deceased: false,
   mode: 'mono' as const,
   branchColor: '#7c9cbf',

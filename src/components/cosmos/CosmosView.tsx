@@ -365,6 +365,7 @@ export function CosmosView() {
               cx={0}
               cy={0}
               orbit={node.orbit}
+              prenom={person.prenom}
               deceased={deceased}
               mode={branchMode ? 'branch' : 'mono'}
               branchColor={color}

@@ -6,6 +6,7 @@ export interface CosmosNodeProps {
   cx: number
   cy: number
   orbit: number
+  prenom: string
   deceased: boolean
   mode: 'mono' | 'branch'
   branchColor: string
@@ -20,7 +21,7 @@ export interface CosmosNodeRenderProps extends CosmosNodeProps {
 }
 
 export const CosmosNode = forwardRef<SVGGElement, CosmosNodeRenderProps>(
-  function CosmosNode({ id, deceased, mode, branchColor, shadowDx, shadowDy, transform, onClick, onHover }, ref) {
+  function CosmosNode({ id, prenom, deceased, mode, branchColor, shadowDx, shadowDy, transform, onClick, onHover }, ref) {
     const cleanupRef = useRef<(() => void) | null>(null)
 
     const setRef = useCallback((node: SVGGElement | null) => {
@@ -83,6 +84,18 @@ export const CosmosNode = forwardRef<SVGGElement, CosmosNodeRenderProps>(
           strokeDasharray={strokeDasharray}
           filter={!deceased ? 'url(#nodeGlow)' : undefined}
         />
+        <text
+          textAnchor="middle"
+          dy={-9}
+          fill={mode === 'branch'
+            ? (deceased ? 'rgba(100,65,80,0.55)' : branchColor)
+            : (deceased ? 'rgba(100,65,80,0.55)' : 'rgba(255,255,255,0.85)')}
+          fontSize={9}
+          fontFamily="SF Mono, Fira Code, monospace"
+          letterSpacing="0.03em"
+        >
+          {prenom}
+        </text>
       </g>
     )
   }
