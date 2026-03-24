@@ -77,6 +77,11 @@ export function deriveRelationship(
 
     case 'époux/épouse':
       return currentToOther('UNION')
+
+    default: {
+      const _exhaustive: never = role
+      throw new Error(`Unhandled RelationshipRole: ${_exhaustive}`)
+    }
   }
 }
 
