@@ -250,7 +250,8 @@ export function DetailPanel({
                   type="button"
                   title="Lier une personne"
                   onClick={() => setIsLinking(true)}
-                  className="text-xs text-gray-400 hover:text-white px-1"
+                  className="text-xs px-2.5 py-0.5 rounded font-medium transition-colors"
+                  style={{ background: 'var(--accent-bg, rgba(60,30,45,0.06))', color: 'var(--accent-text, rgba(60,30,45,0.65))', border: '1px solid var(--divider, rgba(60,30,45,0.2))' }}
                 >
                   + Lier
                 </button>
@@ -330,7 +331,8 @@ export function DetailPanel({
                 type="button"
                 onClick={handleUploadClick}
                 disabled={isUploading}
-                className="text-[10px] text-gray-600 hover:text-gray-300 disabled:opacity-50"
+                className="text-[10px] px-2 py-0.5 rounded font-medium disabled:opacity-50 transition-colors"
+                style={{ background: 'var(--accent-bg, rgba(60,30,45,0.06))', color: 'var(--accent-text, rgba(60,30,45,0.65))', border: '1px solid var(--divider, rgba(60,30,45,0.2))' }}
                 title="Ajouter un document PDF"
               >
                 {isUploading ? '…' : '+ PDF'}
@@ -391,7 +393,8 @@ export function DetailPanel({
             <button
               type="button"
               onClick={() => onEditPerson?.(person.id)}
-              className="flex-1 text-xs py-1.5 bg-white/5 text-gray-300 hover:bg-white/10 rounded transition-colors"
+              className="flex-1 text-xs py-1.5 rounded transition-colors"
+              style={{ background: 'var(--accent-bg, rgba(60,30,45,0.06))', color: 'var(--accent-text, rgba(60,30,45,0.7))', border: '1px solid var(--divider, rgba(60,30,45,0.18))' }}
             >
               Modifier
             </button>
@@ -399,7 +402,8 @@ export function DetailPanel({
               <button
                 type="button"
                 onClick={() => onDeletePerson?.(person.id)}
-                className="flex-1 text-xs py-1.5 bg-red-900/20 text-red-400 hover:bg-red-900/40 rounded transition-colors"
+                className="flex-1 text-xs py-1.5 rounded transition-colors"
+                style={{ background: 'rgba(180,50,50,0.08)', color: 'rgba(180,50,50,0.75)', border: '1px solid rgba(180,50,50,0.18)' }}
               >
                 Supprimer
               </button>
