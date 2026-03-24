@@ -242,8 +242,7 @@ export function DetailPanel({
         )}
 
         {/* Relations */}
-        {(personRelationships.length > 0 || currentRole !== 'VIEWER') && (
-          <div>
+        <div>
             <div className="flex items-center justify-between mb-1">
               <div className="text-[10px] text-gray-600 uppercase tracking-widest">Relations</div>
               {currentRole !== 'VIEWER' && !isLinking && (
@@ -251,16 +250,16 @@ export function DetailPanel({
                   type="button"
                   title="Lier une personne"
                   onClick={() => setIsLinking(true)}
-                  className="text-[10px] text-gray-600 hover:text-gray-300"
+                  className="text-xs text-gray-400 hover:text-white px-1"
                 >
-                  +
+                  + Lier
                 </button>
               )}
               {currentRole !== 'VIEWER' && isLinking && (
                 <button
                   type="button"
                   onClick={() => setIsLinking(false)}
-                  className="text-[10px] text-gray-600 hover:text-gray-300"
+                  className="text-[10px] text-gray-500 hover:text-gray-300"
                 >
                   ✕
                 </button>
@@ -305,7 +304,6 @@ export function DetailPanel({
               </div>
             )}
           </div>
-        )}
 
         {/* Pending suggestions for ADMIN/EDITOR */}
         {currentRole !== 'VIEWER' && pendingSuggestions && pendingSuggestions.length > 0 && (
