@@ -63,6 +63,7 @@ export function computeCosmosLayout(
 
   const orbitMap = new Map<string, number>([[centerId, 0]])
 
+  // First pass: direct relationships with center → orbit 1-5 by role
   for (const rel of relationships) {
     let neighborId: string | null = null
     let isPersonA: boolean
@@ -82,6 +83,31 @@ export function computeCosmosLayout(
     const role = getMetadataRole(rel)
     const orbit = getOrbitForRole(role, rel.type, isPersonA)
     orbitMap.set(neighborId, orbit)
+  }
+
+  // BFS: discover persons connected via multi-hop relationships
+  // Persons at 2+ hops from center go to outer orbits (4 or 5)
+  const queue = [...orbitMap.keys()]
+  while (queue.length > 0) {
+    const current = queue.shift()!
+    const currentOrbit = orbitMap.get(current)!
+
+    for (const rel of relationships) {
+      let neighborId: string | null = null
+
+      if (rel.person_a_id === current && personIds.includes(rel.person_b_id)) {
+        neighborId = rel.person_b_id
+      } else if (rel.person_b_id === current && personIds.includes(rel.person_a_id)) {
+        neighborId = rel.person_a_id
+      }
+
+      if (!neighborId || orbitMap.has(neighborId)) continue
+
+      // Multi-hop: place at orbit max(currentOrbit + 1, 4), capped at 5
+      const hopOrbit = Math.min(Math.max(currentOrbit + 1, 4), 5)
+      orbitMap.set(neighborId, hopOrbit)
+      queue.push(neighborId)
+    }
   }
 
   const orphans = personIds.filter(id => !orbitMap.has(id))
