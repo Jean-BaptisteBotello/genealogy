@@ -250,7 +250,7 @@ export function DetailPanel({
                   type="button"
                   title="Lier une personne"
                   onClick={() => setIsLinking(true)}
-                  className="text-xs px-3.5 py-1 rounded font-medium transition-colors"
+                  className="text-[10px] px-2 py-0.5 rounded font-medium transition-colors"
                   style={{ background: 'var(--accent-bg, rgba(60,30,45,0.06))', color: 'var(--accent-text, rgba(60,30,45,0.65))', border: '1px solid var(--divider, rgba(60,30,45,0.2))' }}
                 >
                   + Lier

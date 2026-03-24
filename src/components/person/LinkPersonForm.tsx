@@ -71,21 +71,27 @@ export function LinkPersonForm({ currentPersonId, persons, onClose }: LinkPerson
         placeholder="Rechercher une personne…"
         value={searchQuery}
         onChange={e => setSearchQuery(e.target.value)}
-        className="w-full bg-[#0d1117] border border-[#1e3a5f] rounded px-2 py-1 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+        className="w-full rounded px-2 py-1.5 text-xs focus:outline-none"
+        style={{
+          background: 'var(--input-bg, #0d1117)',
+          border: '1px solid var(--divider, #1e3a5f)',
+          color: 'var(--text-primary, white)',
+        }}
       />
 
       {filtered.length > 0 && (
-        <div className="max-h-24 overflow-y-auto flex flex-col gap-0.5">
+        <div className="max-h-28 overflow-y-auto flex flex-col gap-0.5">
           {filtered.map(p => (
             <button
               key={p.id}
               type="button"
               onClick={() => setSelectedPersonId(p.id)}
-              className={`text-left text-xs px-2 py-1 rounded ${
-                selectedPersonId === p.id
-                  ? 'bg-blue-600/30 text-blue-200'
-                  : 'text-gray-400 hover:bg-[#1e3a5f]/30'
-              }`}
+              className="text-left text-xs px-2 py-1.5 rounded transition-colors"
+              style={{
+                background: selectedPersonId === p.id ? 'var(--accent-hover, rgba(59,130,246,0.2))' : 'transparent',
+                color: selectedPersonId === p.id ? 'var(--text-primary, white)' : 'var(--text-secondary, #9ca3af)',
+                fontWeight: selectedPersonId === p.id ? 500 : 400,
+              }}
             >
               {p.prenom} {p.nom}
               {p.date_naissance ? ` · ${p.date_naissance.slice(0, 4)}` : ''}
@@ -95,18 +101,19 @@ export function LinkPersonForm({ currentPersonId, persons, onClose }: LinkPerson
       )}
 
       <div>
-        <div className="text-[10px] text-gray-600 uppercase tracking-widest mb-1">Son rôle</div>
+        <div className="text-[10px] uppercase tracking-widest mb-1" style={{ color: 'var(--section-label, #4b5563)' }}>Son rôle</div>
         <div className="flex flex-wrap gap-1">
           {ROLES_FAMILLE_DIRECTE.map(role => (
             <button
               key={role}
               type="button"
               onClick={() => setSelectedRole(role)}
-              className={`text-[10px] px-2 py-0.5 rounded border ${
-                selectedRole === role
-                  ? 'border-blue-500 text-blue-200 bg-blue-600/20'
-                  : 'border-[#1e3a5f] text-gray-500 hover:text-gray-300'
-              }`}
+              className="text-[10px] px-2 py-0.5 rounded transition-colors"
+              style={{
+                border: `1px solid ${selectedRole === role ? 'var(--text-link, #3b82f6)' : 'var(--divider, #1e3a5f)'}`,
+                color: selectedRole === role ? 'var(--text-primary, white)' : 'var(--text-secondary, #6b7280)',
+                background: selectedRole === role ? 'var(--accent-hover, rgba(59,130,246,0.15))' : 'transparent',
+              }}
             >
               {role}
             </button>
@@ -118,7 +125,8 @@ export function LinkPersonForm({ currentPersonId, persons, onClose }: LinkPerson
         <button
           type="button"
           onClick={() => setIsExtendedOpen(v => !v)}
-          className="text-[10px] text-gray-600 hover:text-gray-400"
+          className="text-[10px]"
+          style={{ color: 'var(--text-muted, #4b5563)' }}
         >
           {isExtendedOpen ? '▾' : '▸'} Famille étendue
         </button>
@@ -129,11 +137,12 @@ export function LinkPersonForm({ currentPersonId, persons, onClose }: LinkPerson
                 key={role}
                 type="button"
                 onClick={() => setSelectedRole(role)}
-                className={`text-[10px] px-2 py-0.5 rounded border ${
-                  selectedRole === role
-                    ? 'border-blue-500 text-blue-200 bg-blue-600/20'
-                    : 'border-[#1e3a5f] text-gray-500 hover:text-gray-300'
-                }`}
+                className="text-[10px] px-2 py-0.5 rounded transition-colors"
+                style={{
+                  border: `1px solid ${selectedRole === role ? 'var(--text-link, #3b82f6)' : 'var(--divider, #1e3a5f)'}`,
+                  color: selectedRole === role ? 'var(--text-primary, white)' : 'var(--text-secondary, #6b7280)',
+                  background: selectedRole === role ? 'var(--accent-hover, rgba(59,130,246,0.15))' : 'transparent',
+                }}
               >
                 {role}
               </button>
@@ -142,13 +151,14 @@ export function LinkPersonForm({ currentPersonId, persons, onClose }: LinkPerson
         )}
       </div>
 
-      {error && <p className="text-[10px] text-red-400">{error}</p>}
+      {error && <p className="text-[10px] text-red-500">{error}</p>}
 
       <div className="flex justify-end gap-2 mt-1">
         <button
           type="button"
           onClick={resetAndClose}
-          className="text-[10px] text-gray-600 hover:text-gray-300"
+          className="text-[10px]"
+          style={{ color: 'var(--text-muted, #6b7280)' }}
         >
           Annuler
         </button>
