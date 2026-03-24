@@ -1,60 +1,89 @@
-interface CosmosNodeProps {
+// src/components/cosmos/CosmosNode.tsx
+import { forwardRef, useCallback, useRef } from 'react'
+
+export interface CosmosNodeProps {
   id: string
-  x: number
-  y: number
-  prenom: string
-  nom: string
-  isSelected: boolean
-  isCenter: boolean
+  cx: number
+  cy: number
+  orbit: number
+  deceased: boolean
+  mode: 'mono' | 'branch'
   branchColor: string
   onClick: (id: string) => void
   onHover: (id: string | null) => void
 }
 
-export function CosmosNode({
-  id,
-  x,
-  y,
-  prenom,
-  nom,
-  isSelected,
-  isCenter,
-  branchColor,
-  onClick,
-  onHover,
-}: CosmosNodeProps) {
-  const radius = isCenter ? 30 : 22
-  const strokeWidth = isSelected ? 3 : 1.5
-  const stroke = isSelected ? '#ffffff' : branchColor
-  const initials =
-    (prenom.charAt(0).toUpperCase()) + (nom.charAt(0).toUpperCase())
-
-  return (
-    <g
-      onMouseEnter={() => onHover(id)}
-      onMouseLeave={() => onHover(null)}
-      style={{ cursor: 'pointer' }}
-    >
-      <circle
-        cx={x}
-        cy={y}
-        r={radius}
-        fill={branchColor}
-        fillOpacity={0.85}
-        stroke={stroke}
-        strokeWidth={strokeWidth}
-      />
-      <text
-        x={x}
-        y={y}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fill="white"
-        fontSize={isCenter ? 14 : 12}
-        onClick={() => onClick(id)}
-      >
-        {initials}
-      </text>
-    </g>
-  )
+export interface CosmosNodeRenderProps extends CosmosNodeProps {
+  shadowDx: number
+  shadowDy: number
+  transform?: string
 }
+
+export const CosmosNode = forwardRef<SVGGElement, CosmosNodeRenderProps>(
+  function CosmosNode({ id, deceased, mode, branchColor, shadowDx, shadowDy, transform, onClick, onHover }, ref) {
+    const cleanupRef = useRef<(() => void) | null>(null)
+
+    const setRef = useCallback((node: SVGGElement | null) => {
+      // Forward to external ref
+      if (typeof ref === 'function') ref(node)
+      else if (ref) (ref as React.MutableRefObject<SVGGElement | null>).current = node
+
+      // Clean up previous native listeners
+      if (cleanupRef.current) {
+        cleanupRef.current()
+        cleanupRef.current = null
+      }
+
+      if (node) {
+        const handleMouseEnter = () => onHover(id)
+        const handleMouseLeave = () => onHover(null)
+        const handleClick = () => onClick(id)
+        node.addEventListener('mouseenter', handleMouseEnter)
+        node.addEventListener('mouseleave', handleMouseLeave)
+        node.addEventListener('click', handleClick)
+        cleanupRef.current = () => {
+          node.removeEventListener('mouseenter', handleMouseEnter)
+          node.removeEventListener('mouseleave', handleMouseLeave)
+          node.removeEventListener('click', handleClick)
+        }
+      }
+    }, [id, onHover, onClick, ref])
+
+    const fill = mode === 'branch'
+      ? (deceased ? 'none' : branchColor)
+      : (deceased ? 'none' : 'white')
+
+    const stroke = deceased
+      ? (mode === 'branch' ? branchColor : 'rgba(140,100,120,0.6)')
+      : 'none'
+
+    const strokeOpacity = deceased ? (mode === 'branch' ? 0.7 : 1) : undefined
+    const strokeDasharray = deceased ? '2 2' : undefined
+
+    return (
+      <g
+        ref={setRef}
+        transform={transform}
+        style={{ cursor: 'pointer' }}
+      >
+        <line
+          className="shadow-line"
+          x1={0} y1={0}
+          x2={shadowDx} y2={shadowDy}
+          stroke="rgba(80,45,65,0.45)"
+          strokeWidth={deceased ? 1 : 1.2}
+          strokeLinecap="round"
+        />
+        <circle
+          r={5}
+          fill={fill}
+          stroke={stroke}
+          strokeWidth={deceased ? 1 : undefined}
+          strokeOpacity={strokeOpacity}
+          strokeDasharray={strokeDasharray}
+          filter={!deceased ? 'url(#nodeGlow)' : undefined}
+        />
+      </g>
+    )
+  }
+)

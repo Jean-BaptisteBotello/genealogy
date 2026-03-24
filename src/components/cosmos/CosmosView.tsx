@@ -1,13 +1,57 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, useMemo, useCallback, createRef } from 'react'
 import { useTree } from '@/lib/context/tree-context'
 import { computeCosmosLayout, ORBIT_RADII } from './cosmosLayout'
 import { CosmosNode } from './CosmosNode'
-import { CosmosEdge } from './CosmosEdge'
 import { CosmosTooltip } from './CosmosTooltip'
+import type { RelationshipType } from '@/lib/types/database'
 
-const DEFAULT_COLOR = '#3b82f6'
+const ORBIT_SPEEDS: Record<number, number> = {
+  1: 0.16,
+  2: 0.12,
+  3: 0.09,
+  4: 0.07,
+  5: 0.05,
+}
+
+const STROKE_ALPHAS: Record<number, number> = {
+  0: 0,
+  1: 0.14,
+  2: 0.10,
+  3: 0.06,
+  4: 0.04,
+  5: 0.03,
+}
+
+const RELATION_LABEL: Record<RelationshipType, string> = {
+  PARENT_CHILD: 'Parent / Enfant',
+  UNION: 'Union',
+  ADOPTION: 'Adoption',
+  SIBLING: 'Frère / Sœur',
+  HALF_SIBLING: 'Demi-frère / Demi-sœur',
+  STEP: 'Beau-parent / Bel-enfant',
+}
+
+const BG_GRADIENT = 'linear-gradient(170deg, #b5c4d3 0%, #c4b8cf 45%, #c4909e 80%, #b07d8a 100%)'
+
+const LS_KEY = 'cosmos_branch_colors'
+
+function drawGrain(canvas: HTMLCanvasElement) {
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  const { width, height } = canvas
+  const imageData = ctx.createImageData(width, height)
+  const data = imageData.data
+  for (let i = 0; i < data.length; i += 4) {
+    const v = Math.floor(Math.random() * 256)
+    data[i] = v
+    data[i + 1] = v
+    data[i + 2] = v
+    data[i + 3] = 255
+  }
+  ctx.putImageData(imageData, 0, 0)
+}
 
 export function CosmosView() {
   const {
@@ -21,6 +65,22 @@ export function CosmosView() {
   } = useTree()
 
   const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const [mousePos, setMousePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
+  const [branchMode, setBranchMode] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(LS_KEY)
+      return stored === 'true'
+    }
+    return false
+  })
+
+  const containerRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const svgRef = useRef<SVGSVGElement>(null)
+  const cxRef = useRef<number>(0)
+  const cyRef = useRef<number>(0)
+  const rafRef = useRef<number | null>(null)
+  const tRef = useRef<number>(0)
 
   // Auto-select first person when none is selected
   useEffect(() => {
@@ -28,6 +88,136 @@ export function CosmosView() {
       selectPerson(persons[0].id)
     }
   }, [persons, selectedPersonId, selectPerson])
+
+  // Draw grain canvas once
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const container = containerRef.current
+    if (!canvas || !container) return
+    const { offsetWidth: w, offsetHeight: h } = container
+    canvas.width = w || 800
+    canvas.height = h || 600
+    drawGrain(canvas)
+  }, [])
+
+  // ResizeObserver to update cxRef/cyRef
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    const update = () => {
+      cxRef.current = container.offsetWidth / 2
+      cyRef.current = container.offsetHeight / 2
+    }
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(container)
+    return () => ro.disconnect()
+  }, [])
+
+  // Build branch color map
+  const branchColorMap = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const pb of personBranches) {
+      const branch = branches.find(b => b.id === pb.branch_id)
+      if (branch) map.set(pb.person_id, branch.couleur)
+    }
+    return map
+  }, [branches, personBranches])
+
+  // Role map: personId → role label string
+  const roleMap = useMemo(() => {
+    const map = new Map<string, string>()
+    const centerId = selectedPersonId ?? (persons.length > 0 ? persons[0].id : null)
+    if (!centerId) return map
+    for (const rel of relationships) {
+      let neighborId: string | null = null
+      if (rel.person_a_id === centerId) neighborId = rel.person_b_id
+      else if (rel.person_b_id === centerId) neighborId = rel.person_a_id
+      if (!neighborId) continue
+      const meta = rel.metadata as { role?: unknown }
+      const role = typeof meta?.role === 'string' ? meta.role : RELATION_LABEL[rel.type] ?? rel.type
+      if (!map.has(neighborId)) map.set(neighborId, role)
+    }
+    return map
+  }, [relationships, selectedPersonId, persons])
+
+  const centerId = selectedPersonId ?? (persons.length > 0 ? persons[0].id : null)
+  const personIds = persons.map(p => p.id)
+  const { nodes, orphans } = useMemo(() => {
+    if (!centerId || persons.length === 0) return { nodes: [], orphans: [] }
+    return computeCosmosLayout(personIds, relationships, centerId)
+  }, [personIds, relationships, centerId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Non-center nodes only
+  const nonCenterNodes = useMemo(
+    () => nodes.filter(n => n.id !== centerId),
+    [nodes, centerId]
+  )
+
+  // Create stable refs for each non-center node
+  const nodeRefs = useMemo(() => {
+    const map = new Map<string, React.RefObject<SVGGElement | null>>()
+    for (const n of nonCenterNodes) {
+      map.set(n.id, createRef<SVGGElement | null>())
+    }
+    return map
+  }, [nonCenterNodes])
+
+  // rAF animation loop
+  useEffect(() => {
+    if (persons.length === 0 || !centerId) return
+
+    const loop = (timestamp: number) => {
+      tRef.current = timestamp
+      const cx = cxRef.current
+      const cy = cyRef.current
+
+      for (const node of nonCenterNodes) {
+        const ref = nodeRefs.get(node.id)
+        if (!ref?.current) continue
+        const speed = ORBIT_SPEEDS[node.orbit] ?? 0.05
+        const angle = node.angle + (timestamp * speed * 0.001)
+        const radius = ORBIT_RADII[node.orbit] ?? ORBIT_RADII[5]
+        const nx = cx + Math.cos(angle) * radius
+        const ny = cy + Math.sin(angle) * radius
+        ref.current.setAttribute('transform', `translate(${nx},${ny})`)
+
+        // Update shadow line direction toward center
+        const dx = cx - nx
+        const dy = cy - ny
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        const shadowLen = 8
+        const sdx = dist > 0 ? (dx / dist) * shadowLen : 0
+        const sdy = dist > 0 ? (dy / dist) * shadowLen : 0
+        const line = ref.current.querySelector('.shadow-line')
+        if (line) {
+          line.setAttribute('x2', String(sdx))
+          line.setAttribute('y2', String(sdy))
+        }
+      }
+
+      rafRef.current = requestAnimationFrame(loop)
+    }
+
+    rafRef.current = requestAnimationFrame(loop)
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
+    }
+  }, [nonCenterNodes, nodeRefs, centerId, persons.length])
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY })
+  }, [])
+
+  const handleToggleBranch = useCallback(() => {
+    setBranchMode(prev => {
+      const next = !prev
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(LS_KEY, String(next))
+      }
+      return next
+    })
+  }, [])
 
   // Empty state
   if (persons.length === 0) {
@@ -40,15 +230,15 @@ export function CosmosView() {
           justifyContent: 'center',
           height: '100%',
           gap: 16,
-          color: '#9ca3af',
+          background: BG_GRADIENT,
         }}
       >
-        <div style={{ fontSize: 18 }}>🌳 Votre arbre vous attend</div>
+        <div style={{ fontSize: 18, color: '#5a3545' }}>Votre arbre vous attend</div>
         <button
           onClick={openAddPerson}
           style={{
             padding: '8px 16px',
-            background: '#3b82f6',
+            background: 'rgba(90,53,69,0.85)',
             color: 'white',
             border: 'none',
             borderRadius: 6,
@@ -62,89 +252,190 @@ export function CosmosView() {
     )
   }
 
-  // Build branch color map: personId → couleur
-  const branchColorMap = new Map<string, string>()
-  for (const pb of personBranches) {
-    const branch = branches.find(b => b.id === pb.branch_id)
-    if (branch) {
-      branchColorMap.set(pb.person_id, branch.couleur)
-    }
-  }
-
-  const centerId = selectedPersonId ?? persons[0].id
-  const personIds = persons.map(p => p.id)
-  const { nodes, orphans } = computeCosmosLayout(personIds, relationships, centerId)
-
-  // Derive x/y from orbit and angle
-  const nodePositions = new Map(
-    nodes.map(n => {
-      const radius = ORBIT_RADII[n.orbit] ?? ORBIT_RADII[5]
-      return [n.id, { x: Math.cos(n.angle) * radius, y: Math.sin(n.angle) * radius }]
-    })
-  )
-
-  const cx = 350
-  const cy = 350
-
-  // Find hovered person for tooltip
+  const centerPerson = centerId ? persons.find(p => p.id === centerId) : null
   const hoveredPerson = hoveredId ? persons.find(p => p.id === hoveredId) ?? null : null
-  const hoveredPos = hoveredId ? nodePositions.get(hoveredId) ?? null : null
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+    <div
+      ref={containerRef}
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        background: BG_GRADIENT,
+        overflow: 'hidden',
+      }}
+      onMouseMove={handleMouseMove}
+    >
+      {/* Grain canvas */}
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          mixBlendMode: 'overlay',
+          opacity: 0.10,
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Branch toggle */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 12,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 10,
+        }}
+      >
+        <button
+          data-testid="branch-toggle"
+          onClick={handleToggleBranch}
+          style={{
+            padding: '4px 14px',
+            background: branchMode ? 'rgba(90,53,69,0.85)' : 'rgba(255,255,255,0.25)',
+            color: branchMode ? 'white' : 'rgba(90,53,69,0.85)',
+            border: '1px solid rgba(90,53,69,0.3)',
+            borderRadius: 20,
+            cursor: 'pointer',
+            fontSize: 12,
+            backdropFilter: 'blur(8px)',
+          }}
+        >
+          Couleurs de branches
+        </button>
+      </div>
+
+      {/* SVG */}
       <svg
-        viewBox="0 0 700 700"
+        ref={svgRef}
         width="100%"
         height="100%"
+        style={{ display: 'block' }}
       >
-        {/* Edges */}
-        {relationships.map(rel => {
-          const pa = nodePositions.get(rel.person_a_id)
-          const pb = nodePositions.get(rel.person_b_id)
-          if (!pa || !pb) return null
-          return (
-            <CosmosEdge
-              key={rel.id}
-              x1={cx + pa.x}
-              y1={cy + pa.y}
-              x2={cx + pb.x}
-              y2={cy + pb.y}
-              type={rel.type}
-            />
-          )
-        })}
+        <defs>
+          <radialGradient id="cosmosGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="rgba(255,230,245,0.18)" />
+            <stop offset="100%" stopColor="rgba(180,130,160,0)" />
+          </radialGradient>
+          <filter id="nodeGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2.5" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
 
-        {/* Nodes */}
-        {nodes.map(node => {
+        {/* Glow disk */}
+        <circle
+          cx="50%"
+          cy="50%"
+          r={200}
+          fill="url(#cosmosGlow)"
+        />
+
+        {/* Orbit rings */}
+        {[1, 2, 3, 4, 5].map(orbit => (
+          <circle
+            key={`orbit-ring-${orbit}`}
+            cx="50%"
+            cy="50%"
+            r={ORBIT_RADII[orbit]}
+            fill="none"
+            stroke={`rgba(80,45,65,${STROKE_ALPHAS[orbit]})`}
+            strokeWidth={1}
+          />
+        ))}
+
+        {/* Non-center nodes */}
+        {nonCenterNodes.map(node => {
           const person = persons.find(p => p.id === node.id)
           if (!person) return null
-          const pos = nodePositions.get(node.id) ?? { x: 0, y: 0 }
+          const color = branchColorMap.get(node.id) ?? 'white'
+          const deceased = person.date_deces !== null
           return (
             <CosmosNode
               key={node.id}
+              ref={nodeRefs.get(node.id) as React.RefObject<SVGGElement>}
               id={node.id}
-              x={cx + pos.x}
-              y={cy + pos.y}
-              prenom={person.prenom}
-              nom={person.nom}
-              isSelected={node.id === selectedPersonId}
-              isCenter={node.id === centerId}
-              branchColor={branchColorMap.get(node.id) ?? DEFAULT_COLOR}
+              cx={0}
+              cy={0}
+              orbit={node.orbit}
+              deceased={deceased}
+              mode={branchMode ? 'branch' : 'mono'}
+              branchColor={color}
+              shadowDx={0}
+              shadowDy={0}
               onClick={selectPerson}
               onHover={setHoveredId}
             />
           )
         })}
 
-        {/* Tooltip */}
-        {hoveredPerson && hoveredPos && (
-          <CosmosTooltip
-            person={hoveredPerson}
-            x={cx + hoveredPos.x}
-            y={cy + hoveredPos.y}
-          />
+        {/* Center node */}
+        {centerPerson && (
+          <g
+            style={{ cursor: 'pointer' }}
+            onClick={() => selectPerson(centerPerson.id)}
+          >
+            <circle
+              cx="50%"
+              cy="50%"
+              r={18}
+              fill="none"
+              stroke="rgba(255,255,255,0.35)"
+              strokeWidth={1}
+            />
+            <circle
+              cx="50%"
+              cy="50%"
+              r={10}
+              fill="white"
+              filter="url(#nodeGlow)"
+            />
+            <text
+              x="50%"
+              y="50%"
+              dy="-22"
+              textAnchor="middle"
+              fill="white"
+              fontSize={11}
+              fontWeight={600}
+              style={{ pointerEvents: 'none', textShadow: '0 1px 3px rgba(80,45,65,0.5)' }}
+            >
+              {centerPerson.prenom}
+            </text>
+            <text
+              x="50%"
+              y="50%"
+              dy="-10"
+              textAnchor="middle"
+              fill="rgba(255,255,255,0.75)"
+              fontSize={9}
+              style={{ pointerEvents: 'none' }}
+            >
+              {centerPerson.nom}
+              {centerPerson.date_naissance
+                ? ` · ${new Date(centerPerson.date_naissance).getFullYear()}`
+                : ''}
+            </text>
+          </g>
         )}
       </svg>
+
+      {/* Tooltip */}
+      {hoveredPerson && (
+        <CosmosTooltip
+          person={hoveredPerson}
+          role={roleMap.get(hoveredPerson.id) ?? ''}
+          x={mousePos.x}
+          y={mousePos.y}
+        />
+      )}
 
       {/* Orphan badge */}
       {orphans.length > 0 && (
@@ -153,11 +444,13 @@ export function CosmosView() {
             position: 'absolute',
             bottom: 16,
             right: 16,
-            background: '#1e3a5f',
-            color: '#9ca3af',
+            background: 'rgba(255,245,250,0.85)',
+            color: '#7a5060',
+            border: '1px solid rgba(160,110,130,0.25)',
             borderRadius: 6,
             padding: '4px 10px',
             fontSize: 12,
+            backdropFilter: 'blur(8px)',
           }}
         >
           {orphans.length} non connecté{orphans.length > 1 ? 's' : ''}

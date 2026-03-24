@@ -1,73 +1,75 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import { CosmosNode } from '../CosmosNode'
 
-const defaultProps = {
+const baseProps = {
   id: 'p1',
-  x: 100,
-  y: 80,
-  prenom: 'Jean',
-  nom: 'Dupont',
-  isSelected: false,
-  isCenter: false,
-  branchColor: '#3b82f6',
-  onClick: vi.fn(),
-  onHover: vi.fn(),
+  cx: 350, cy: 350, orbit: 1,
+  deceased: false,
+  mode: 'mono' as const,
+  branchColor: '#7c9cbf',
+  shadowDx: -20, shadowDy: 0,
+  onClick: vi.fn(), onHover: vi.fn(),
+}
+
+function renderInSvg(node: React.ReactElement) {
+  const { container } = render(
+    <svg xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="nodeGlow"><feGaussianBlur stdDeviation="2"/></filter>
+      </defs>
+      {node}
+    </svg>
+  )
+  return container
 }
 
 describe('CosmosNode', () => {
-  it('renders a circle at (x, y)', () => {
-    const { container } = render(
-      <svg><CosmosNode {...defaultProps} /></svg>
-    )
+  it('renders a circle with fill white in mono mode (alive)', () => {
+    const container = renderInSvg(<CosmosNode {...baseProps} />)
     const circle = container.querySelector('circle')
-    expect(circle).toBeTruthy()
-    expect(circle?.getAttribute('cx')).toBe('100')
-    expect(circle?.getAttribute('cy')).toBe('80')
+    expect(circle?.getAttribute('fill')).toBe('white')
   })
 
-  it('shows initials inside the circle', () => {
-    render(<svg><CosmosNode {...defaultProps} /></svg>)
-    expect(screen.getByText('JD')).toBeTruthy()
-  })
-
-  it('applies selected styling when isSelected=true', () => {
-    const { container } = render(
-      <svg><CosmosNode {...defaultProps} isSelected={true} /></svg>
-    )
+  it('renders dashed circle (no fill) in mono mode (deceased)', () => {
+    const container = renderInSvg(<CosmosNode {...baseProps} deceased={true} />)
     const circle = container.querySelector('circle')
-    expect(circle?.getAttribute('stroke-width')).toBe('3')
+    expect(circle?.getAttribute('fill')).toBe('none')
+    expect(circle?.getAttribute('stroke-dasharray')).toBeTruthy()
   })
 
-  it('applies center styling when isCenter=true', () => {
-    const { container } = render(
-      <svg><CosmosNode {...defaultProps} isCenter={true} /></svg>
-    )
+  it('renders circle with branch color in branch mode (alive)', () => {
+    const container = renderInSvg(<CosmosNode {...baseProps} mode="branch" />)
     const circle = container.querySelector('circle')
-    const r = Number(circle?.getAttribute('r'))
-    expect(r).toBeGreaterThan(22)
+    expect(circle?.getAttribute('fill')).toBe('#7c9cbf')
   })
 
-  it('calls onClick when clicked', () => {
-    const onClick = vi.fn()
-    render(<svg><CosmosNode {...defaultProps} onClick={onClick} /></svg>)
-    fireEvent.click(screen.getByText('JD'))
-    expect(onClick).toHaveBeenCalledWith('p1')
+  it('renders dashed circle with branch stroke in branch mode (deceased)', () => {
+    const container = renderInSvg(<CosmosNode {...baseProps} mode="branch" deceased={true} />)
+    const circle = container.querySelector('circle')
+    expect(circle?.getAttribute('fill')).toBe('none')
+    expect(circle?.getAttribute('stroke')).toBe('#7c9cbf')
+    expect(circle?.getAttribute('stroke-dasharray')).toBeTruthy()
   })
 
-  it('calls onHover with id when mouse enters', () => {
+  it('renders a shadow line', () => {
+    const container = renderInSvg(<CosmosNode {...baseProps} />)
+    expect(container.querySelector('.shadow-line')).toBeTruthy()
+  })
+
+  it('calls onHover with id on mouseenter', () => {
     const onHover = vi.fn()
-    const { container } = render(<svg><CosmosNode {...defaultProps} onHover={onHover} /></svg>)
-    const group = container.querySelector('g')!
-    fireEvent.mouseEnter(group)
+    const container = renderInSvg(<CosmosNode {...baseProps} onHover={onHover} />)
+    const g = container.querySelector('g[style]')
+    if (g) g.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
     expect(onHover).toHaveBeenCalledWith('p1')
   })
 
-  it('calls onHover with null when mouse leaves', () => {
-    const onHover = vi.fn()
-    const { container } = render(<svg><CosmosNode {...defaultProps} onHover={onHover} /></svg>)
-    const group = container.querySelector('g')!
-    fireEvent.mouseLeave(group)
-    expect(onHover).toHaveBeenCalledWith(null)
+  it('calls onClick with id on click', () => {
+    const onClick = vi.fn()
+    const container = renderInSvg(<CosmosNode {...baseProps} onClick={onClick} />)
+    const g = container.querySelector('g[style]')
+    if (g) g.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(onClick).toHaveBeenCalledWith('p1')
   })
 })

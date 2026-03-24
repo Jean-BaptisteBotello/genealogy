@@ -1,7 +1,9 @@
+// src/components/cosmos/CosmosTooltip.tsx
 import type { Person } from '@/lib/types/database'
 
 interface CosmosTooltipProps {
   person: Person
+  role: string
   x: number
   y: number
 }
@@ -11,34 +13,34 @@ function formatYear(date: string | null): string {
   return new Date(date).getFullYear().toString()
 }
 
-export function CosmosTooltip({ person, x, y }: CosmosTooltipProps) {
+export function CosmosTooltip({ person, role, x, y }: CosmosTooltipProps) {
   const birthYear = formatYear(person.date_naissance)
   const deathYear = formatYear(person.date_deces)
-  const dates = [birthYear, deathYear].filter(Boolean).join(' – ')
-
-  const W = 160
-  const H = 60
-  const tx = x + 30
-  const ty = y - H / 2
+  const deceased = person.date_deces !== null
 
   return (
-    <foreignObject x={tx} y={ty} width={W} height={H} style={{ overflow: 'visible', pointerEvents: 'none' }}>
-      <div
-        style={{
-          background: '#0d1117',
-          border: '1px solid #1e3a5f',
-          borderRadius: 6,
-          padding: '6px 10px',
-          color: 'white',
-          fontSize: 12,
-          lineHeight: 1.4,
-          whiteSpace: 'nowrap',
-        }}
-      >
-        <div style={{ fontWeight: 600 }}>{person.prenom} {person.nom}</div>
-        {dates && <div style={{ color: '#9ca3af' }}>{dates}</div>}
-        {person.lieu_naissance && <div style={{ color: '#6b7280', fontSize: 11 }}>{person.lieu_naissance}</div>}
+    <div
+      style={{
+        position: 'fixed',
+        left: x + 14,
+        top: y - 10,
+        pointerEvents: 'none',
+        zIndex: 20,
+        background: 'rgba(255,245,250,0.92)',
+        border: '1px solid rgba(160,110,130,0.25)',
+        borderRadius: 6,
+        padding: '7px 11px',
+        backdropFilter: 'blur(8px)',
+        minWidth: 120,
+      }}
+    >
+      <div style={{ color: '#5a3545', fontSize: 12, fontWeight: 600, letterSpacing: '0.02em' }}>
+        {person.prenom} {person.nom}
       </div>
-    </foreignObject>
+      <div style={{ color: '#9c7888', fontSize: 10, marginTop: 2 }}>
+        {birthYear}{deceased && deathYear ? ` – † ${deathYear}` : ''}
+      </div>
+      <div style={{ color: '#a06878', fontSize: 10, marginTop: 1 }}>{role}</div>
+    </div>
   )
 }
