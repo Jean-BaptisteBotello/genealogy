@@ -21,10 +21,10 @@ export interface TreeContextValue {
   // Toast
   showToast: (message: string, type?: 'error' | 'info') => void
   // Filters
-  showDirectFiliation: boolean
-  setShowDirectFiliation: (v: boolean) => void
-  showIndirectFiliation: boolean
-  setShowIndirectFiliation: (v: boolean) => void
+  showFamily: boolean
+  setShowFamily: (v: boolean) => void
+  showExtendedFamily: boolean
+  setShowExtendedFamily: (v: boolean) => void
   filteredRelationships: Relationship[]
 }
 

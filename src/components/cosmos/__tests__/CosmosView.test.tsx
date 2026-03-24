@@ -31,8 +31,8 @@ const mockRel = (a: string, b: string, type: Relationship['type'] = 'PARENT_CHIL
 const baseTree = {
   branches: [], personBranches: [], currentRole: 'ADMIN' as const,
   openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
-  showDirectFiliation: true, setShowDirectFiliation: vi.fn(),
-  showIndirectFiliation: true, setShowIndirectFiliation: vi.fn(),
+  showFamily: true, setShowFamily: vi.fn(),
+  showExtendedFamily: true, setShowExtendedFamily: vi.fn(),
 }
 
 beforeEach(() => { vi.clearAllMocks() })

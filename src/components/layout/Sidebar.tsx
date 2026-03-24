@@ -15,7 +15,7 @@ interface SidebarProps {
 
 export function Sidebar({ branches, currentRole, onManageMembers }: SidebarProps) {
   const router = useRouter()
-  const { showDirectFiliation, setShowDirectFiliation, showIndirectFiliation, setShowIndirectFiliation } = useTree()
+  const { showFamily, setShowFamily, showExtendedFamily, setShowExtendedFamily } = useTree()
   const [branchModalMode, setBranchModalMode] = useState<
     'add' | { type: 'edit'; branch: Branch } | null
   >(null)
@@ -113,12 +113,12 @@ export function Sidebar({ branches, currentRole, onManageMembers }: SidebarProps
           <input id="filter-avec-documents" name="filter-avec-documents" type="checkbox" className="accent-yellow-500" /> Avec documents
         </label>
 
-        <div className="text-[10px] uppercase tracking-widest mb-1 mt-3" style={{ color: 'var(--section-label)' }}>Filiation</div>
-        <label htmlFor="filter-directe" className="flex items-center gap-2 text-xs px-2 py-1 cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
-          <input id="filter-directe" name="filter-directe" type="checkbox" className="accent-blue-500" checked={showDirectFiliation} onChange={e => setShowDirectFiliation(e.target.checked)} /> Directe
+        <div className="text-[10px] uppercase tracking-widest mb-1 mt-3" style={{ color: 'var(--section-label)' }}>Rôles</div>
+        <label htmlFor="filter-famille" className="flex items-center gap-2 text-xs px-2 py-1 cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
+          <input id="filter-famille" name="filter-famille" type="checkbox" className="accent-blue-500" checked={showFamily} onChange={e => setShowFamily(e.target.checked)} /> Famille
         </label>
-        <label htmlFor="filter-indirecte" className="flex items-center gap-2 text-xs px-2 py-1 cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
-          <input id="filter-indirecte" name="filter-indirecte" type="checkbox" className="accent-purple-500" checked={showIndirectFiliation} onChange={e => setShowIndirectFiliation(e.target.checked)} /> Indirecte
+        <label htmlFor="filter-etendue" className="flex items-center gap-2 text-xs px-2 py-1 cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
+          <input id="filter-etendue" name="filter-etendue" type="checkbox" className="accent-purple-500" checked={showExtendedFamily} onChange={e => setShowExtendedFamily(e.target.checked)} /> Famille étendue
         </label>
 
         <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--divider)' }}>

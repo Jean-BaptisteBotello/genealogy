@@ -40,7 +40,7 @@ describe('SablierView', () => {
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
-      showDirectFiliation: true, setShowDirectFiliation: vi.fn(), showIndirectFiliation: true, setShowIndirectFiliation: vi.fn(),
+      showFamily: true, setShowFamily: vi.fn(), showExtendedFamily: true, setShowExtendedFamily: vi.fn(),
     })
     render(<SablierView />)
     expect(screen.getByText(/votre arbre vous attend/i)).toBeTruthy()
@@ -54,7 +54,7 @@ describe('SablierView', () => {
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
-      showDirectFiliation: true, setShowDirectFiliation: vi.fn(), showIndirectFiliation: true, setShowIndirectFiliation: vi.fn(),
+      showFamily: true, setShowFamily: vi.fn(), showExtendedFamily: true, setShowExtendedFamily: vi.fn(),
     })
     render(<SablierView />)
     expect(screen.getByTestId('react-flow')).toBeTruthy()
@@ -68,7 +68,7 @@ describe('SablierView', () => {
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
-      showDirectFiliation: true, setShowDirectFiliation: vi.fn(), showIndirectFiliation: true, setShowIndirectFiliation: vi.fn(),
+      showFamily: true, setShowFamily: vi.fn(), showExtendedFamily: true, setShowExtendedFamily: vi.fn(),
     })
     render(<SablierView />)
     expect(screen.getByTestId('rf-node-p1')).toBeTruthy()
@@ -83,7 +83,7 @@ describe('SablierView', () => {
       currentRole: 'ADMIN',
       selectedPersonId: 'p1', selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
-      showDirectFiliation: true, setShowDirectFiliation: vi.fn(), showIndirectFiliation: true, setShowIndirectFiliation: vi.fn(),
+      showFamily: true, setShowFamily: vi.fn(), showExtendedFamily: true, setShowExtendedFamily: vi.fn(),
     })
     render(<SablierView />)
     expect(screen.getByText(/1 non connecté/i)).toBeTruthy()
@@ -98,7 +98,7 @@ describe('SablierView', () => {
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson,
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
-      showDirectFiliation: true, setShowDirectFiliation: vi.fn(), showIndirectFiliation: true, setShowIndirectFiliation: vi.fn(),
+      showFamily: true, setShowFamily: vi.fn(), showExtendedFamily: true, setShowExtendedFamily: vi.fn(),
     })
     render(<SablierView />)
     expect(selectPerson).toHaveBeenCalledWith('p1')
