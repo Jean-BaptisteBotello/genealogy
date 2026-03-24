@@ -1,11 +1,26 @@
 'use client'
 import { useEffect, useState, useCallback, useMemo } from 'react'
-import ReactFlow, { Background, Controls, type NodeChange, applyNodeChanges, type Node } from 'reactflow'
+import ReactFlow, { Background, Controls, Handle, Position, type NodeChange, applyNodeChanges, type Node, type NodeProps } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { useTree } from '@/lib/context/tree-context'
 import { computeSablierLayout } from './sablierLayout'
 
 const STORAGE_KEY = 'sablier_positions'
+
+// Custom node with 4 handles: top/bottom for filiation, left/right for union
+function SablierNode({ data }: NodeProps) {
+  return (
+    <div style={data.nodeStyle}>
+      <Handle type="target" position={Position.Top} id="top" style={{ background: 'transparent', border: 'none', width: 6, height: 6 }} />
+      <Handle type="source" position={Position.Bottom} id="bottom" style={{ background: 'transparent', border: 'none', width: 6, height: 6 }} />
+      <Handle type="source" position={Position.Left} id="left" style={{ background: 'transparent', border: 'none', width: 6, height: 6 }} />
+      <Handle type="target" position={Position.Right} id="right" style={{ background: 'transparent', border: 'none', width: 6, height: 6 }} />
+      {data.label}
+    </div>
+  )
+}
+
+const nodeTypes = { sablier: SablierNode }
 
 type SavedPositions = Record<string, { x: number; y: number }>
 
@@ -58,19 +73,21 @@ export function SablierView() {
     const pos = customPositions[n.id] ?? autoPos
     return {
       id: n.id,
+      type: 'sablier',
       position: pos,
       draggable: true,
       data: {
         label: person ? `${person.prenom} ${person.nom}` : n.id,
-      },
-      style: {
-        background: n.id === centerId ? 'var(--accent-hover, #1e3a5f)' : 'var(--accent-bg, #0d1117)',
-        color: 'var(--text-primary, white)',
-        border: n.id === centerId ? '2px solid var(--text-link, #3b82f6)' : '1px solid var(--divider, #1e3a5f)',
-        borderRadius: 6,
-        fontSize: 12,
-        padding: '4px 8px',
-        minWidth: 120,
+        nodeStyle: {
+          background: n.id === centerId ? 'var(--accent-hover, #1e3a5f)' : 'var(--accent-bg, #0d1117)',
+          color: 'var(--text-primary, white)',
+          border: n.id === centerId ? '2px solid var(--text-link, #3b82f6)' : '1px solid var(--divider, #1e3a5f)',
+          borderRadius: 6,
+          fontSize: 12,
+          padding: '4px 8px',
+          minWidth: 120,
+          textAlign: 'center' as const,
+        },
       },
     }
   }), [layoutNodes, personMap, centerId, customPositions])
@@ -86,12 +103,17 @@ export function SablierView() {
   const nodeIds = useMemo(() => new Set(layoutNodes.map(n => n.id)), [layoutNodes])
   const rfEdges = useMemo(() => relationships
     .filter(r => nodeIds.has(r.person_a_id) && nodeIds.has(r.person_b_id))
-    .map(r => ({
-      id: r.id,
-      source: r.person_a_id,
-      target: r.person_b_id,
-      style: { stroke: r.type === 'UNION' ? '#60a5fa' : '#4b5563' },
-    })),
+    .map(r => {
+      const isUnion = r.type === 'UNION'
+      return {
+        id: r.id,
+        source: r.person_a_id,
+        target: r.person_b_id,
+        sourceHandle: isUnion ? 'left' : 'bottom',
+        targetHandle: isUnion ? 'right' : 'top',
+        style: { stroke: isUnion ? '#60a5fa' : '#4b5563' },
+      }
+    }),
   [relationships, nodeIds])
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
@@ -137,6 +159,7 @@ export function SablierView() {
       <ReactFlow
         nodes={nodes}
         edges={rfEdges}
+        nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onNodeDragStop={onNodeDragStop}
         onNodeClick={(_, node) => selectPerson(node.id)}
