@@ -105,13 +105,15 @@ export function SablierView() {
     .filter(r => nodeIds.has(r.person_a_id) && nodeIds.has(r.person_b_id))
     .map(r => {
       const isUnion = r.type === 'UNION'
-      const isDashed = r.type === 'HALF_SIBLING' || r.type === 'ADOPTION' || r.type === 'STEP'
+      const isSibling = r.type === 'SIBLING' || r.type === 'HALF_SIBLING'
+      const isHorizontal = isUnion || isSibling
+      const isDashed = isSibling || r.type === 'ADOPTION' || r.type === 'STEP'
       return {
         id: r.id,
         source: r.person_a_id,
         target: r.person_b_id,
-        sourceHandle: isUnion ? 'left' : 'bottom',
-        targetHandle: isUnion ? 'right' : 'top',
+        sourceHandle: isHorizontal ? 'left' : 'bottom',
+        targetHandle: isHorizontal ? 'right' : 'top',
         style: {
           stroke: isUnion ? '#60a5fa' : '#4b5563',
           strokeDasharray: isDashed ? '6 3' : undefined,
