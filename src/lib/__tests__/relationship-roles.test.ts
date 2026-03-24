@@ -37,17 +37,21 @@ describe('deriveRelationship', () => {
     expect(r.person_b_id).toBe(OTHER)
   })
 
-  describe('fratrie → SIBLING', () => {
+  describe('fratrie → SIBLING, current→other', () => {
     it.each(['frère', 'sœur'] as const)('%s', (role) => {
       const r = deriveRelationship(role, CURRENT, OTHER)
       expect(r.type).toBe('SIBLING')
+      expect(r.person_a_id).toBe(CURRENT)
+      expect(r.person_b_id).toBe(OTHER)
     })
   })
 
-  describe('demi-fratrie → HALF_SIBLING', () => {
+  describe('demi-fratrie → HALF_SIBLING, current→other', () => {
     it.each(['demi-frère', 'demi-sœur'] as const)('%s', (role) => {
       const r = deriveRelationship(role, CURRENT, OTHER)
       expect(r.type).toBe('HALF_SIBLING')
+      expect(r.person_a_id).toBe(CURRENT)
+      expect(r.person_b_id).toBe(OTHER)
     })
   })
 
