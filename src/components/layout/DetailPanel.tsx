@@ -174,10 +174,10 @@ export function DetailPanel({
   }
 
   return (
-    <aside className="w-64 bg-[#080d16] border-l border-[#1e3a5f] flex flex-col shrink-0 overflow-y-auto">
-      <div className="flex items-center justify-between p-3 border-b border-[#1e3a5f]">
-        <span className="text-[10px] text-gray-500 uppercase tracking-widest">Détail</span>
-        <button type="button" onClick={onClose} className="text-gray-600 hover:text-gray-300 text-xs">
+    <aside className="w-64 flex flex-col shrink-0 overflow-y-auto" style={{ background: 'var(--detail-bg)', borderLeft: '1px solid var(--detail-border)' }}>
+      <div className="flex items-center justify-between p-3" style={{ borderBottom: '1px solid var(--divider)' }}>
+        <span className="text-[10px] uppercase tracking-widest" style={{ color: 'var(--section-label)' }}>Détail</span>
+        <button type="button" onClick={onClose} className="text-xs" style={{ color: 'var(--text-muted)' }}>
           ✕
         </button>
       </div>
@@ -185,10 +185,10 @@ export function DetailPanel({
       <div className="p-3 flex flex-col gap-4 flex-1">
         {/* Identity */}
         <div>
-          <h3 className="text-white font-semibold text-sm">
+          <h3 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
             {person.prenom} {person.nom}
           </h3>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
             {formatDate(person.date_naissance)}
             {person.lieu_naissance ? ` · ${person.lieu_naissance}` : ''}
           </p>
@@ -220,7 +220,7 @@ export function DetailPanel({
         {/* Branches */}
         {personBranchList.length > 0 && (
           <div>
-            <div className="text-[10px] text-gray-600 uppercase tracking-widest mb-1">
+            <div className="text-[10px] uppercase tracking-widest mb-1">
               Branches
             </div>
             <div className="flex flex-wrap gap-1">
@@ -244,7 +244,7 @@ export function DetailPanel({
         {/* Relations */}
         <div>
             <div className="flex items-center justify-between mb-1">
-              <div className="text-[10px] text-gray-600 uppercase tracking-widest">Relations</div>
+              <div className="text-[10px] uppercase tracking-widest">Relations</div>
               {currentRole !== 'VIEWER' && !isLinking && (
                 <button
                   type="button"
@@ -307,12 +307,12 @@ export function DetailPanel({
 
         {/* Pending suggestions for ADMIN/EDITOR */}
         {currentRole !== 'VIEWER' && pendingSuggestions && pendingSuggestions.length > 0 && (
-          <div className="mt-4 border-t border-[#1e3a5f]/40 pt-3">
-            <p className="text-[10px] text-gray-600 uppercase tracking-widest mb-2">
+          <div className="mt-4 border-t border-[var(--divider)]/40 pt-3">
+            <p className="text-[10px] uppercase tracking-widest mb-2">
               {pendingSuggestions.length} suggestion{pendingSuggestions.length > 1 ? 's' : ''} en attente
             </p>
             {pendingSuggestions.map(s => (
-              <div key={s.id} className="text-xs text-gray-400 py-1 border-b border-[#1e3a5f]/20 flex items-center justify-between">
+              <div key={s.id} className="text-xs text-gray-400 py-1 border-b border-[var(--divider)]/20 flex items-center justify-between">
                 <span>{s.type} · {s.users?.email ?? s.suggested_by}</span>
               </div>
             ))}
@@ -323,7 +323,7 @@ export function DetailPanel({
         {/* Documents */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <div className="text-[10px] text-gray-600 uppercase tracking-widest">Documents</div>
+            <div className="text-[10px] uppercase tracking-widest">Documents</div>
             {currentRole !== 'VIEWER' && (
               <button
                 type="button"
@@ -386,7 +386,7 @@ export function DetailPanel({
 
         {/* Actions */}
         {currentRole !== 'VIEWER' && (
-          <div className="flex gap-2 mt-auto pt-2 border-t border-[#1e3a5f]">
+          <div className="flex gap-2 mt-auto pt-2 border-t border-[var(--divider)]">
             <button
               type="button"
               onClick={() => onEditPerson?.(person.id)}

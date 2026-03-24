@@ -27,8 +27,8 @@ export function Sidebar({ branches, currentRole, onManageMembers }: SidebarProps
 
   return (
     <>
-      <aside className="w-48 bg-[#080d16] border-r border-[#1e3a5f] flex flex-col gap-1 p-3 overflow-y-auto shrink-0">
-        <div className="text-[10px] text-gray-600 uppercase tracking-widest mb-1">Branches</div>
+      <aside className="w-48 flex flex-col gap-1 p-3 overflow-y-auto shrink-0" style={{ background: 'var(--sidebar-bg)', borderRight: '1px solid var(--sidebar-border)' }}>
+        <div className="text-[10px] uppercase tracking-widest mb-1" style={{ color: 'var(--section-label)' }}>Branches</div>
 
         <button
           type="button"
@@ -100,20 +100,20 @@ export function Sidebar({ branches, currentRole, onManageMembers }: SidebarProps
 
         <div className="flex-1" />
 
-        <div className="text-[10px] text-gray-600 uppercase tracking-widest mb-1 mt-3">Filtres</div>
-        <label htmlFor="filter-vivants" className="flex items-center gap-2 text-xs text-gray-500 px-2 py-1 cursor-pointer hover:text-gray-300">
+        <div className="text-[10px] uppercase tracking-widest mb-1 mt-3" style={{ color: 'var(--section-label)' }}>Filtres</div>
+        <label htmlFor="filter-vivants" className="flex items-center gap-2 text-xs px-2 py-1 cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
           <input id="filter-vivants" name="filter-vivants" type="checkbox" className="accent-green-500" /> Vivants
         </label>
-        <label htmlFor="filter-decedes" className="flex items-center gap-2 text-xs text-gray-500 px-2 py-1 cursor-pointer hover:text-gray-300">
+        <label htmlFor="filter-decedes" className="flex items-center gap-2 text-xs px-2 py-1 cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
           <input id="filter-decedes" name="filter-decedes" type="checkbox" className="accent-gray-400" /> Décédés
         </label>
-        <label htmlFor="filter-avec-documents" className="flex items-center gap-2 text-xs text-gray-500 px-2 py-1 cursor-pointer hover:text-gray-300">
+        <label htmlFor="filter-avec-documents" className="flex items-center gap-2 text-xs px-2 py-1 cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
           <input id="filter-avec-documents" name="filter-avec-documents" type="checkbox" className="accent-yellow-500" /> Avec documents
         </label>
 
-        <div className="border-t border-[#1e3a5f] mt-3 pt-3">
-          <button type="button" onClick={onManageMembers} className="text-left text-xs text-gray-500 px-2 py-1 hover:text-gray-300 w-full">👥 Gérer les accès</button>
-          <button type="button" className="text-left text-xs text-gray-500 px-2 py-1 hover:text-gray-300 w-full">⚙️ Paramètres</button>
+        <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--divider)' }}>
+          <button type="button" onClick={onManageMembers} className="text-left text-xs px-2 py-1 w-full" style={{ color: 'var(--text-secondary)' }}>👥 Gérer les accès</button>
+          <button type="button" className="text-left text-xs px-2 py-1 w-full" style={{ color: 'var(--text-secondary)' }}>⚙️ Paramètres</button>
         </div>
       </aside>
 

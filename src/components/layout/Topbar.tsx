@@ -1,6 +1,7 @@
 // src/components/layout/Topbar.tsx
 'use client'
 import { signout } from '@/server-actions/auth'
+import { useTheme, type ThemeId } from '@/lib/context/theme-context'
 
 type View = 'cosmos' | 'sablier' | 'timeline' | 'carte' | 'eventail'
 
@@ -36,10 +37,11 @@ export function Topbar({
   onMySuggestionsOpen,
 }: TopbarProps) {
   const initials = userEmail.slice(0, 2).toUpperCase() || '?'
+  const { themeId, setTheme } = useTheme()
 
   return (
-    <header className="h-12 bg-[#0d1117] border-b border-[#1e3a5f] flex items-center px-4 gap-4 shrink-0">
-      <div className="text-red-500 font-bold text-sm tracking-widest uppercase mr-2">
+    <header className="h-12 flex items-center px-4 gap-4 shrink-0" style={{ background: 'var(--topbar-bg)', borderBottom: '1px solid var(--topbar-border)' }}>
+      <div className="font-bold text-sm tracking-widest uppercase mr-2" style={{ color: 'var(--topbar-text)' }}>
         🌳 Généalogie
       </div>
       <nav className="flex items-center gap-1">
@@ -49,12 +51,11 @@ export function Topbar({
             type="button"
             onClick={() => onViewChange?.(view.id)}
             aria-pressed={activeView === view.id}
-            className={[
-              'px-3 py-1.5 rounded text-xs transition-colors',
-              activeView === view.id
-                ? 'bg-white/10 text-white'
-                : 'text-gray-500 hover:text-gray-300 hover:bg-white/5',
-            ].join(' ')}
+            className="px-3 py-1.5 rounded text-xs transition-colors"
+            style={{
+              background: activeView === view.id ? 'var(--accent-hover)' : 'transparent',
+              color: activeView === view.id ? 'var(--text-primary)' : 'var(--text-secondary)',
+            }}
           >
             {view.icon} {view.label}
           </button>
@@ -107,15 +108,27 @@ export function Topbar({
       <button
         type="button"
         onClick={onSearchOpen}
-        className="text-gray-500 hover:text-gray-300 text-sm"
+        className="text-sm transition-colors"
+        style={{ color: 'var(--text-secondary)' }}
         aria-label="Rechercher"
       >
         🔍
       </button>
+      {/* Theme toggle */}
+      <button
+        type="button"
+        onClick={() => setTheme(themeId === 'cosmos' ? 'beige' : 'cosmos')}
+        className="text-xs px-2 py-1 rounded transition-colors"
+        style={{ background: 'var(--accent-bg)', color: 'var(--text-secondary)' }}
+        title={`Thème : ${themeId === 'cosmos' ? 'Cosmos' : 'Beige'}`}
+      >
+        {themeId === 'cosmos' ? '🌌' : '🏖️'}
+      </button>
       <form action={signout}>
         <button
           type="submit"
-          className="w-7 h-7 rounded-full bg-[#1e3a5f] text-[#7ec8e3] text-xs font-bold flex items-center justify-center hover:bg-[#2a4f7f] transition-colors"
+          className="w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-colors"
+          style={{ background: 'var(--avatar-bg)', color: 'var(--avatar-text)' }}
           title={`Déconnexion (${userEmail})`}
         >
           {initials}
