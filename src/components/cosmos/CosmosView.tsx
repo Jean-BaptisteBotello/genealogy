@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useTree } from '@/lib/context/tree-context'
-import { computeCosmosLayout } from './cosmosLayout'
+import { computeCosmosLayout, ORBIT_RADII } from './cosmosLayout'
 import { CosmosNode } from './CosmosNode'
 import { CosmosEdge } from './CosmosEdge'
 import { CosmosTooltip } from './CosmosTooltip'
@@ -75,15 +75,20 @@ export function CosmosView() {
   const personIds = persons.map(p => p.id)
   const { nodes, orphans } = computeCosmosLayout(personIds, relationships, centerId)
 
-  // Build node map for fast lookup
-  const nodeMap = new Map(nodes.map(n => [n.id, n]))
+  // Derive x/y from orbit and angle
+  const nodePositions = new Map(
+    nodes.map(n => {
+      const radius = ORBIT_RADII[n.orbit] ?? ORBIT_RADII[5]
+      return [n.id, { x: Math.cos(n.angle) * radius, y: Math.sin(n.angle) * radius }]
+    })
+  )
 
   const cx = 350
   const cy = 350
 
   // Find hovered person for tooltip
   const hoveredPerson = hoveredId ? persons.find(p => p.id === hoveredId) ?? null : null
-  const hoveredNode = hoveredId ? nodeMap.get(hoveredId) ?? null : null
+  const hoveredPos = hoveredId ? nodePositions.get(hoveredId) ?? null : null
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
@@ -94,16 +99,16 @@ export function CosmosView() {
       >
         {/* Edges */}
         {relationships.map(rel => {
-          const na = nodeMap.get(rel.person_a_id)
-          const nb = nodeMap.get(rel.person_b_id)
-          if (!na || !nb) return null
+          const pa = nodePositions.get(rel.person_a_id)
+          const pb = nodePositions.get(rel.person_b_id)
+          if (!pa || !pb) return null
           return (
             <CosmosEdge
               key={rel.id}
-              x1={cx + na.x}
-              y1={cy + na.y}
-              x2={cx + nb.x}
-              y2={cy + nb.y}
+              x1={cx + pa.x}
+              y1={cy + pa.y}
+              x2={cx + pb.x}
+              y2={cy + pb.y}
               type={rel.type}
             />
           )
@@ -113,12 +118,13 @@ export function CosmosView() {
         {nodes.map(node => {
           const person = persons.find(p => p.id === node.id)
           if (!person) return null
+          const pos = nodePositions.get(node.id) ?? { x: 0, y: 0 }
           return (
             <CosmosNode
               key={node.id}
               id={node.id}
-              x={cx + node.x}
-              y={cy + node.y}
+              x={cx + pos.x}
+              y={cy + pos.y}
               prenom={person.prenom}
               nom={person.nom}
               isSelected={node.id === selectedPersonId}
@@ -131,11 +137,11 @@ export function CosmosView() {
         })}
 
         {/* Tooltip */}
-        {hoveredPerson && hoveredNode && (
+        {hoveredPerson && hoveredPos && (
           <CosmosTooltip
             person={hoveredPerson}
-            x={cx + hoveredNode.x}
-            y={cy + hoveredNode.y}
+            x={cx + hoveredPos.x}
+            y={cy + hoveredPos.y}
           />
         )}
       </svg>

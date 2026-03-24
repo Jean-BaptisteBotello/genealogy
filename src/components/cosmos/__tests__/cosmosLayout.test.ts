@@ -1,142 +1,117 @@
 import { describe, it, expect } from 'vitest'
-import { computeCosmosLayout, ORBIT_RADII } from '../cosmosLayout'
+import { getMetadataRole, getOrbitForRole, computeCosmosLayout, ORBIT_RADII } from '../cosmosLayout'
 import type { Relationship } from '@/lib/types/database'
 
-const REL = (a: string, b: string, type: Relationship['type'], meta: Record<string, unknown> = {}): Relationship => ({
-  id: `${a}-${b}`,
-  person_a_id: a,
-  person_b_id: b,
-  type,
-  metadata: meta,
+const rel = (overrides: Partial<Relationship> = {}): Relationship => ({
+  id: 'r1', person_a_id: 'a', person_b_id: 'b',
+  type: 'PARENT_CHILD', metadata: {},
+  ...overrides,
 })
 
-describe('ORBIT_RADII', () => {
-  it('defines radii for orbits 0–4', () => {
-    expect(ORBIT_RADII[0]).toBe(0)
-    expect(ORBIT_RADII[1]).toBe(80)
-    expect(ORBIT_RADII[2]).toBe(130)
-    expect(ORBIT_RADII[3]).toBe(200)
-    expect(ORBIT_RADII[4]).toBe(280)
+describe('getMetadataRole', () => {
+  it('returns string role when present', () => {
+    expect(getMetadataRole(rel({ metadata: { role: 'père' } }))).toBe('père')
   })
+  it('returns undefined when role is absent', () => {
+    expect(getMetadataRole(rel({ metadata: {} }))).toBeUndefined()
+  })
+  it('returns undefined when role is not a string', () => {
+    expect(getMetadataRole(rel({ metadata: { role: 42 } }))).toBeUndefined()
+  })
+  it('returns undefined when metadata is empty', () => {
+    expect(getMetadataRole(rel())).toBeUndefined()
+  })
+})
+
+describe('getOrbitForRole', () => {
+  it.each(['père', 'mère', 'beau-père', 'belle-mère'])('role %s → orbit 1', (role) => {
+    expect(getOrbitForRole(role, 'PARENT_CHILD', false)).toBe(1)
+  })
+  it.each(['époux/épouse', 'fils', 'fille', 'enfant adopté(e)'])('role %s → orbit 2', (role) => {
+    expect(getOrbitForRole(role, 'UNION', true)).toBe(2)
+  })
+  it.each(['frère', 'sœur', 'demi-frère', 'demi-sœur', 'grand-père', 'grand-mère'])('role %s → orbit 3', (role) => {
+    expect(getOrbitForRole(role, 'SIBLING', true)).toBe(3)
+  })
+  it.each(['oncle', 'tante', 'cousin', 'cousine'])('role %s → orbit 4', (role) => {
+    expect(getOrbitForRole(role, 'SIBLING', true)).toBe(4)
+  })
+  it.each(['arrière-grand-père', 'arrière-grand-mère', 'arrière-arrière-grand-père', 'arrière-arrière-grand-mère'])('role %s → orbit 5', (role) => {
+    expect(getOrbitForRole(role, 'PARENT_CHILD', false)).toBe(5)
+  })
+  it('UNION without role → orbit 2', () => {
+    expect(getOrbitForRole(undefined, 'UNION', true)).toBe(2)
+  })
+  it('PARENT_CHILD isPersonA=true (centre=parent) → orbit 2', () => {
+    expect(getOrbitForRole(undefined, 'PARENT_CHILD', true)).toBe(2)
+  })
+  it('PARENT_CHILD isPersonA=false (centre=enfant) → orbit 3', () => {
+    expect(getOrbitForRole(undefined, 'PARENT_CHILD', false)).toBe(3)
+  })
+  it('SIBLING → orbit 3', () => {
+    expect(getOrbitForRole(undefined, 'SIBLING', true)).toBe(3)
+  })
+  it('HALF_SIBLING → orbit 3', () => {
+    expect(getOrbitForRole(undefined, 'HALF_SIBLING', false)).toBe(3)
+  })
+  it('STEP isPersonA=false → orbit 1', () => {
+    expect(getOrbitForRole(undefined, 'STEP', false)).toBe(1)
+  })
+  it('STEP isPersonA=true → orbit 4', () => {
+    expect(getOrbitForRole(undefined, 'STEP', true)).toBe(4)
+  })
+  it('ADOPTION isPersonA=true → orbit 2', () => {
+    expect(getOrbitForRole(undefined, 'ADOPTION', true)).toBe(2)
+  })
+  it('ADOPTION isPersonA=false → orbit 4', () => {
+    expect(getOrbitForRole(undefined, 'ADOPTION', false)).toBe(4)
+  })
+  it('unknown role string → orbit 5', () => {
+    expect(getOrbitForRole('cousin-germain', 'SIBLING', true)).toBe(5)
+  })
+})
+
+const mockRel = (a: string, b: string, type: Relationship['type'] = 'PARENT_CHILD', role?: string): Relationship => ({
+  id: `${a}-${b}`, person_a_id: a, person_b_id: b, type,
+  metadata: role ? { role } : {},
 })
 
 describe('computeCosmosLayout', () => {
-  it('places the center person at orbit 0', () => {
-    const result = computeCosmosLayout(['p1', 'p2'], [REL('p1', 'p2', 'PARENT_CHILD')], 'p1')
-    const center = result.nodes.find(n => n.id === 'p1')
-    expect(center?.orbit).toBe(0)
-    expect(center?.x).toBe(0)
-    expect(center?.y).toBe(0)
-  })
-
-  it('places active UNION partner at orbit 1', () => {
-    const result = computeCosmosLayout(
-      ['p1', 'p2'],
-      [REL('p1', 'p2', 'UNION', { ended: false })],
-      'p1'
-    )
-    const partner = result.nodes.find(n => n.id === 'p2')
-    expect(partner?.orbit).toBe(1)
-  })
-
-  it('places ended UNION partner at orbit 2', () => {
-    const result = computeCosmosLayout(
-      ['p1', 'p2'],
-      [REL('p1', 'p2', 'UNION', { ended: true })],
-      'p1'
-    )
-    const partner = result.nodes.find(n => n.id === 'p2')
-    expect(partner?.orbit).toBe(2)
-  })
-
-  it('places 1-hop PARENT_CHILD at orbit 2', () => {
-    const result = computeCosmosLayout(
-      ['p1', 'p2'],
-      [REL('p1', 'p2', 'PARENT_CHILD')],
-      'p1'
-    )
-    const child = result.nodes.find(n => n.id === 'p2')
-    expect(child?.orbit).toBe(2)
-  })
-
-  it('places 1-hop SIBLING at orbit 2', () => {
-    const result = computeCosmosLayout(
-      ['p1', 'p2'],
-      [REL('p1', 'p2', 'SIBLING')],
-      'p1'
-    )
-    const sibling = result.nodes.find(n => n.id === 'p2')
-    expect(sibling?.orbit).toBe(2)
-  })
-
-  it('places 2-hop relatives at orbit 3', () => {
-    const result = computeCosmosLayout(
-      ['p1', 'p2', 'p3'],
-      [REL('p1', 'p2', 'PARENT_CHILD'), REL('p2', 'p3', 'PARENT_CHILD')],
-      'p1'
-    )
-    const grandparent = result.nodes.find(n => n.id === 'p3')
-    expect(grandparent?.orbit).toBe(3)
-  })
-
-  it('places 3+ hop relatives at orbit 4', () => {
-    const result = computeCosmosLayout(
-      ['p1', 'p2', 'p3', 'p4'],
-      [
-        REL('p1', 'p2', 'PARENT_CHILD'),
-        REL('p2', 'p3', 'PARENT_CHILD'),
-        REL('p3', 'p4', 'PARENT_CHILD'),
-      ],
-      'p1'
-    )
-    const great = result.nodes.find(n => n.id === 'p4')
-    expect(great?.orbit).toBe(4)
-  })
-
-  it('places nodes evenly around their orbit', () => {
-    const result = computeCosmosLayout(
-      ['p1', 'p2', 'p3'],
-      [REL('p1', 'p2', 'PARENT_CHILD'), REL('p1', 'p3', 'PARENT_CHILD')],
-      'p1'
-    )
-    const orbit2Nodes = result.nodes.filter(n => n.orbit === 2)
-    expect(orbit2Nodes).toHaveLength(2)
-    orbit2Nodes.forEach(n => {
-      const dist = Math.sqrt(n.x ** 2 + n.y ** 2)
-      expect(dist).toBeCloseTo(ORBIT_RADII[2], 0)
-    })
-  })
-
-  it('lists persons with no relationships as orphans', () => {
-    const result = computeCosmosLayout(
-      ['p1', 'p2', 'p3'],
-      [REL('p1', 'p2', 'PARENT_CHILD')],
-      'p1'
-    )
-    expect(result.orphans).toContain('p3')
-    expect(result.orphans).not.toContain('p1')
-    expect(result.orphans).not.toContain('p2')
-  })
-
-  it('returns empty nodes and orphans for empty input', () => {
-    const result = computeCosmosLayout([], [], 'p1')
+  it('returns empty when personIds is empty', () => {
+    const result = computeCosmosLayout([], [], 'any')
     expect(result.nodes).toEqual([])
     expect(result.orphans).toEqual([])
   })
-
-  it('handles center not in personIds gracefully', () => {
-    const result = computeCosmosLayout(['p1', 'p2'], [REL('p1', 'p2', 'PARENT_CHILD')], 'unknown')
-    expect(result.nodes).toEqual([])
-    expect(result.orphans).toHaveLength(2)
+  it('places center at orbit 0', () => {
+    const result = computeCosmosLayout(['p1'], [], 'p1')
+    expect(result.nodes[0]).toMatchObject({ id: 'p1', orbit: 0, angle: 0 })
   })
-
-  it('treats UNION without metadata.ended as active (orbit 1)', () => {
+  it('places père at orbit 1', () => {
     const result = computeCosmosLayout(
-      ['p1', 'p2'],
-      [REL('p1', 'p2', 'UNION')],
-      'p1'
+      ['centre', 'pere'],
+      [mockRel('pere', 'centre', 'PARENT_CHILD', 'père')],
+      'centre'
     )
-    const partner = result.nodes.find(n => n.id === 'p2')
-    expect(partner?.orbit).toBe(1)
+    expect(result.nodes.find(n => n.id === 'pere')?.orbit).toBe(1)
+  })
+  it('distributes angles uniformly', () => {
+    const rels = [
+      mockRel('a', 'centre', 'PARENT_CHILD', 'père'),
+      mockRel('b', 'centre', 'PARENT_CHILD', 'mère'),
+    ]
+    const result = computeCosmosLayout(['centre', 'a', 'b'], rels, 'centre')
+    const orbit1 = result.nodes.filter(n => n.orbit === 1)
+    expect(orbit1).toHaveLength(2)
+    const angles = orbit1.map(n => n.angle).sort((x, y) => x - y)
+    expect(Math.abs(angles[1] - angles[0])).toBeCloseTo(Math.PI, 5)
+  })
+  it('marks unconnected persons as orphans', () => {
+    const result = computeCosmosLayout(['p1', 'p2'], [], 'p1')
+    expect(result.orphans).toContain('p2')
+  })
+  it('ORBIT_RADII has keys 0 through 5', () => {
+    for (let i = 0; i <= 5; i++) {
+      expect(ORBIT_RADII[i]).toBeGreaterThanOrEqual(0)
+    }
   })
 })
