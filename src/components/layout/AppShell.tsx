@@ -135,31 +135,34 @@ export function AppShell({
           <main className="flex-1 overflow-hidden relative">
             <ViewRouter activeView={activeView} />
           </main>
-          <DetailPanel
-            isOpen={detailOpen}
-            onClose={() => { setDetailOpen(false); setSelectedPersonId(null) }}
-            person={selectedPerson}
-            personBranches={initialPersonBranches}
-            branches={initialBranches}
-            relationships={initialRelationships}
-            allPersons={initialPersons}
-            onSelectPerson={selectPerson}
-            onEditPerson={openEditPerson}
-            onDeletePerson={async (id) => {
-              const { deletePerson } = await import('@/server-actions/persons')
-              const result = await deletePerson(id)
-              if (result.error) {
-                showToast(result.error, 'error')
-              } else {
-                setDetailOpen(false)
-                setSelectedPersonId(null)
-                router.refresh()
-              }
-            }}
-            onShowToast={showToast}
-            onProposeSuggestion={(mode) => setSuggestionModalMode(mode)}
-            pendingSuggestions={pendingSuggestions.filter(s => s.target_id === selectedPersonId)}
-          />
+          {detailOpen && (
+            <DetailPanel
+              onClose={() => { setDetailOpen(false); setSelectedPersonId(null) }}
+              persons={initialPersons}
+              selectedPersonId={selectedPersonId}
+              personBranches={initialPersonBranches}
+              branches={initialBranches}
+              relationships={initialRelationships}
+              allPersons={initialPersons}
+              documents={{}}
+              onSelectPerson={selectPerson}
+              onEditPerson={openEditPerson}
+              onDeletePerson={async (id) => {
+                const { deletePerson } = await import('@/server-actions/persons')
+                const result = await deletePerson(id)
+                if (result.error) {
+                  showToast(result.error, 'error')
+                } else {
+                  setDetailOpen(false)
+                  setSelectedPersonId(null)
+                  router.refresh()
+                }
+              }}
+              onShowToast={showToast}
+              onProposeSuggestion={(mode) => setSuggestionModalMode(mode)}
+              pendingSuggestions={pendingSuggestions.filter(s => s.target_id === selectedPersonId)}
+            />
+          )}
         </div>
       </div>
 
