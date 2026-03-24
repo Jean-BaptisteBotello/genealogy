@@ -97,6 +97,11 @@ export function DetailPanel({
       })
   }, [person?.id])
 
+  // Reset linking state when selected person changes
+  useEffect(() => {
+    setIsLinking(false)
+  }, [selectedPersonId])
+
   async function handleDownload(doc: Document) {
     setDownloadingId(doc.id)
     const result = await getSignedUrl(doc.url_stockage)
