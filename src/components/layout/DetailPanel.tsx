@@ -288,7 +288,8 @@ export function DetailPanel({
                       <button
                         type="button"
                         onClick={() => onSelectPerson(other.id)}
-                        className="text-left text-xs text-blue-300 hover:text-blue-200 py-0.5 flex items-center gap-1 flex-1 min-w-0"
+                        className="text-left text-xs py-0.5 flex items-center gap-1 flex-1 min-w-0"
+                        style={{ color: 'var(--text-link, #93c5fd)' }}
                       >
                         <span className="text-[10px] text-gray-600 mr-1">{roleLabel}</span>
                         {other.prenom} {other.nom}
