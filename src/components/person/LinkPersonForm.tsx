@@ -23,6 +23,15 @@ export function LinkPersonForm({ currentPersonId, persons, onClose }: LinkPerson
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
+  function resetAndClose() {
+    setSearchQuery('')
+    setSelectedPersonId(null)
+    setSelectedRole(null)
+    setIsExtendedOpen(false)
+    setError(null)
+    onClose()
+  }
+
   const filtered = persons
     .filter(p => p.id !== currentPersonId)
     .filter(p => {
@@ -48,7 +57,7 @@ export function LinkPersonForm({ currentPersonId, persons, onClose }: LinkPerson
         setError(result.error)
         return
       }
-      onClose()
+      resetAndClose()
     })
   }
 
@@ -138,7 +147,7 @@ export function LinkPersonForm({ currentPersonId, persons, onClose }: LinkPerson
       <div className="flex justify-end gap-2 mt-1">
         <button
           type="button"
-          onClick={onClose}
+          onClick={resetAndClose}
           className="text-[10px] text-gray-600 hover:text-gray-300"
         >
           Annuler
