@@ -106,6 +106,18 @@ Application web collaborative d'arbre généalogique, initiée par Jean-Baptiste
 
 ---
 
+### Plan 7 — Lier des personnes (feature)
+- [ ] Server action `createRelationship` (mapping rôle → type DB + metadata.role)
+- [ ] Composant `LinkPersonForm` inline dans le DetailPanel
+- [ ] Bouton `[+]` dans la section Relations (ADMIN/EDITOR uniquement)
+- [ ] Affichage du rôle depuis `metadata.role` dans la liste des relations
+- [ ] Cycle detection côté serveur
+- [ ] Tests unit + component + integration
+
+> Phase 2 (backlog V2) : déduction automatique des relations indirectes (cousins, oncles déduits de l'arbre)
+
+---
+
 ## Backlog V2 (post-lancement)
 
 - [ ] Import/export GEDCOM 7 (interopérabilité Ancestry, MyHeritage)
