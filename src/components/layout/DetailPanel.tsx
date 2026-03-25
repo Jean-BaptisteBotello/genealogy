@@ -7,6 +7,8 @@ import type { Person, Branch, Relationship, PersonBranch, Document, SuggestionWi
 import type { SuggestionModalMode } from '@/components/suggestions/SuggestionModal'
 import { useTree } from '@/lib/context/tree-context'
 import { LinkPersonForm } from '@/components/person/LinkPersonForm'
+import { MoveRelationForm } from '@/components/person/MoveRelationForm'
+import { deleteRelationship } from '@/server-actions/relationships'
 
 interface DetailPanelProps {
   onClose: () => void
@@ -74,6 +76,7 @@ export function DetailPanel({
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [isUploading, startUpload] = useTransition()
   const [isLinking, setIsLinking] = useState(false)
+  const [editingRelId, setEditingRelId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const person = selectedPersonId ? persons.find(p => p.id === selectedPersonId) ?? null : null
@@ -284,6 +287,25 @@ export function DetailPanel({
                     (rel.metadata as { role?: string })?.role ??
                     RELATION_LABEL[rel.type] ??
                     rel.type
+
+                  // Editing this relation — show move form
+                  if (editingRelId === rel.id) {
+                    return (
+                      <div key={rel.id}>
+                        <div className="text-[10px] mb-1" style={{ color: 'var(--text-muted)' }}>
+                          Déplacer : <strong>{roleLabel}</strong> → nouvelle personne
+                        </div>
+                        <MoveRelationForm
+                          relationshipId={rel.id}
+                          currentPersonId={person.id}
+                          persons={allPersons}
+                          excludePersonId={other.id}
+                          onClose={() => setEditingRelId(null)}
+                        />
+                      </div>
+                    )
+                  }
+
                   return (
                     <div key={rel.id} className="flex items-center">
                       <button
@@ -292,13 +314,37 @@ export function DetailPanel({
                         className="text-left text-xs py-0.5 flex items-center gap-1 flex-1 min-w-0"
                         style={{ color: 'var(--text-link, #93c5fd)' }}
                       >
-                        <span className="text-[10px] text-gray-600 mr-1">{roleLabel}</span>
+                        <span className="text-[10px] mr-1" style={{ color: 'var(--text-muted)' }}>{roleLabel}</span>
                         {other.prenom} {other.nom}
                       </button>
+                      {currentRole !== 'VIEWER' && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setEditingRelId(rel.id)}
+                            className="text-[10px] ml-1 px-1 transition-colors"
+                            style={{ color: 'var(--text-muted)' }}
+                            title="Déplacer ce lien"
+                          >✎</button>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (!confirm('Supprimer ce lien ?')) return
+                              const result = await deleteRelationship(rel.id)
+                              if (result.error) {
+                                onShowToast?.(result.error, 'error')
+                              }
+                            }}
+                            className="text-[10px] px-1 transition-colors"
+                            style={{ color: 'var(--text-muted)' }}
+                            title="Supprimer ce lien"
+                          >✕</button>
+                        </>
+                      )}
                       {currentRole === 'VIEWER' && onProposeSuggestion && (
                         <button type="button"
                           onClick={() => onProposeSuggestion({ type: 'DELETE_RELATIONSHIP', relationship: rel, persons: allPersons })}
-                          className="text-xs text-gray-600 hover:text-red-400 ml-2">✕</button>
+                          className="text-xs ml-2" style={{ color: 'var(--text-muted)' }}>✕</button>
                       )}
                     </div>
                   )
