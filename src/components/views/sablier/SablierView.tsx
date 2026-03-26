@@ -110,12 +110,13 @@ export function SablierView() {
       const isDashed = isSibling || r.type === 'ADOPTION' || r.type === 'STEP'
       return {
         id: r.id,
+        type: 'straight',
         source: r.person_a_id,
         target: r.person_b_id,
         sourceHandle: isHorizontal ? 'left' : 'bottom',
         targetHandle: isHorizontal ? 'right' : 'top',
         style: {
-          stroke: isUnion ? '#60a5fa' : '#4b5563',
+          stroke: isUnion ? '#60a5fa' : 'rgba(0,0,0,0.25)',
           strokeDasharray: isDashed ? '6 3' : undefined,
         },
       }

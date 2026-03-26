@@ -61,7 +61,7 @@ export function AppShell({
   const [mySuggestionsOpen, setMySuggestionsOpen] = useState(false)
   const [suggestionModalMode, setSuggestionModalMode] = useState<SuggestionModalMode | null>(null)
   const [showFamily, setShowFamily] = useState(true)
-  const [showExtendedFamily, setShowExtendedFamily] = useState(true)
+  const [showExtendedFamily, setShowExtendedFamily] = useState(false)
 
   const filteredRelationships = initialRelationships.filter(rel => {
     const extended = isExtendedFamilyRelationship(rel)
