@@ -76,6 +76,7 @@ export function SablierView() {
       type: 'sablier',
       position: pos,
       draggable: true,
+      zIndex: 10,
       data: {
         label: person ? `${person.prenom} ${person.nom}` : n.id,
         nodeStyle: {
@@ -116,7 +117,8 @@ export function SablierView() {
         sourceHandle: isHorizontal ? 'left' : 'bottom',
         targetHandle: isHorizontal ? 'right' : 'top',
         style: {
-          stroke: isUnion ? '#60a5fa' : 'rgba(0,0,0,0.25)',
+          stroke: isUnion ? 'rgba(96,165,250,0.5)' : 'rgba(0,0,0,0.15)',
+          strokeWidth: 1,
           strokeDasharray: isDashed ? '6 3' : undefined,
         },
       }
@@ -163,6 +165,7 @@ export function SablierView() {
 
   return (
     <div className="w-full h-full relative">
+      <style>{`.react-flow__edge { z-index: 0 !important; } .react-flow__node { z-index: 10 !important; }`}</style>
       <ReactFlow
         nodes={nodes}
         edges={rfEdges}
