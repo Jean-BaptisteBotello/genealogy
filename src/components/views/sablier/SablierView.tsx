@@ -165,7 +165,12 @@ export function SablierView() {
 
   return (
     <div className="w-full h-full relative">
-      <style>{`.react-flow__edge { z-index: 0 !important; } .react-flow__node { z-index: 10 !important; }`}</style>
+      <style>{`
+        .react-flow__edges { z-index: 0 !important; }
+        .react-flow__edgeupdater { z-index: 0 !important; }
+        .react-flow__nodes { z-index: 1 !important; }
+        .react-flow__node { z-index: 10 !important; position: relative; }
+      `}</style>
       <ReactFlow
         nodes={nodes}
         edges={rfEdges}
@@ -175,6 +180,7 @@ export function SablierView() {
         onNodeClick={(_, node) => selectPerson(node.id)}
         nodesDraggable
         fitView
+        elevateEdgesOnSelect={false}
       >
         <Background variant={"dots" as any} color="rgba(0,0,0,0.35)" gap={30} size={1} />
         <Controls />
