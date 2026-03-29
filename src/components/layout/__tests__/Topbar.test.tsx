@@ -17,7 +17,6 @@ describe('Topbar', () => {
     expect(screen.getByText(/sablier/i)).toBeInTheDocument()
     expect(screen.getByText(/timeline/i)).toBeInTheDocument()
     expect(screen.getByText(/carte/i)).toBeInTheDocument()
-    expect(screen.getByText(/éventail/i)).toBeInTheDocument()
   })
 
   it('calls onViewChange with the correct view id when a tab is clicked', async () => {

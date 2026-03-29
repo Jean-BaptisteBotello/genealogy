@@ -22,7 +22,6 @@ const VIEWS: { id: View; label: string; icon: string }[] = [
   { id: 'sablier', label: 'Sablier', icon: '⧖' },
   { id: 'timeline', label: 'Timeline', icon: '📅' },
   { id: 'carte', label: 'Carte', icon: '🗺' },
-  { id: 'eventail', label: 'Éventail', icon: '🌀' },
 ]
 
 export function Topbar({
