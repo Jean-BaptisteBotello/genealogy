@@ -30,7 +30,7 @@ describe('TimelineView', () => {
     expect(screen.getByText(/votre arbre vous attend/i)).toBeTruthy()
   })
 
-  it('renders an SVG when persons with dates exist', () => {
+  it('renders cards when persons with dates exist', () => {
     vi.mocked(useTree).mockReturnValue({
       persons: [mkPerson('p1', 'Jean', 'Dupont', '1920-01-01')],
       relationships: [], branches: [], personBranches: [],
@@ -38,8 +38,8 @@ describe('TimelineView', () => {
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
     })
-    const { container } = render(<TimelineView />)
-    expect(container.querySelector('svg')).toBeTruthy()
+    render(<TimelineView />)
+    expect(screen.getByText('Jean Dupont')).toBeTruthy()
   })
 
   it('shows person name on the timeline', () => {

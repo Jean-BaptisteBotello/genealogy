@@ -1,23 +1,81 @@
 'use client'
+import { useMemo } from 'react'
 import { useTree } from '@/lib/context/tree-context'
+import './timeline.css'
 
-const SVG_W = 1200
-const SVG_H = 400
-const AXIS_Y = 200
+const CARD_W = 236 // 220 card + 16 gap
+const BASE_WIDTH = 1600
 const PADDING = 80
-const LABEL_OFFSET_UP = -55
-const LABEL_OFFSET_DOWN = 45
+const AXIS_Y = 190
+
+function getInitials(prenom: string, nom: string): string {
+  return (prenom[0] ?? '') + (nom[0] ?? '')
+}
+
+interface PositionedPerson {
+  id: string
+  prenom: string
+  nom: string
+  year: number
+  deceased: boolean
+  selected: boolean
+  x: number
+}
+
+function resolveOverlaps(arr: PositionedPerson[]): void {
+  for (let i = 1; i < arr.length; i++) {
+    const minX = arr[i - 1].x + CARD_W
+    if (arr[i].x < minX) {
+      arr[i].x = minX
+    }
+  }
+}
 
 export function TimelineView() {
   const { persons, selectedPersonId, selectPerson, openAddPerson } = useTree()
 
+  const withDate = useMemo(() => persons.filter(p => p.date_naissance !== null), [persons])
+  const unplaced = useMemo(() => persons.filter(p => p.date_naissance === null), [persons])
+
+  const { abovePos, belowPos, totalWidth, minYear, maxYear, range } = useMemo(() => {
+    const sorted = [...withDate].sort((a, b) =>
+      new Date(a.date_naissance!).getFullYear() - new Date(b.date_naissance!).getFullYear()
+    )
+
+    const years = sorted.map(p => new Date(p.date_naissance!).getFullYear())
+    const min = years.length > 0 ? Math.min(...years) : 1900
+    const max = years.length > 0 ? Math.max(...years) : 2000
+    const r = max - min || 1
+
+    const positioned: PositionedPerson[] = sorted.map(p => ({
+      id: p.id,
+      prenom: p.prenom,
+      nom: p.nom,
+      year: new Date(p.date_naissance!).getFullYear(),
+      deceased: p.date_deces != null,
+      selected: p.id === selectedPersonId,
+      x: PADDING + ((new Date(p.date_naissance!).getFullYear() - min) / r) * BASE_WIDTH,
+    }))
+
+    const above = positioned.filter((_, i) => i % 2 === 0)
+    const below = positioned.filter((_, i) => i % 2 !== 0)
+
+    resolveOverlaps(above)
+    resolveOverlaps(below)
+
+    const allX = [...above, ...below].map(p => p.x)
+    const tw = Math.max(BASE_WIDTH + PADDING * 2, Math.max(...allX) + CARD_W + PADDING)
+
+    return { abovePos: above, belowPos: below, totalWidth: tw, minYear: min, maxYear: max, range: r }
+  }, [withDate, selectedPersonId])
+
   if (persons.length === 0) {
     return (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-5xl mb-4">📅</div>
-          <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary, white)' }}>Votre arbre vous attend</h2>
-          <p className="text-sm mb-6" style={{ color: 'var(--text-secondary, #6b7280)' }}>Commencez par ajouter la première personne.</p>
+      <div className="timeline__empty">
+        <div className="timeline__empty-inner">
+          <div className="timeline__empty-icon">📅</div>
+          <h2 className="timeline__empty-title">Votre arbre vous attend</h2>
+          <p className="timeline__empty-text">Commencez par ajouter la première personne.</p>
           <button
             type="button"
             onClick={openAddPerson}
@@ -30,105 +88,79 @@ export function TimelineView() {
     )
   }
 
-  const withDate = persons.filter(p => p.date_naissance !== null)
-  const unplaced = persons.filter(p => p.date_naissance === null)
+  // Year markers every 25 years
+  const startDecade = Math.floor(minYear / 25) * 25
+  const yearMarkers: { year: number; x: number }[] = []
+  for (let y = startDecade; y <= maxYear + 10; y += 25) {
+    yearMarkers.push({ year: y, x: PADDING + ((y - minYear) / range) * BASE_WIDTH })
+  }
 
-  const sorted = [...withDate].sort((a, b) =>
-    new Date(a.date_naissance!).getFullYear() - new Date(b.date_naissance!).getFullYear()
-  )
-
-  const years = sorted.map(p => new Date(p.date_naissance!).getFullYear())
-  const minYear = years.length > 0 ? Math.min(...years) : 1900
-  const maxYear = years.length > 0 ? Math.max(...years) : 2000
-  const range = maxYear - minYear || 1
-
-  const toX = (year: number) =>
-    PADDING + ((year - minYear) / range) * (SVG_W - PADDING * 2)
+  const renderCard = (p: PositionedPerson, isAbove: boolean) => {
+    const initials = getInitials(p.prenom, p.nom)
+    return (
+      <div
+        key={p.id}
+        className={`timeline__unit ${isAbove ? 'timeline__unit--above' : 'timeline__unit--below'}${p.selected ? ' timeline__unit--selected' : ''}`}
+        style={{ left: p.x }}
+        onClick={() => selectPerson(p.id)}
+      >
+        {isAbove ? (
+          <>
+            <div className="timeline__card">
+              <div className="timeline__card-name">
+                <span className="timeline__card-icon timeline__card-icon--unknown">{initials}</span>
+                {p.prenom} {p.nom}
+                {p.deceased && <span className="timeline__deceased">†</span>}
+              </div>
+              <div className="timeline__card-meta">
+                {p.year}{!p.deceased && ' · Vivant'}
+              </div>
+            </div>
+            <div className="timeline__connector" />
+            <div className="timeline__dot" />
+          </>
+        ) : (
+          <>
+            <div className="timeline__dot" />
+            <div className="timeline__connector" />
+            <div className="timeline__card">
+              <div className="timeline__card-name">
+                <span className="timeline__card-icon timeline__card-icon--unknown">{initials}</span>
+                {p.prenom} {p.nom}
+                {p.deceased && <span className="timeline__deceased">†</span>}
+              </div>
+              <div className="timeline__card-meta">
+                {p.year}{!p.deceased && ' · Vivant'}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    )
+  }
 
   return (
-    <div className="w-full h-full overflow-auto p-6">
-      {sorted.length > 0 && (
-        <svg
-          viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-          className="w-full"
-          style={{ minHeight: SVG_H }}
-        >
-          {/* Axis line */}
-          <line
-            x1={PADDING} y1={AXIS_Y}
-            x2={SVG_W - PADDING} y2={AXIS_Y}
-            stroke="#1e3a5f" strokeWidth={2}
-          />
+    <div className="timeline">
+      <div className="timeline__axis" style={{ minWidth: totalWidth }}>
+        {/* Axis line */}
+        <div className="timeline__line" />
 
-          {/* Min/max year labels */}
-          <text x={PADDING} y={AXIS_Y + 20} fill="#6b7280" fontSize={11} textAnchor="middle">
-            {minYear}
-          </text>
-          <text x={SVG_W - PADDING} y={AXIS_Y + 20} fill="#6b7280" fontSize={11} textAnchor="middle">
-            {maxYear}
-          </text>
+        {/* Year markers */}
+        {yearMarkers.map(m => (
+          <div key={m.year} className="timeline__year" style={{ left: m.x }}>
+            <div className="timeline__year-tick" />
+            <div className="timeline__year-label">{m.year}</div>
+          </div>
+        ))}
 
-          {/* Persons */}
-          {sorted.map((person, index) => {
-            const year = new Date(person.date_naissance!).getFullYear()
-            const cx = toX(year)
-            const isSelected = person.id === selectedPersonId
-            const isAbove = index % 2 === 0
-            const labelY = AXIS_Y + (isAbove ? LABEL_OFFSET_UP : LABEL_OFFSET_DOWN)
+        {/* Person units */}
+        {abovePos.map(p => renderCard(p, true))}
+        {belowPos.map(p => renderCard(p, false))}
+      </div>
 
-            return (
-              <g
-                key={person.id}
-                style={{ cursor: 'pointer' }}
-                onClick={() => selectPerson(person.id)}
-              >
-                {/* Connecting line from circle to label */}
-                <line
-                  x1={cx} y1={AXIS_Y}
-                  x2={cx} y2={isAbove ? labelY + 14 : labelY - 6}
-                  stroke={isSelected ? '#3b82f6' : '#cbd5e1'}
-                  strokeWidth={1}
-                  strokeDasharray="3 2"
-                />
-
-                {/* Circle on axis */}
-                <circle
-                  cx={cx} cy={AXIS_Y}
-                  r={isSelected ? 7 : 5}
-                  fill={isSelected ? '#3b82f6' : '#60a5fa'}
-                  stroke={isSelected ? '#fff' : 'none'}
-                  strokeWidth={2}
-                />
-
-                {/* Name label */}
-                <foreignObject
-                  x={cx - 70} y={isAbove ? labelY - 10 : labelY - 6}
-                  width={140} height={40}
-                  style={{ overflow: 'visible' }}
-                >
-                  <div
-                    style={{
-                      textAlign: 'center',
-                      fontSize: 10,
-                      lineHeight: '1.3',
-                      color: isSelected ? '#3b82f6' : 'white',
-                      fontWeight: isSelected ? 600 : 400,
-                    }}
-                  >
-                    <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {person.prenom} {person.nom}
-                    </div>
-                    <div style={{ color: '#6b7280', fontSize: 9 }}>{year}</div>
-                  </div>
-                </foreignObject>
-              </g>
-            )
-          })}
-        </svg>
-      )}
-
+      {/* Unplaced badge */}
       {unplaced.length > 0 && (
-        <div className="mt-4 text-xs text-gray-500 bg-[#0d1117] border border-[#1e3a5f] rounded px-3 py-2 inline-block">
+        <div className="timeline__unplaced">
           {unplaced.length} non placée{unplaced.length > 1 ? 's' : ''} sur la timeline (sans date de naissance)
         </div>
       )}
