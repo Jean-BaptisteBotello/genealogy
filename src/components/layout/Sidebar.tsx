@@ -103,17 +103,6 @@ export function Sidebar({ branches, currentRole, onManageMembers }: SidebarProps
         <div className="flex-1" />
 
         <div className="text-[10px] uppercase tracking-widest mb-1 mt-3" style={{ color: 'var(--section-label)' }}>Filtres</div>
-        <label htmlFor="filter-vivants" className="flex items-center gap-2 text-xs px-2 py-1 cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
-          <input id="filter-vivants" name="filter-vivants" type="checkbox" className="accent-green-500" /> Vivants
-        </label>
-        <label htmlFor="filter-decedes" className="flex items-center gap-2 text-xs px-2 py-1 cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
-          <input id="filter-decedes" name="filter-decedes" type="checkbox" className="accent-gray-400" /> Décédés
-        </label>
-        <label htmlFor="filter-avec-documents" className="flex items-center gap-2 text-xs px-2 py-1 cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
-          <input id="filter-avec-documents" name="filter-avec-documents" type="checkbox" className="accent-yellow-500" /> Avec documents
-        </label>
-
-        <div className="text-[10px] uppercase tracking-widest mb-1 mt-3" style={{ color: 'var(--section-label)' }}>Rôles</div>
         <label htmlFor="filter-famille" className="flex items-center gap-2 text-xs px-2 py-1 cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
           <input id="filter-famille" name="filter-famille" type="checkbox" className="accent-blue-500" checked={showFamily} onChange={e => setShowFamily(e.target.checked)} /> Famille
         </label>
