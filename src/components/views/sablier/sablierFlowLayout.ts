@@ -1,7 +1,7 @@
 import type { Person, Relationship } from '@/lib/types/database'
 
 const ROW_HEIGHT = 260
-const COL_GAP = 40
+const COL_GAP = 60
 const CARD_W = 360
 const CARD_H = 90
 const UNION_PAD = 20
