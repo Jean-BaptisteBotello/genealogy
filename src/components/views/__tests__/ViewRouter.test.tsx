@@ -4,8 +4,8 @@ import { render, screen } from '@testing-library/react'
 vi.mock('@/components/cosmos/CosmosView', () => ({
   CosmosView: () => <div data-testid="cosmos-view" />,
 }))
-vi.mock('@/components/views/sablier/SablierView', () => ({
-  SablierView: () => <div data-testid="sablier-view" />,
+vi.mock('@/components/views/sablier/SablierFlowView', () => ({
+  SablierFlowView: () => <div data-testid="sablier-view" />,
 }))
 vi.mock('@/components/views/timeline/TimelineView', () => ({
   TimelineView: () => <div data-testid="timeline-view" />,

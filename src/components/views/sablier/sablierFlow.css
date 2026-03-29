@@ -1,0 +1,165 @@
+.sablier-flow {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background: #f8f8f6;
+  background-image: radial-gradient(circle, #e0ddd8 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.sablier-flow__canvas {
+  position: relative;
+  min-width: 100%;
+}
+
+.sablier-flow__connections {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.sablier-flow__connections line {
+  stroke: #d4d0cc;
+  stroke-width: 1.5;
+}
+
+.sablier-flow__card {
+  position: absolute;
+  background: #ffffff;
+  border: 1.5px solid #e5e2dd;
+  border-radius: 12px;
+  padding: 14px 20px;
+  min-width: 200px;
+  max-width: 320px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  z-index: 1;
+}
+
+.sablier-flow__card:hover {
+  border-color: #c4c0ba;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.sablier-flow__card--selected {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 2px rgba(124,58,237,0.15), 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.sablier-flow__card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sablier-flow__card-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.sablier-flow__card-icon--male { background: #2563eb; }
+.sablier-flow__card-icon--female { background: #a855f7; }
+.sablier-flow__card-icon--unknown { background: #6b7280; }
+
+.sablier-flow__card-meta {
+  font-size: 11px;
+  color: #8a8580;
+  padding-left: 30px;
+  margin-top: 4px;
+}
+
+.sablier-flow__card-role {
+  position: absolute;
+  top: -10px;
+  right: 12px;
+  font-size: 10px;
+  font-weight: 500;
+  color: #7c3aed;
+  background: rgba(124,58,237,0.08);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.sablier-flow__union {
+  position: absolute;
+  border: 1.5px dashed #d4d0cc;
+  border-radius: 16px;
+  padding: 20px;
+  background: rgba(124,58,237,0.02);
+  z-index: 1;
+}
+
+.sablier-flow__union-label {
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  background: #f8f8f6;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #a855f7;
+  letter-spacing: 0.3px;
+}
+
+.sablier-flow__gen-label {
+  position: absolute;
+  left: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+.sablier-flow__gen-label--0 { color: #7c3aed; }
+.sablier-flow__gen-label--1 { color: #2563eb; }
+.sablier-flow__gen-label--2 { color: #0891b2; }
+.sablier-flow__gen-label--3 { color: #059669; }
+.sablier-flow__gen-label--4 { color: #d97706; }
+.sablier-flow__gen-label--5 { color: #dc2626; }
+
+.sablier-flow__empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f8f6;
+}
+
+.sablier-flow__empty-inner {
+  text-align: center;
+}
+
+.sablier-flow__empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.sablier-flow__empty-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #3a3a3a;
+  margin-bottom: 8px;
+}
+
+.sablier-flow__empty-text {
+  font-size: 14px;
+  color: #999;
+  margin-bottom: 24px;
+}
