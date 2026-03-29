@@ -66,7 +66,7 @@ export function Topbar({
         <button
           type="button"
           onClick={onAddPerson}
-          className="px-3 py-1.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded text-xs hover:bg-red-500/30 transition-colors"
+          className="px-3 py-1.5 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition-colors"
         >
           + Ajouter
         </button>
