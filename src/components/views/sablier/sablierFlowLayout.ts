@@ -210,20 +210,29 @@ export function computeFlowLayout(
   }
 
   // --- Connections ---
+  // Use a deduplicated set: one connection per parent→child pair
   const connections: FlowConnection[] = []
+  const connSeen = new Set<string>()
   for (const rel of relationships) {
     if (rel.type !== 'PARENT_CHILD' && rel.type !== 'ADOPTION') continue
+    const key = `${rel.person_a_id}→${rel.person_b_id}`
+    if (connSeen.has(key)) continue
+    connSeen.add(key)
     const parentPos = positioned.get(rel.person_a_id)
     const childPos = positioned.get(rel.person_b_id)
     if (!parentPos || !childPos) continue
-    connections.push({
-      fromId: rel.person_a_id,
-      toId: rel.person_b_id,
-      fromX: parentPos.x,
-      fromY: parentPos.y + CARD_H,
-      toX: childPos.x,
-      toY: childPos.y,
-    })
+
+    // For unions: connect from the center-bottom of the union group, not individual card
+    // Find if parent is in a union group
+    const parentUnion = unions.find(u => u.personA.id === rel.person_a_id || u.personB.id === rel.person_a_id)
+    const childUnion = unions.find(u => u.personA.id === rel.person_b_id || u.personB.id === rel.person_b_id)
+
+    const fromX = parentUnion ? parentUnion.x + parentUnion.width / 2 : parentPos.x
+    const fromY = parentUnion ? parentUnion.y + parentUnion.height : parentPos.y + CARD_H
+    const toX = childUnion ? childUnion.x + childUnion.width / 2 : childPos.x
+    const toY = childUnion ? childUnion.y : childPos.y
+
+    connections.push({ fromId: rel.person_a_id, toId: rel.person_b_id, fromX, fromY, toX, toY })
   }
 
   // --- Orphans ---
