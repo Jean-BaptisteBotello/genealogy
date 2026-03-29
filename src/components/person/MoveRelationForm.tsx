@@ -1,5 +1,6 @@
 'use client'
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { moveRelationship } from '@/server-actions/relationships'
 import type { Person } from '@/lib/types/database'
 
@@ -18,6 +19,7 @@ export function MoveRelationForm({
   excludePersonId,
   onClose,
 }: MoveRelationFormProps) {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -41,6 +43,7 @@ export function MoveRelationForm({
         setError(result.error)
         return
       }
+      router.refresh()
       onClose()
     })
   }

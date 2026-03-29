@@ -1,6 +1,7 @@
 // src/components/layout/DetailPanel.tsx
 'use client'
 import { useState, useEffect, useRef, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { getSignedUrl, uploadDocument, deleteDocument } from '@/server-actions/documents'
 import type { Person, Branch, Relationship, PersonBranch, Document, SuggestionWithProposer } from '@/lib/types/database'
@@ -69,6 +70,7 @@ export function DetailPanel({
   pendingSuggestions,
   currentRole: currentRoleProp,
 }: DetailPanelProps) {
+  const router = useRouter()
   const { currentRole: currentRoleCtx } = useTree()
   const currentRole = currentRoleProp ?? currentRoleCtx
   const [documents, setDocuments] = useState<Document[]>([])
@@ -333,6 +335,8 @@ export function DetailPanel({
                               const result = await deleteRelationship(rel.id)
                               if (result.error) {
                                 onShowToast?.(result.error, 'error')
+                              } else {
+                                router.refresh()
                               }
                             }}
                             className="text-[10px] px-1 transition-colors"
