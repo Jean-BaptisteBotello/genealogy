@@ -52,10 +52,10 @@ export const CosmosNode = forwardRef<SVGGElement, CosmosNodeRenderProps>(
 
     const fill = mode === 'branch'
       ? (deceased ? 'none' : branchColor)
-      : (deceased ? 'none' : 'white')
+      : (deceased ? 'none' : '#7c3aed')
 
     const stroke = deceased
-      ? (mode === 'branch' ? branchColor : 'rgba(140,100,120,0.6)')
+      ? (mode === 'branch' ? branchColor : '#b0aaa4')
       : 'none'
 
     const strokeOpacity = deceased ? (mode === 'branch' ? 0.7 : 1) : undefined
@@ -71,7 +71,7 @@ export const CosmosNode = forwardRef<SVGGElement, CosmosNodeRenderProps>(
           className="shadow-line"
           x1={0} y1={0}
           x2={shadowDx} y2={shadowDy}
-          stroke="rgba(80,45,65,0.45)"
+          stroke="rgba(124,58,237,0.2)"
           strokeWidth={deceased ? 1 : 1.2}
           strokeLinecap="round"
         />
@@ -88,8 +88,8 @@ export const CosmosNode = forwardRef<SVGGElement, CosmosNodeRenderProps>(
           textAnchor="middle"
           dy={-9}
           fill={mode === 'branch'
-            ? (deceased ? 'rgba(100,65,80,0.55)' : branchColor)
-            : (deceased ? 'rgba(100,65,80,0.55)' : 'rgba(255,255,255,0.85)')}
+            ? (deceased ? '#b0aaa4' : branchColor)
+            : (deceased ? '#b0aaa4' : '#3a3a3a')}
           fontSize={9}
           fontFamily="SF Mono, Fira Code, monospace"
           letterSpacing="0.03em"

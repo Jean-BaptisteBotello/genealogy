@@ -26,10 +26,10 @@ function renderInSvg(node: React.ReactElement) {
 }
 
 describe('CosmosNode', () => {
-  it('renders a circle with fill white in mono mode (alive)', () => {
+  it('renders a circle with fill purple in mono mode (alive)', () => {
     const container = renderInSvg(<CosmosNode {...baseProps} />)
     const circle = container.querySelector('circle')
-    expect(circle?.getAttribute('fill')).toBe('white')
+    expect(circle?.getAttribute('fill')).toBe('#7c3aed')
   })
 
   it('renders dashed circle (no fill) in mono mode (deceased)', () => {
