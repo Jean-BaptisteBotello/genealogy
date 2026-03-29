@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { useTree } from '@/lib/context/tree-context'
 import { computeFlowLayout } from './sablierFlowLayout'
 import './sablierFlow.css'
@@ -38,6 +38,16 @@ export function SablierFlowView() {
     () => computeFlowLayout(persons, filteredRelationships, centerId),
     [persons, filteredRelationships, centerId]
   )
+
+  const [zoom, setZoom] = useState(1)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault()
+      setZoom(prev => Math.min(2, Math.max(0.3, prev - e.deltaY * 0.002)))
+    }
+  }, [])
 
   if (persons.length === 0) {
     return (
@@ -88,10 +98,22 @@ export function SablierFlowView() {
   }
 
   return (
-    <div className="sablier-flow">
+    <div className="sablier-flow" ref={containerRef} onWheel={handleWheel}>
+      {/* Zoom controls */}
+      <div className="sablier-flow__zoom-controls">
+        <button type="button" onClick={() => setZoom(prev => Math.min(2, prev + 0.15))}>+</button>
+        <span>{Math.round(zoom * 100)}%</span>
+        <button type="button" onClick={() => setZoom(prev => Math.max(0.3, prev - 0.15))}>−</button>
+        <button type="button" onClick={() => setZoom(1)} style={{ fontSize: 10, marginLeft: 4 }}>Reset</button>
+      </div>
       <div
         className="sablier-flow__canvas"
-        style={{ width: layout.totalWidth, height: layout.totalHeight }}
+        style={{
+          width: layout.totalWidth,
+          height: layout.totalHeight,
+          transform: `scale(${zoom})`,
+          transformOrigin: 'top left',
+        }}
       >
         {/* SVG connections */}
         <svg
