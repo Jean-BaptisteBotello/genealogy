@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Branch, Role } from '@/lib/types/database'
 import { BranchModal } from '@/components/branch/BranchModal'
-import { deleteBranch } from '@/server-actions/branches'
+import { deleteBranch, createBranch, assignPersonToBranch } from '@/server-actions/branches'
 import { useTree } from '@/lib/context/tree-context'
+import { detectBranches } from '@/lib/branch-detection'
 
 interface SidebarProps {
   branches: Branch[]
@@ -15,11 +16,41 @@ interface SidebarProps {
 
 export function Sidebar({ branches, currentRole, onManageMembers }: SidebarProps) {
   const router = useRouter()
-  const { showFamily, setShowFamily, showExtendedFamily, setShowExtendedFamily } = useTree()
+  const { persons, relationships, selectedPersonId, showFamily, setShowFamily, showExtendedFamily, setShowExtendedFamily, showToast } = useTree()
+  const [detecting, setDetecting] = useState(false)
   const [branchModalMode, setBranchModalMode] = useState<
     'add' | { type: 'edit'; branch: Branch } | null
   >(null)
   const [activeBranchId, setActiveBranchId] = useState<string | 'all'>('all')
+
+  async function handleDetectBranches() {
+    const centerId = selectedPersonId ?? persons[0]?.id
+    if (!centerId) return
+    setDetecting(true)
+    try {
+      const detected = detectBranches(persons, relationships, centerId)
+      if (detected.length === 0) {
+        showToast('Aucune branche détectée. Ajoutez des liens parent-enfant.', 'info')
+        return
+      }
+      for (const branch of detected) {
+        const form = new FormData()
+        form.set('nom', branch.name)
+        form.set('couleur', branch.color)
+        form.set('description', '')
+        const result = await createBranch(form)
+        if (result.id) {
+          for (const memberId of branch.members) {
+            await assignPersonToBranch(memberId, result.id)
+          }
+        }
+      }
+      router.refresh()
+      showToast(`${detected.length} branche${detected.length > 1 ? 's' : ''} détectée${detected.length > 1 ? 's' : ''}.`, 'info')
+    } finally {
+      setDetecting(false)
+    }
+  }
 
   async function handleDeleteBranch(branch: Branch) {
     if (!confirm(`Supprimer la branche « ${branch.nom} » ?`)) return
@@ -91,13 +122,23 @@ export function Sidebar({ branches, currentRole, onManageMembers }: SidebarProps
         )}
 
         {currentRole !== 'VIEWER' && (
-          <button
-            type="button"
-            onClick={() => setBranchModalMode('add')}
-            className="text-left text-[10px] text-gray-600 px-2 py-1 hover:text-gray-400 mt-1"
-          >
-            + Nouvelle branche
-          </button>
+          <div className="flex flex-col gap-0.5 mt-1">
+            <button
+              type="button"
+              onClick={() => setBranchModalMode('add')}
+              className="text-left text-[10px] text-gray-600 px-2 py-1 hover:text-gray-400"
+            >
+              + Nouvelle branche
+            </button>
+            <button
+              type="button"
+              onClick={handleDetectBranches}
+              disabled={detecting}
+              className="text-left text-[10px] text-gray-600 px-2 py-1 hover:text-gray-400 disabled:opacity-40"
+            >
+              {detecting ? 'Détection...' : '🔍 Détecter les branches'}
+            </button>
+          </div>
         )}
 
         <div className="flex-1" />
