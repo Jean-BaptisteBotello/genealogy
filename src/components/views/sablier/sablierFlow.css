@@ -69,8 +69,8 @@
   border: 1.5px solid #e5e2dd;
   border-radius: 12px;
   padding: 14px 20px;
-  min-width: 200px;
-  max-width: 320px;
+  min-width: 240px;
+  max-width: 400px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s;
