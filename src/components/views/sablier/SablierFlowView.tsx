@@ -40,7 +40,18 @@ export function SablierFlowView() {
   )
 
   const [zoom, setZoom] = useState(1)
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // Connections relevant to selected or hovered person
+  const activeId = hoveredId ?? centerId
+  const activeConnections = useMemo(() => {
+    const set = new Set<number>()
+    layout.connections.forEach((c, i) => {
+      if (c.fromId === activeId || c.toId === activeId) set.add(i)
+    })
+    return set
+  }, [layout.connections, activeId])
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     if (e.ctrlKey || e.metaKey) {
@@ -80,6 +91,8 @@ export function SablierFlowView() {
         className={classes}
         style={{ left: x, top: y }}
         onClick={() => selectPerson(nodeId)}
+        onMouseEnter={() => setHoveredId(nodeId)}
+        onMouseLeave={() => setHoveredId(null)}
       >
         {role && <span className="sablier-flow__card-role">{role}</span>}
         <div className="sablier-flow__card-name">
@@ -121,13 +134,17 @@ export function SablierFlowView() {
           viewBox={`0 0 ${layout.totalWidth} ${layout.totalHeight}`}
           preserveAspectRatio="xMidYMid meet"
         >
-          {layout.connections.map((c, i) => (
-            <g key={i}>
-              <line x1={c.fromX} y1={c.fromY} x2={c.toX} y2={c.toY} />
-              <circle cx={c.fromX} cy={c.fromY} r={4} fill="#7c3aed" />
-              <circle cx={c.toX} cy={c.toY} r={3} fill="#d4d0cc" />
-            </g>
-          ))}
+          {layout.connections.map((c, i) => {
+            const isActive = activeConnections.has(i)
+            return (
+              <g key={i} style={{ opacity: isActive ? 1 : 0.08, transition: 'opacity 0.2s' }}>
+                <line x1={c.fromX} y1={c.fromY} x2={c.toX} y2={c.toY}
+                  strokeWidth={isActive ? 2 : 1.5} />
+                <circle cx={c.fromX} cy={c.fromY} r={isActive ? 4 : 2} fill="#7c3aed" />
+                <circle cx={c.toX} cy={c.toY} r={isActive ? 3 : 2} fill="#d4d0cc" />
+              </g>
+            )
+          })}
         </svg>
 
         {/* Generation labels */}
