@@ -17,11 +17,11 @@ const ORBIT_SPEEDS: Record<number, number> = {
 
 const STROKE_ALPHAS: Record<number, number> = {
   0: 0,
-  1: 0.14,
-  2: 0.10,
-  3: 0.06,
-  4: 0.04,
-  5: 0.03,
+  1: 0.30,
+  2: 0.22,
+  3: 0.15,
+  4: 0.10,
+  5: 0.07,
 }
 
 const RELATION_LABEL: Record<RelationshipType, string> = {
@@ -348,7 +348,7 @@ export function CosmosView() {
             r={ORBIT_RADII[orbit]}
             fill="none"
             stroke={`rgba(80,45,65,${STROKE_ALPHAS[orbit]})`}
-            strokeWidth={1}
+            strokeWidth={1.5}
           />
         ))}
 
@@ -402,7 +402,7 @@ export function CosmosView() {
             <text
               x="50%"
               y="50%"
-              dy="-22"
+              dy="-28"
               textAnchor="middle"
               fill="white"
               fontSize={11}
@@ -414,7 +414,7 @@ export function CosmosView() {
             <text
               x="50%"
               y="50%"
-              dy="-10"
+              dy="-16"
               textAnchor="middle"
               fill="rgba(255,255,255,0.75)"
               fontSize={9}
