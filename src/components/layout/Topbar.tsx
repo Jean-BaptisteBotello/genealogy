@@ -1,7 +1,6 @@
 // src/components/layout/Topbar.tsx
 'use client'
 import { signout } from '@/server-actions/auth'
-import { useTheme, type ThemeId } from '@/lib/context/theme-context'
 
 type View = 'cosmos' | 'sablier' | 'timeline' | 'carte' | 'eventail'
 
@@ -36,7 +35,6 @@ export function Topbar({
   onMySuggestionsOpen,
 }: TopbarProps) {
   const initials = userEmail.slice(0, 2).toUpperCase() || '?'
-  const { themeId, setTheme } = useTheme()
 
   return (
     <header className="h-12 flex items-center px-4 gap-4 shrink-0" style={{ background: 'var(--topbar-bg)', borderBottom: '1px solid var(--topbar-border)' }}>
@@ -112,16 +110,6 @@ export function Topbar({
         aria-label="Rechercher"
       >
         🔍
-      </button>
-      {/* Theme toggle */}
-      <button
-        type="button"
-        onClick={() => setTheme(themeId === 'cosmos' ? 'beige' : 'cosmos')}
-        className="text-xs px-2 py-1 rounded transition-colors"
-        style={{ background: 'var(--accent-bg)', color: 'var(--text-secondary)' }}
-        title={`Thème : ${themeId === 'cosmos' ? 'Cosmos' : 'Beige'}`}
-      >
-        {themeId === 'cosmos' ? '🌌' : '🏖️'}
       </button>
       <form action={signout}>
         <button

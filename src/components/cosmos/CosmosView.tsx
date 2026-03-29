@@ -33,7 +33,7 @@ const RELATION_LABEL: Record<RelationshipType, string> = {
   STEP: 'Beau-parent / Bel-enfant',
 }
 
-const BG_GRADIENT = 'linear-gradient(170deg, #b5c4d3 0%, #c4b8cf 45%, #c4909e 80%, #b07d8a 100%)'
+const BG_COLOR = '#f8f8f6'
 
 const LS_KEY = 'cosmos_branch_colors'
 
@@ -231,15 +231,15 @@ export function CosmosView() {
           justifyContent: 'center',
           height: '100%',
           gap: 16,
-          background: BG_GRADIENT,
+          background: BG_COLOR,
         }}
       >
-        <div style={{ fontSize: 18, color: '#5a3545' }}>Votre arbre vous attend</div>
+        <div style={{ fontSize: 18, color: '#3a3a3a' }}>Votre arbre vous attend</div>
         <button
           onClick={openAddPerson}
           style={{
             padding: '8px 16px',
-            background: 'rgba(90,53,69,0.85)',
+            background: '#ef4444',
             color: 'white',
             border: 'none',
             borderRadius: 6,
@@ -263,7 +263,7 @@ export function CosmosView() {
         position: 'relative',
         width: '100%',
         height: '100%',
-        background: BG_GRADIENT,
+        background: BG_COLOR,
         overflow: 'hidden',
       }}
       onMouseMove={handleMouseMove}
@@ -297,9 +297,9 @@ export function CosmosView() {
           onClick={handleToggleBranch}
           style={{
             padding: '4px 14px',
-            background: branchMode ? 'rgba(90,53,69,0.85)' : 'rgba(255,255,255,0.25)',
-            color: branchMode ? 'white' : 'rgba(90,53,69,0.85)',
-            border: '1px solid rgba(90,53,69,0.3)',
+            background: branchMode ? '#7c3aed' : '#ffffff',
+            color: branchMode ? 'white' : '#7c3aed',
+            border: '1px solid #e5e2dd',
             borderRadius: 20,
             cursor: 'pointer',
             fontSize: 12,
@@ -319,8 +319,8 @@ export function CosmosView() {
       >
         <defs>
           <radialGradient id="cosmosGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="rgba(255,230,245,0.18)" />
-            <stop offset="100%" stopColor="rgba(180,130,160,0)" />
+            <stop offset="0%" stopColor="rgba(124,58,237,0.08)" />
+            <stop offset="100%" stopColor="rgba(124,58,237,0)" />
           </radialGradient>
           <filter id="nodeGlow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="2.5" result="blur" />
@@ -347,7 +347,7 @@ export function CosmosView() {
             cy="50%"
             r={ORBIT_RADII[orbit]}
             fill="none"
-            stroke={`rgba(80,45,65,${STROKE_ALPHAS[orbit]})`}
+            stroke={`rgba(124,58,237,${STROKE_ALPHAS[orbit]})`}
             strokeWidth={1.5}
           />
         ))}
@@ -389,14 +389,14 @@ export function CosmosView() {
               cy="50%"
               r={18}
               fill="none"
-              stroke="rgba(255,255,255,0.35)"
+              stroke="rgba(124,58,237,0.3)"
               strokeWidth={1}
             />
             <circle
               cx="50%"
               cy="50%"
               r={10}
-              fill="white"
+              fill="#7c3aed"
               filter="url(#nodeGlow)"
             />
             <text
@@ -404,10 +404,10 @@ export function CosmosView() {
               y="50%"
               dy="-28"
               textAnchor="middle"
-              fill="white"
+              fill="#1a1a1a"
               fontSize={11}
               fontWeight={600}
-              style={{ pointerEvents: 'none', textShadow: '0 1px 3px rgba(80,45,65,0.5)' }}
+              style={{ pointerEvents: 'none' }}
             >
               {centerPerson.prenom}
             </text>
@@ -416,7 +416,7 @@ export function CosmosView() {
               y="50%"
               dy="-16"
               textAnchor="middle"
-              fill="rgba(255,255,255,0.75)"
+              fill="#8a8580"
               fontSize={9}
               style={{ pointerEvents: 'none' }}
             >
@@ -446,9 +446,9 @@ export function CosmosView() {
             position: 'absolute',
             bottom: 16,
             right: 16,
-            background: 'rgba(255,245,250,0.85)',
-            color: '#7a5060',
-            border: '1px solid rgba(160,110,130,0.25)',
+            background: '#ffffff',
+            color: '#8a8580',
+            border: '1px solid #e5e2dd',
             borderRadius: 6,
             padding: '4px 10px',
             fontSize: 12,

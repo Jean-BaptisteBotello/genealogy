@@ -1,8 +1,8 @@
 // src/lib/context/theme-context.tsx
 'use client'
-import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { createContext, useContext, useEffect } from 'react'
 
-export type ThemeId = 'cosmos' | 'beige'
+export type ThemeId = 'warm-light'
 
 interface ThemeColors {
   bodyBg: string
@@ -30,57 +30,30 @@ interface ThemeColors {
   badgeText: string
 }
 
-const THEMES: Record<ThemeId, ThemeColors> = {
-  cosmos: {
-    bodyBg: 'linear-gradient(170deg, #a8b5c4 0%, #b5a8c0 45%, #b88090 80%, #a06878 100%)',
-    topbarBg: 'rgba(255,245,250,0.18)',
-    topbarBorder: 'rgba(60,30,45,0.12)',
-    topbarText: '#2d1520',
-    sidebarBg: 'rgba(255,245,250,0.18)',
-    sidebarBorder: 'rgba(60,30,45,0.1)',
-    detailBg: 'rgba(255,245,250,0.18)',
-    detailBorder: 'rgba(60,30,45,0.1)',
-    sectionLabel: 'rgba(60,30,45,0.55)',
-    textPrimary: '#2d1520',
-    textSecondary: 'rgba(60,30,45,0.7)',
-    textMuted: 'rgba(60,30,45,0.45)',
-    textLink: '#5a2040',
-    accentBg: 'rgba(60,30,45,0.08)',
-    accentText: 'rgba(60,30,45,0.7)',
-    accentHover: 'rgba(60,30,45,0.12)',
-    avatarBg: 'rgba(60,30,45,0.1)',
-    avatarText: '#3d2230',
-    inputBg: 'rgba(255,255,255,0.25)',
-    divider: 'rgba(60,30,45,0.15)',
-    dividerLight: 'rgba(60,30,45,0.08)',
-    badgeBg: 'rgba(60,30,45,0.08)',
-    badgeText: 'rgba(60,30,45,0.6)',
-  },
-  beige: {
-    bodyBg: '#e8ddd0',
-    topbarBg: '#d4c4b0',
-    topbarBorder: 'rgba(160,140,110,0.3)',
-    topbarText: '#5a4a38',
-    sidebarBg: '#ddd0c0',
-    sidebarBorder: 'rgba(160,140,110,0.25)',
-    detailBg: '#ddd0c0',
-    detailBorder: 'rgba(160,140,110,0.25)',
-    sectionLabel: 'rgba(90,74,56,0.5)',
-    textPrimary: '#3d3228',
-    textSecondary: '#7a6a50',
-    textMuted: 'rgba(90,74,56,0.4)',
-    textLink: '#8b6040',
-    accentBg: 'rgba(90,74,56,0.08)',
-    accentText: '#5a4a38',
-    accentHover: 'rgba(90,74,56,0.15)',
-    avatarBg: 'rgba(90,74,56,0.12)',
-    avatarText: '#7a6a50',
-    inputBg: 'rgba(90,74,56,0.06)',
-    divider: 'rgba(160,140,110,0.3)',
-    dividerLight: 'rgba(160,140,110,0.15)',
-    badgeBg: 'rgba(90,74,56,0.1)',
-    badgeText: '#7a6a50',
-  },
+const THEME: ThemeColors = {
+  bodyBg: '#f8f8f6',
+  topbarBg: '#ffffff',
+  topbarBorder: '#e5e2dd',
+  topbarText: '#3a3a3a',
+  sidebarBg: '#f2f0ed',
+  sidebarBorder: '#e5e2dd',
+  detailBg: '#ffffff',
+  detailBorder: '#e5e2dd',
+  sectionLabel: '#b0aaa4',
+  textPrimary: '#1a1a1a',
+  textSecondary: '#6b6560',
+  textMuted: '#8a8580',
+  textLink: '#7c3aed',
+  accentBg: 'rgba(124,58,237,0.08)',
+  accentText: '#7c3aed',
+  accentHover: 'rgba(124,58,237,0.12)',
+  avatarBg: 'rgba(124,58,237,0.1)',
+  avatarText: '#7c3aed',
+  inputBg: '#f8f8f6',
+  divider: '#e5e2dd',
+  dividerLight: '#f0eded',
+  badgeBg: 'rgba(124,58,237,0.08)',
+  badgeText: '#7c3aed',
 }
 
 interface ThemeContextValue {
@@ -90,8 +63,8 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  themeId: 'cosmos',
-  colors: THEMES.cosmos,
+  themeId: 'warm-light',
+  colors: THEME,
   setTheme: () => {},
 })
 
@@ -100,19 +73,9 @@ export function useTheme() {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [themeId, setThemeId] = useState<ThemeId>('cosmos')
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('genealogy_theme')
-    if (saved === 'cosmos' || saved === 'beige') {
-      setThemeId(saved)
-    }
-  }, [])
-
   // Apply CSS custom properties to <html>
   useEffect(() => {
-    const colors = THEMES[themeId]
+    const colors = THEME
     const root = document.documentElement
     root.style.setProperty('--body-bg', colors.bodyBg)
     root.style.setProperty('--topbar-bg', colors.topbarBg)
@@ -137,15 +100,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.style.setProperty('--divider-light', colors.dividerLight)
     root.style.setProperty('--badge-bg', colors.badgeBg)
     root.style.setProperty('--badge-text', colors.badgeText)
-  }, [themeId])
-
-  const setTheme = useCallback((id: ThemeId) => {
-    setThemeId(id)
-    localStorage.setItem('genealogy_theme', id)
   }, [])
 
   return (
-    <ThemeContext.Provider value={{ themeId, colors: THEMES[themeId], setTheme }}>
+    <ThemeContext.Provider value={{ themeId: 'warm-light', colors: THEME, setTheme: () => {} }}>
       {children}
     </ThemeContext.Provider>
   )
