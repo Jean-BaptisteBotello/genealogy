@@ -7,7 +7,6 @@ import { computeSablierLayout } from './sablierLayout'
 
 const STORAGE_KEY = 'sablier_positions'
 
-// Custom node with 4 handles: top/bottom for filiation, left/right for union
 function SablierNode({ data }: NodeProps) {
   return (
     <div style={data.nodeStyle}>
@@ -15,7 +14,13 @@ function SablierNode({ data }: NodeProps) {
       <Handle type="source" position={Position.Bottom} id="bottom" style={{ background: 'transparent', border: 'none', width: 6, height: 6 }} />
       <Handle type="source" position={Position.Left} id="left" style={{ background: 'transparent', border: 'none', width: 6, height: 6 }} />
       <Handle type="target" position={Position.Right} id="right" style={{ background: 'transparent', border: 'none', width: 6, height: 6 }} />
-      {data.label}
+      <div style={{ fontWeight: 600, fontSize: 13, color: data.isSelected ? '#2c2c2c' : '#3a3a3a' }}>
+        {data.label}
+        {data.isDeceased && <span style={{ color: '#bbb' }}> &#8224;</span>}
+      </div>
+      {data.dates && (
+        <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>{data.dates}</div>
+      )}
     </div>
   )
 }
@@ -43,12 +48,10 @@ export function SablierView() {
 
   const [customPositions, setCustomPositions] = useState<SavedPositions>({})
 
-  // Load saved positions on mount
   useEffect(() => {
     setCustomPositions(loadPositions())
   }, [])
 
-  // Auto-select first person
   useEffect(() => {
     if (persons.length > 0 && !selectedPersonId) {
       selectPerson(persons[0].id)
@@ -66,11 +69,11 @@ export function SablierView() {
   const CENTER_X = 400
   const CENTER_Y = 400
 
-  // Build ReactFlow nodes, merging custom positions
   const initialNodes: Node[] = useMemo(() => layoutNodes.map(n => {
     const person = personMap.get(n.id)
     const autoPos = { x: CENTER_X + n.x, y: CENTER_Y + n.y }
     const pos = customPositions[n.id] ?? autoPos
+    const isSelected = n.id === centerId
     return {
       id: n.id,
       type: 'sablier',
@@ -79,24 +82,29 @@ export function SablierView() {
       zIndex: 10,
       data: {
         label: person ? `${person.prenom} ${person.nom}` : n.id,
+        dates: person?.date_naissance ? new Date(person.date_naissance).getFullYear().toString() : '',
+        isSelected,
+        isDeceased: person?.date_deces != null,
         nodeStyle: {
-          background: n.id === centerId ? 'var(--accent-hover, #1e3a5f)' : 'var(--accent-bg, #0d1117)',
-          color: 'var(--text-primary, white)',
-          border: n.id === centerId ? '2px solid var(--text-link, #3b82f6)' : '1px solid var(--divider, #1e3a5f)',
-          borderRadius: 6,
-          fontSize: 12,
-          padding: '4px 8px',
+          background: '#ffffff',
+          color: '#3a3a3a',
+          border: isSelected ? '2px solid #7a5a8a' : '1.5px solid #d4cece',
+          borderRadius: 8,
+          fontSize: 13,
+          padding: '10px 16px',
           minWidth: 120,
           textAlign: 'center' as const,
+          boxShadow: isSelected
+            ? '0 0 0 2px rgba(122,90,138,0.2), 0 2px 8px rgba(0,0,0,0.1)'
+            : '0 1px 4px rgba(0,0,0,0.06)',
+          cursor: 'grab',
         },
       },
     }
   }), [layoutNodes, personMap, centerId, customPositions])
 
-  // Controlled nodes state for ReactFlow
   const [nodes, setNodes] = useState<Node[]>(initialNodes)
 
-  // Sync when initialNodes change (new person selected, data changes)
   useEffect(() => {
     setNodes(initialNodes)
   }, [initialNodes])
@@ -117,13 +125,13 @@ export function SablierView() {
         sourceHandle: isHorizontal ? 'left' : 'bottom',
         targetHandle: isHorizontal ? 'right' : 'top',
         style: {
-          stroke: isUnion ? 'rgba(96,165,250,0.5)' : 'rgba(0,0,0,0.15)',
-          strokeWidth: 1,
-          strokeDasharray: isDashed ? '6 3' : undefined,
+          stroke: isUnion ? '#b07aab' : isSibling ? '#7a9bb0' : '#8a8a8a',
+          strokeWidth: isUnion ? 2 : isSibling ? 1.2 : 1.5,
+          strokeDasharray: isDashed ? '6 4' : undefined,
         },
       }
     }),
-  [relationships, nodeIds])
+  [filteredRelationships, nodeIds])
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes(nds => applyNodeChanges(changes, nds))
@@ -146,11 +154,11 @@ export function SablierView() {
 
   if (persons.length === 0) {
     return (
-      <div className="w-full h-full flex items-center justify-center">
+      <div className="w-full h-full flex items-center justify-center" style={{ background: '#f0eded' }}>
         <div className="text-center">
           <div className="text-5xl mb-4">⧖</div>
-          <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary, white)' }}>Votre arbre vous attend</h2>
-          <p className="text-sm mb-6" style={{ color: 'var(--text-secondary, #6b7280)' }}>Commencez par ajouter la première personne.</p>
+          <h2 className="text-xl font-semibold mb-2" style={{ color: '#3a3a3a' }}>Votre arbre vous attend</h2>
+          <p className="text-sm mb-6" style={{ color: '#999' }}>Commencez par ajouter la première personne.</p>
           <button
             type="button"
             onClick={openAddPerson}
@@ -164,7 +172,7 @@ export function SablierView() {
   }
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full relative" style={{ background: '#f0eded' }}>
       <style>{`
         .react-flow__edges { z-index: 0 !important; }
         .react-flow__edgeupdater { z-index: 0 !important; }
@@ -182,7 +190,7 @@ export function SablierView() {
         fitView
         elevateEdgesOnSelect={false}
       >
-        <Background variant={"dots" as any} color="rgba(0,0,0,0.35)" gap={30} size={1} />
+        <Background variant={"dots" as any} color="rgba(0,0,0,0.08)" gap={30} size={1} />
         <Controls />
       </ReactFlow>
 
@@ -193,9 +201,9 @@ export function SablierView() {
           data-testid="reset-positions"
           className="absolute bottom-14 right-4 text-xs px-3 py-1.5 rounded transition-colors"
           style={{
-            background: 'var(--accent-bg, rgba(255,255,255,0.1))',
-            color: 'var(--text-secondary, #9ca3af)',
-            border: '1px solid var(--divider, #1e3a5f)',
+            background: '#ffffff',
+            color: '#666',
+            border: '1px solid #d4cece',
           }}
         >
           Réinitialiser les positions
@@ -206,9 +214,9 @@ export function SablierView() {
         <div
           className="absolute bottom-4 left-4 text-xs rounded px-2 py-1"
           style={{
-            background: 'var(--badge-bg, #0d1117)',
-            color: 'var(--badge-text, #9ca3af)',
-            border: '1px solid var(--divider, #1e3a5f)',
+            background: '#ffffff',
+            color: '#666',
+            border: '1px solid #d4cece',
           }}
         >
           {orphans.length} non connecté{orphans.length > 1 ? 's' : ''}

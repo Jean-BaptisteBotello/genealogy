@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeSablierLayout, ROW_HEIGHT } from '../sablierLayout'
+import { computeSablierLayout, ROW_HEIGHT, COL_WIDTH } from '../sablierLayout'
 import type { Relationship } from '@/lib/types/database'
 
 const REL = (a: string, b: string, type: Relationship['type'] = 'PARENT_CHILD', meta: Record<string, unknown> = {}): Relationship => ({
@@ -11,7 +11,7 @@ const REL = (a: string, b: string, type: Relationship['type'] = 'PARENT_CHILD', 
 })
 
 describe('computeSablierLayout', () => {
-  it('places center person at generation 0, position (0, 0)', () => {
+  it('places center person at generation 0, position (0, 0) when alone', () => {
     const result = computeSablierLayout(['p1'], [], 'p1')
     const center = result.nodes.find(n => n.id === 'p1')
     expect(center?.generation).toBe(0)
@@ -20,11 +20,13 @@ describe('computeSablierLayout', () => {
   })
 
   it('places parent at generation -1 (above center)', () => {
-    // p1 is parent of p2 (person_a=parent, person_b=child)
     const result = computeSablierLayout(['p1', 'p2'], [REL('p1', 'p2')], 'p2')
     const parent = result.nodes.find(n => n.id === 'p1')
+    const child = result.nodes.find(n => n.id === 'p2')
     expect(parent?.generation).toBe(-1)
-    expect(parent?.y).toBe(-ROW_HEIGHT)
+    // Parent at top (y=0), child below (y=ROW_HEIGHT)
+    expect(parent?.y).toBe(0)
+    expect(child?.y).toBe(ROW_HEIGHT)
   })
 
   it('places child at generation +1 (below center)', () => {
@@ -35,7 +37,6 @@ describe('computeSablierLayout', () => {
   })
 
   it('places grandparent at generation -2', () => {
-    // p1 parent of p2, p2 parent of p3; center = p3
     const result = computeSablierLayout(
       ['p1', 'p2', 'p3'],
       [REL('p1', 'p2'), REL('p2', 'p3')],
@@ -43,7 +44,8 @@ describe('computeSablierLayout', () => {
     )
     const grandparent = result.nodes.find(n => n.id === 'p1')
     expect(grandparent?.generation).toBe(-2)
-    expect(grandparent?.y).toBe(-2 * ROW_HEIGHT)
+    // Grandparent at top (y=0), parent at ROW_HEIGHT, child at 2*ROW_HEIGHT
+    expect(grandparent?.y).toBe(0)
   })
 
   it('places grandchild at generation +2', () => {
