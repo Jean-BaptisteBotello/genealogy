@@ -176,14 +176,14 @@ export function computeFlowLayout(
       const ux = curX
       const uy = rowY
       const nodeA: FlowNode = { id: aId, generation: gen, x: ux + UNION_PAD, y: uy + UNION_PAD, role: roleMap.get(aId) }
-      const nodeB: FlowNode = { id: bId, generation: gen, x: ux + UNION_PAD, y: uy + UNION_PAD + CARD_H + 12, role: roleMap.get(bId) }
+      const nodeB: FlowNode = { id: bId, generation: gen, x: ux + UNION_PAD, y: uy + UNION_PAD + CARD_H + 24, role: roleMap.get(bId) }
       nodes.push(nodeA, nodeB)
       positioned.set(aId, { x: nodeA.x + CARD_W / 2, y: nodeA.y })
       positioned.set(bId, { x: nodeB.x + CARD_W / 2, y: nodeB.y })
       unions.push({
         personA: nodeA, personB: nodeB,
         x: ux, y: uy,
-        width: unionW, height: CARD_H * 2 + 12 + UNION_PAD * 2,
+        width: unionW, height: CARD_H * 2 + 24 + UNION_PAD * 2,
       })
       curX += unionW + COL_GAP
     }
