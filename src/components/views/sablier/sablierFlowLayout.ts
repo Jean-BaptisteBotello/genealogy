@@ -1,6 +1,6 @@
 import type { Person, Relationship } from '@/lib/types/database'
 
-const ROW_HEIGHT = 260
+const ROW_GAP = 60
 const COL_GAP = 60
 const CARD_W = 360
 const CARD_H = 90
@@ -136,15 +136,16 @@ export function computeFlowLayout(
   const gens = [...byGen.keys()].sort((a, b) => a - b)
   const minGen = gens[0] ?? 0
 
-  // --- Position elements ---
+  // --- Position elements with dynamic row heights ---
   const nodes: FlowNode[] = []
   const unions: FlowUnion[] = []
   const positioned = new Map<string, { x: number; y: number }>()
+  const UNION_H = CARD_H * 2 + 24 + UNION_PAD * 2
 
+  // Pre-compute row info per generation
+  const genRowInfo: { gen: number; hasUnion: boolean; unionGroups: [string, string][]; soloIds: string[] }[] = []
   for (const gen of gens) {
     const ids = byGen.get(gen)!
-    const rowY = CANVAS_PAD + (gen - minGen) * ROW_HEIGHT
-
     const unionGroupsInGen: [string, string][] = []
     const soloIds: string[] = []
     const processedInUnion = new Set<string>()
@@ -163,37 +164,48 @@ export function computeFlowLayout(
         soloIds.push(id)
       }
     }
+    genRowInfo.push({ gen, hasUnion: unionGroupsInGen.length > 0, unionGroups: unionGroupsInGen, soloIds })
+  }
 
+  // Position rows with cumulative Y
+  let curY = CANVAS_PAD
+  const genYMap = new Map<number, number>()
+
+  for (const row of genRowInfo) {
+    genYMap.set(row.gen, curY)
+    const rowHeight = row.hasUnion ? UNION_H : CARD_H
     const unionW = CARD_W + UNION_PAD * 2
-    const totalItems = unionGroupsInGen.length + soloIds.length
-    const totalWidth = unionGroupsInGen.length * unionW
-      + soloIds.length * CARD_W
+    const totalItems = row.unionGroups.length + row.soloIds.length
+    const totalWidth = row.unionGroups.length * unionW
+      + row.soloIds.length * CARD_W
       + Math.max(0, totalItems - 1) * COL_GAP
 
     let curX = CANVAS_PAD + Math.max(0, (DEFAULT_CANVAS_W - CANVAS_PAD * 2 - totalWidth) / 2)
 
-    for (const [aId, bId] of unionGroupsInGen) {
+    for (const [aId, bId] of row.unionGroups) {
       const ux = curX
-      const uy = rowY
-      const nodeA: FlowNode = { id: aId, generation: gen, x: ux + UNION_PAD, y: uy + UNION_PAD, role: roleMap.get(aId) }
-      const nodeB: FlowNode = { id: bId, generation: gen, x: ux + UNION_PAD, y: uy + UNION_PAD + CARD_H + 24, role: roleMap.get(bId) }
+      const uy = curY
+      const nodeA: FlowNode = { id: aId, generation: row.gen, x: ux + UNION_PAD, y: uy + UNION_PAD, role: roleMap.get(aId) }
+      const nodeB: FlowNode = { id: bId, generation: row.gen, x: ux + UNION_PAD, y: uy + UNION_PAD + CARD_H + 24, role: roleMap.get(bId) }
       nodes.push(nodeA, nodeB)
       positioned.set(aId, { x: nodeA.x + CARD_W / 2, y: nodeA.y })
       positioned.set(bId, { x: nodeB.x + CARD_W / 2, y: nodeB.y })
       unions.push({
         personA: nodeA, personB: nodeB,
         x: ux, y: uy,
-        width: unionW, height: CARD_H * 2 + 24 + UNION_PAD * 2,
+        width: unionW, height: UNION_H,
       })
       curX += unionW + COL_GAP
     }
 
-    for (const id of soloIds) {
-      const node: FlowNode = { id, generation: gen, x: curX, y: rowY, role: roleMap.get(id) }
+    for (const id of row.soloIds) {
+      const node: FlowNode = { id, generation: row.gen, x: curX, y: curY, role: roleMap.get(id) }
       nodes.push(node)
-      positioned.set(id, { x: curX + CARD_W / 2, y: rowY })
+      positioned.set(id, { x: curX + CARD_W / 2, y: curY })
       curX += CARD_W + COL_GAP
     }
+
+    curY += rowHeight + ROW_GAP
   }
 
   // --- Siblings ---
@@ -242,7 +254,7 @@ export function computeFlowLayout(
   // --- Gen labels ---
   const genLabels = gens.map(gen => ({
     generation: gen,
-    y: CANVAS_PAD + (gen - minGen) * ROW_HEIGHT,
+    y: genYMap.get(gen) ?? CANVAS_PAD,
   }))
 
   // --- Canvas dimensions ---
