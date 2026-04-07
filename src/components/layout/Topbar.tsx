@@ -1,6 +1,7 @@
 // src/components/layout/Topbar.tsx
 'use client'
 import { signout } from '@/server-actions/auth'
+import { RechercheDropdown } from '@/components/recherche/RechercheDropdown'
 
 type View = 'cosmos' | 'sablier' | 'timeline' | 'carte' | 'eventail'
 
@@ -14,6 +15,8 @@ interface TopbarProps {
   pendingSuggestionsCount?: number
   onSuggestionsOpen?: () => void
   onMySuggestionsOpen?: () => void
+  onOpen3233?: () => void
+  onOpen3236?: () => void
 }
 
 const VIEWS: { id: View; label: string; icon: string }[] = [
@@ -33,6 +36,8 @@ export function Topbar({
   pendingSuggestionsCount,
   onSuggestionsOpen,
   onMySuggestionsOpen,
+  onOpen3233,
+  onOpen3236,
 }: TopbarProps) {
   const initials = userEmail.slice(0, 2).toUpperCase() || '?'
 
@@ -111,6 +116,9 @@ export function Topbar({
       >
         🔍
       </button>
+      {onOpen3233 && onOpen3236 && (
+        <RechercheDropdown onOpen3233={onOpen3233} onOpen3236={onOpen3236} />
+      )}
       <form action={signout}>
         <button
           type="submit"

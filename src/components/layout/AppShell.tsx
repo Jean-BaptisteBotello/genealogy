@@ -16,6 +16,8 @@ import type { MemberWithUser } from '@/server-actions/members'
 import { SuggestionModal, type SuggestionModalMode } from '@/components/suggestions/SuggestionModal'
 import { SuggestionsPanel } from '@/components/suggestions/SuggestionsPanel'
 import { MySuggestionsPanel } from '@/components/suggestions/MySuggestionsPanel'
+import { Formulaire3233Modal } from '@/components/recherche/Formulaire3233Modal'
+import { Formulaire3236Modal } from '@/components/recherche/Formulaire3236Modal'
 
 type View = 'cosmos' | 'sablier' | 'timeline' | 'carte' | 'eventail'
 
@@ -62,6 +64,7 @@ export function AppShell({
   const [suggestionModalMode, setSuggestionModalMode] = useState<SuggestionModalMode | null>(null)
   const [showFamily, setShowFamily] = useState(true)
   const [showExtendedFamily, setShowExtendedFamily] = useState(false)
+  const [rechercheModal, setRechercheModal] = useState<'3233' | '3236' | null>(null)
 
   const filteredRelationships = initialRelationships.filter(rel => {
     const extended = isExtendedFamilyRelationship(rel)
@@ -140,6 +143,8 @@ export function AppShell({
           pendingSuggestionsCount={currentRole !== 'VIEWER' ? pendingSuggestions.length : 0}
           onSuggestionsOpen={currentRole !== 'VIEWER' ? () => setSuggestionsOpen(true) : undefined}
           onMySuggestionsOpen={currentRole === 'VIEWER' ? () => setMySuggestionsOpen(true) : undefined}
+          onOpen3233={() => setRechercheModal('3233')}
+          onOpen3236={() => setRechercheModal('3236')}
         />
         <div className="flex flex-1 overflow-hidden">
           <Sidebar
@@ -209,6 +214,22 @@ export function AppShell({
         <SuggestionModal
           mode={suggestionModalMode}
           onClose={() => setSuggestionModalMode(null)}
+        />
+      )}
+
+      {rechercheModal === '3233' && (
+        <Formulaire3233Modal
+          persons={initialPersons}
+          initialPerson={selectedPerson}
+          onClose={() => setRechercheModal(null)}
+        />
+      )}
+      {rechercheModal === '3236' && (
+        <Formulaire3236Modal
+          persons={initialPersons}
+          initialPerson={selectedPerson}
+          onClose={() => setRechercheModal(null)}
+          onSwitch3233={() => setRechercheModal('3233')}
         />
       )}
 
