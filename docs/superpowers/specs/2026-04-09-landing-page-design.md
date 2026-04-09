@@ -66,6 +66,17 @@ L'angle d'entrée principal — *« retrouver les biens oubliés de votre famill
 
 L'italique violet d'Instrument Serif est l'élément signature de la page : utilisé sur les mots-clés (*oublié*, *épuisante*, *récupération*, *premiers à savoir*…) il porte l'identité éditoriale de la landing.
 
+**Échelle des titres (à respecter strictement) :**
+
+| Niveau | Taille | Ligne-height | Usage |
+|---|---|---|---|
+| H1 (hero uniquement) | `92px` | `0.92` | Section 1 Hero — il n'y en a qu'un seul sur la page |
+| H2 CTA final | `84px` | `0.94` | Section 6 CTA seulement |
+| H2 sections 2-5 | `64px` | `0.96` | Problème, Comment ça marche, Formulaires, FAQ |
+| H3 cards | `24-26px` | `1.1 – 1.15` | Titres à l'intérieur des cards (douleurs, étapes, formulaires, Q de la FAQ) |
+
+Toutes ces tailles sont en `Instrument Serif 400` sauf les formulaires (56px) et les brand marks (24-36px). Letter-spacing négatif `-0.02em` sur tous les H.
+
 ### Système de grille et espacement
 
 - Largeur max : `1180px` centrée
@@ -105,9 +116,15 @@ Lecture : *promesse → problème → solution → preuves → freins levés →
 
 - **Route :** `/` — la landing page **remplace** la redirection actuelle `redirect('/tree')` dans `src/app/page.tsx`
 - L'app authentifiée reste accessible via `/tree` (et les autres routes existantes)
-- Pas de middleware ou de detection : la landing est publique, l'accès à l'app nécessite toujours l'auth Supabase existante
+- La landing est publique, l'accès à l'app nécessite toujours l'auth Supabase existante
 
-> **À l'implémentation :** vérifier qu'il n'y a pas de side-effect SEO/analytics sur l'ancien comportement de `/`.
+**Comportement pour un visiteur déjà authentifié sur `/` :**
+
+La landing s'affiche **toujours** (qu'on soit loggué ou non), comme le font linear.app et anthropic.com. Si une session Supabase active est détectée côté serveur, le `LandingTopbar` remplace le CTA *« Rejoindre la waitlist »* par un bouton **« Accéder à mon arbre →»** qui pointe vers `/tree`. Ce switch est calculé en server component (pas de flash côté client).
+
+Justification : Linear Method *« invisible friction removal »* + *« ambient UI »*. Un utilisateur qui arrive sur `/` via un lien partagé légitimement verra la landing ; un utilisateur qui tape l'URL par habitude trouve l'accès à son arbre en un clic dans le topbar.
+
+> **À l'implémentation :** vérifier qu'il n'y a pas de side-effect SEO/analytics sur l'ancien comportement de `/`. Vérifier également que la détection de session côté server component n'introduit pas de blocking I/O excessif.
 
 ---
 
@@ -134,7 +151,17 @@ Lecture : *promesse → problème → solution → preuves → freins levés →
 - Lede (17px ink-soft, max-width 480px) :
   > « Genealogy digitalise les formulaires officiels du Service de Publicité Foncière pour vous aider à retrouver les biens immobiliers de votre famille — et leurs anciens propriétaires. »
 - Form pill blanc : `[email] [Rejoindre la waitlist]` (max 440px)
-- Form-meta sous la pill : `Pré-rempli depuis votre arbre · Guidé pas à pas · Envoyé sans imprimer`
+- Mention RGPD inline sous la pill (12px ink-soft) : *« En vous inscrivant, vous acceptez notre [politique de confidentialité](/privacy). »*
+- Form-meta : `Pré-rempli depuis votre arbre · Guidé pas à pas · Envoyé sans imprimer`
+
+**Comportement de soumission (post-submit inline) :**
+
+Au submit, la pill se transforme **inline** (pas de redirection) :
+- Pendant l'attente : bouton désactivé, label devient « Inscription… »
+- Succès (200 ou 409 dédoublonnage silencieux) : la pill entière se remplace par un état centré `✓ Merci, on vous écrit dès l'ouverture.` (Inter 14px, fond cream-deep, padding identique). Cet état persiste pour le reste de la session.
+- Erreur réseau ou validation : la pill garde ses champs et affiche un texte rouge soft (12px) sous le bouton avec le message d'erreur (`« Cet email ne semble pas valide »`, `« Une erreur est survenue, réessayez »`).
+
+→ La page de remerciement séparée `/waitlist/thanks` avec collecte d'attendus est explicitement reportée en v1.1 (cf. §8 parking lot).
 
 **Colonne droite (1fr) — preview animé :**
 - Card blanche très légèrement inclinée (`rotate(-1.4deg)`), shadow douce + halo violet subtil
@@ -167,9 +194,7 @@ Lecture : *promesse → problème → solution → preuves → freins levés →
   *épuisante*,
   conçue pour 1980.
   ```
-- Lede : *« Aujourd'hui, demander un renseignement au Service de Publicité Foncière suppose de comprendre un formulaire administratif, de retrouver le bon service parmi cent, et d'attendre des mois. La plupart des familles n'essayent jamais. »*
-
-> ⚠️ **Note copy :** la phrase *« attendre des mois »* dans le lede contredit Q5 de la FAQ (10 jours en théorie). À reformuler en *« attendre une réponse sans suivi »* ou *« et accepter d'attendre »*. À fixer pendant l'implémentation.
+- Lede : *« Aujourd'hui, se renseigner auprès des services des impôts pour des recherches familiales n'a rien d'évident — alors même qu'ils proposent ce service, via deux formulaires obscurs. La plupart des familles n'essayent jamais. »*
 
 **3 cards "douleurs" :**
 
@@ -315,6 +340,8 @@ service-public.gouv.fr — Comment obtenir des renseignements immobiliers ?
 impots.gouv.fr — Cerfa 3236-SD
 ```
 
+> **Note :** le strip affiche volontairement 2 sources (les plus accessibles au grand public) comme "teaser" de crédibilité. Le footer de la section 6 liste lui **3 sources** (version exhaustive). C'est intentionnel, pas une incohérence.
+
 ---
 
 ### Section 6 — CTA final + footer
@@ -383,34 +410,60 @@ Toutes les affirmations chiffrées ou juridiques de la landing s'appuient sur ce
 
 La landing reste dans la même app Next.js que Genealogy — pas de site séparé, pas de Vercel à part. Stack inchangée :
 
-- Next.js 14+ App Router (cf. AGENTS.md : *« This is NOT the Next.js you know »* — vérifier `node_modules/next/dist/docs/` avant tout choix d'API)
+- Next.js 14+ App Router (cf. AGENTS.md : *« This is NOT the Next.js you know »*)
 - TypeScript
 - Tailwind CSS (classes utilitaires + tokens custom pour la palette landing)
-- Composants React server-rendered avec un seul îlot client pour le typewriter et la soumission de waitlist
+- Composants React server-rendered avec deux îlots client (`<HeroFormPreview />` pour le typewriter, `<WaitlistForm />` pour la soumission — utilisé deux fois, hero et CTA final)
+
+> ⚠️ **Instruction pour le plan d'implémentation :** le plan doit **explicitement vérifier chaque API Next.js utilisée** (`next/font/google`, server actions, route groups avec `(landing)/`, server components avec import de client islands, détection de session côté server component) contre `node_modules/next/dist/docs/` **avant** d'écrire le code. Si une API diffère de ce que cette spec anticipe, le plan ajuste et documente l'écart. Ne pas propager des hypothèses de Next.js « stock ».
 
 ### Routes et fichiers attendus
 
 ```
 src/app/
-├── page.tsx                    [REMPLACÉ] → rend <Landing />
-├── (landing)/
-│   ├── layout.tsx              optionnel — layout sans Topbar app
-│   ├── components/
-│   │   ├── LandingTopbar.tsx
-│   │   ├── HeroSection.tsx
-│   │   ├── HeroFormPreview.tsx     ← contient le client typewriter
-│   │   ├── ProblemSection.tsx
-│   │   ├── HowItWorksSection.tsx
-│   │   ├── FormsSection.tsx
-│   │   ├── FaqSection.tsx
-│   │   ├── CtaSection.tsx
-│   │   └── LandingFooter.tsx
-│   └── lib/
-│       └── waitlist-action.ts      ← server action POST email
-└── waitlist/
-    └── thanks/
-        └── page.tsx                ← page de remerciement post-submit (parking lot)
+├── page.tsx                          [REMPLACÉ] → rend <Landing /> (server component, détecte session)
+├── privacy/
+│   └── page.tsx                      ← page statique minimale politique de confidentialité (v1)
+└── (landing)/
+    ├── layout.tsx                    ← layout dédié SANS theme-context app (charge fonts landing)
+    ├── components/
+    │   ├── LandingTopbar.tsx         ← reçoit `isAuthenticated` en prop, switch CTA
+    │   ├── HeroSection.tsx
+    │   ├── HeroFormPreview.tsx       ← client component, contient le typewriter
+    │   ├── WaitlistForm.tsx          ← client component, gère submit inline + states
+    │   ├── ProblemSection.tsx
+    │   ├── HowItWorksSection.tsx
+    │   ├── FormsSection.tsx
+    │   ├── FaqSection.tsx
+    │   ├── CtaSection.tsx             ← contient un second <WaitlistForm source="cta" />
+    │   ├── LandingFooter.tsx
+    │   └── visuals/                   ← sous-composants purs présentationnels
+    │       ├── PagesStack.tsx         (Pain #1)
+    │       ├── SpfMap.tsx             (Pain #2)
+    │       ├── CalendarWait.tsx       (Pain #3)
+    │       ├── MiniTree.tsx           (Étape #1)
+    │       ├── FormFillBars.tsx       (Étape #2)
+    │       └── EnvelopeSent.tsx       (Étape #3)
+    ├── lib/
+    │   ├── brand.ts                   ← export const BRAND_NAME = "Genealogy"
+    │   └── waitlist-action.ts         ← server action POST email
+    └── data/
+        └── typewriter-examples.ts     ← 4 sets fictifs
 ```
+
+**Layout strategy :**
+
+Un **route group `(landing)/`** est utilisé pour isoler la landing de l'arborescence app authentifiée. Son `layout.tsx` :
+- Charge `Instrument Serif` et `Inter` via `next/font/google`
+- N'inclut **pas** `theme-context` ni les providers de l'app (pas de contexte arbre, pas de sidebar, pas de topbar app)
+- Inclut son propre background `#d9d4c9` (le beige extérieur aux sections crème)
+- Rend uniquement `<LandingTopbar />` + children + métadonnées SEO
+
+Le `src/app/page.tsx` reste au niveau racine (pas dans le route group) pour être servi à la route `/`. Il importe les composants depuis `(landing)/components/` et fait une détection de session Supabase côté serveur pour passer `isAuthenticated` à `<LandingTopbar />`.
+
+**Brand name — pattern d'usage :**
+
+`BRAND_NAME` est défini comme constante unique dans `(landing)/lib/brand.ts` et importé partout où le nom apparaît (topbar, footer, tagline, `<title>`, meta description, table `waitlist_signups.source`). Un futur rebrand = une seule valeur à changer.
 
 ### Polices
 
@@ -433,30 +486,46 @@ landing: {
 
 Ces tokens ne touchent pas le design system existant `theme-context.tsx` de l'app authentifiée.
 
-### Stockage des emails waitlist
+### Stockage des emails waitlist + contrat du server action
 
-Server action qui insère dans une nouvelle table Supabase `waitlist_signups` :
+**Table Supabase :**
 
 ```sql
 create table waitlist_signups (
   id uuid primary key default gen_random_uuid(),
   email text not null,
-  source text default 'landing-hero',
+  source text default 'hero',
   created_at timestamptz default now()
 );
-create unique index on waitlist_signups (lower(email));
+create unique index waitlist_signups_email_lower_idx on waitlist_signups (lower(email));
 ```
 
-- RLS : insertion publique uniquement (anyone can insert), lecture restreinte aux admins
-- `source` permet de différencier hero vs CTA final si besoin de mesurer
+- RLS activé : `insert` autorisé pour tout rôle anonyme ; `select/update/delete` restreint aux admins (service role uniquement)
+- `source` : valeurs attendues `'hero'` ou `'cta'` (deux formulaires sur la page)
+
+**Contrat du server action `submitWaitlist({ email, source })` :**
+
+1. **Validation email** : normalisation `email.trim().toLowerCase()` puis regex minimal `/^[^\s@]+@[^\s@]+\.[^\s@]+$/`. Si invalide → retourne `{ ok: false, error: 'invalid_email' }`.
+2. **Validation source** : doit être `'hero'` ou `'cta'`, sinon fallback silencieux sur `'hero'`.
+3. **Insert** avec `ON CONFLICT (lower(email)) DO NOTHING` (via upsert `ignoreDuplicates: true`). Dédoublonnage **silencieux** : un email déjà inscrit retourne `{ ok: true }` comme un nouveau.
+4. **Erreur inattendue** (réseau, DB down) : retourne `{ ok: false, error: 'server_error' }`. Le client affiche « Une erreur est survenue, réessayez. »
+5. **Pas de rate-limit ni honeypot en v1.** Si spam, ajouter Cloudflare Turnstile ou un honeypot field en v1.1.
+6. **Pas d'email de confirmation envoyé en v1.** Ajouter plus tard si nécessaire.
+
+**Côté client (`<WaitlistForm />`) :**
+
+- État `idle | submitting | success | error` géré localement
+- Success = remplacement inline de la pill par l'état `✓ Merci…` (cf. §4 section 1)
+- Error = texte rouge soft sous la pill, pill reste éditable
 
 ### Animation typewriter
 
 - Composant client `<HeroFormPreview />` avec un hook `useTypewriterCycle(examples)`
-- 4 sets fictifs définis dans le composant (pas de fetch, statique)
+- 4 sets fictifs importés depuis `(landing)/data/typewriter-examples.ts` (statique, pas de fetch)
 - Vitesses : type ~28ms ± 30ms jitter, erase ~14ms, pause plein 3000ms, pause set 250ms
 - Caret violet 1px clignotant (CSS animation steps(1))
 - Respecte `prefers-reduced-motion` : si l'utilisateur a activé l'option système, on affiche le 1er set en static sans animation.
+- **Breakpoint mobile** : en dessous de **768px**, le typewriter est **désactivé** et le 1er set est affiché en statique. Justification : économiser l'énergie CPU sur mobile et éviter les reflows qui décalent le scroll. Implémenté via `window.matchMedia('(min-width: 768px)')` au montage du composant.
 
 ### Accessibilité
 
@@ -469,10 +538,11 @@ create unique index on waitlist_signups (lower(email));
 
 ### SEO basique
 
-- `<title>` : `Genealogy — Retrouvez les biens oubliés de votre famille`
+- `<title>` : `${BRAND_NAME} — Retrouvez les biens oubliés de votre famille`
 - `<meta name="description">` : la phrase du lede du hero
-- Open Graph : image générée à partir du H1 (à fournir en `public/og.png`, hors scope code)
+- **Pas de `og:image` en v1** — l'image Open Graph est reportée (cf. §8 parking lot #4). Les balises `og:title` et `og:description` sont présentes dès la v1.
 - Pas de sitemap dynamique nécessaire (1 seule page)
+- Les 3 chiffres-preuves du CTA final (`2 / 100 / 1956`) sont **hardcodés** dans le copy du `<CtaSection />`. Ils ne sont PAS dérivés de la base ou d'une API — cf. §8 parking lot #5 pour un compteur dynamique éventuel.
 
 ---
 
@@ -500,25 +570,27 @@ Ces points sont **identifiés** mais explicitement **hors scope** de cette spec.
 
 1. **SSO Google** — l'authentification réelle sera ajoutée plus tard. La landing v1 fonctionne sans : seule la waitlist email est en place.
 
-2. **Page de remerciement post-submit** (`/waitlist/thanks`) — design et copy à valider séparément. Pattern minimal : titre "Merci !", textarea optionnel *« Que cherchez-vous à retrouver ? Une dernière question pour nous aider à construire l'outil. »*, bouton "Terminer". Cette collecte d'attendus est l'apport user research promis à JB.
+2. **Page de remerciement avec collecte d'attendus** (`/waitlist/thanks`) — reportée en **v1.1**. En v1, la soumission reste inline dans la pill (✓ Merci), sans redirect, sans collecte d'attendus. Quand la v1.1 sera specée : pattern titre "Merci !", textarea optionnel *« Que cherchez-vous à retrouver ? »*, bouton "Terminer". Cette collecte d'attendus reste l'apport user research promis à JB.
 
-3. **Brand name définitif** — "Genealogy" reste un placeholder. Si un nom commercial est choisi avant la mise en ligne, faire un find/replace sur la landing (le nom apparaît dans le brand mark hero, le footer, les `<title>` et meta).
+3. **Open Graph image** — à designer (PNG 1200×630). En v1 on ship **sans `og:image`** (les balises `og:title` et `og:description` sont présentes). Une variation du hero (titre serif sur fond crème + preview formulaire) sera produite dans une itération suivante.
 
-4. **Open Graph image** — à designer (PNG 1200×630). Probablement une variation du hero (titre serif sur fond crème + preview formulaire à droite).
+4. **Compteur waitlist en temps réel** — actuellement on affiche 3 chiffres-preuves statiques hardcodés (`2 / 100 / 1956`). Si on veut afficher un compteur "X personnes inscrites", il faudra une API count + une mise à jour périodique. Volontairement écarté pour la v1.
 
-5. **Compteur waitlist en temps réel** — actuellement on affiche 3 chiffres-preuves statiques (2 formulaires, 100 SPF, 1956). Si on veut afficher un compteur "X personnes inscrites", il faudra une API count + une mise à jour périodique. Volontairement écarté pour la v1.
+5. **Section "À propos / Solo founder"** — discutée puis écartée. Peut être ajoutée plus tard si JB veut donner une dimension humaine au projet.
 
-6. **Section "À propos / Solo founder"** — discutée puis écartée. Peut être ajoutée plus tard si JB veut donner une dimension humaine au projet.
+6. **Roadmap publique** — un lien existe dans le footer mais sans destination. À créer en page dédiée ou en notion public.
 
-7. **Roadmap publique** — un lien existe dans le footer mais sans destination. À créer en page dédiée ou en notion public.
+7. **Section témoignages** — intentionnellement absente : pas d'utilisateurs réels à ce stade, et fabriquer des témoignages serait malhonnête.
 
-8. **Section témoignages** — intentionnellement absente : pas d'utilisateurs réels à ce stade, et fabriquer des témoignages serait malhonnête.
+8. **Mise en accordéon de la FAQ** — les Q/A sont **toutes ouvertes par défaut en v1** (valeur par défaut du plan). La conversion en accordéon (closed by default pour économiser le scroll) est reportée en v1.1 si le scroll devient problématique.
 
-9. **Délai SPF dans le lede de la section 2** — le texte actuel dit *« attendre des mois »*, ce qui contredit la FAQ Q5 (10 jours en théorie). À corriger pendant l'implémentation : remplacer par *« attendre une réponse sans suivi »* ou équivalent.
+9. **Tracking analytics** — aucun analytics dans cette spec. À discuter selon préférence (privacy-friendly type Plausible, ou rien du tout).
 
-10. **Mise en accordéon de la FAQ** — les Q/A sont actuellement toutes ouvertes pour valider le copy. À l'implémentation, considérer un accordéon (closed by default) pour économiser le scroll. Décision laissée au plan d'implémentation.
+10. **Rate-limit et anti-spam de la waitlist** — aucun en v1 (pas de Turnstile, pas de honeypot). Si du spam apparaît après le lancement, ajouter un honeypot field en premier recours puis Turnstile si insuffisant.
 
-11. **Tracking analytics** — aucun analytics dans cette spec. À discuter selon préférence (privacy-friendly type Plausible, ou rien du tout).
+11. **Email de confirmation** après inscription à la waitlist — aucun en v1. L'utilisateur voit seulement la confirmation inline. À ajouter si nécessaire via Supabase Functions ou service mail externe.
+
+12. **Brand name définitif** — "Genealogy" est centralisé dans la constante `BRAND_NAME` (cf. §6 Brand name pattern d'usage). Un futur rebrand modifie une seule valeur. Le pattern est adopté **dès la v1**, la décision du nom final est parking lot.
 
 ---
 
@@ -526,13 +598,14 @@ Ces points sont **identifiés** mais explicitement **hors scope** de cette spec.
 
 | # | Risque | Mitigation |
 |---|---|---|
-| 1 | "Genealogy" n'est pas le nom final → renommage en cours d'implé | Centraliser le brand name dans une constante `BRAND_NAME` réutilisable |
-| 2 | Tarifs SPF (12 €/6 €) peuvent évoluer | "à partir de" donne une marge ; un footer note légale peut renvoyer à la notice 3241-NOT-SD |
+| 1 | "Genealogy" n'est pas le nom final → renommage en cours d'implé | **Résolu** : constante `BRAND_NAME` dans `(landing)/lib/brand.ts`, importée partout (cf. §6) |
+| 2 | Tarifs SPF (12 €/6 €) peuvent évoluer | "à partir de" donne une marge ; la notice 3241-NOT-SD reste la source de vérité |
 | 3 | La landing prétend que c'est compliqué d'envoyer aujourd'hui, mais l'envoi par courriel est possible (vérifié) | La pain #3 a été reformulée pour rester honnête sur ce point |
-| 4 | Accessibilité de l'animation typewriter | `prefers-reduced-motion` désactive l'anim et affiche un état statique |
-| 5 | RGPD waitlist | Insertion email avec consentement explicite (case à cocher ?) ou mention courte sous le formulaire ("En vous inscrivant, vous acceptez la politique de confidentialité") |
-| 6 | Visiteurs déjà loggués qui atterrissent sur `/` | Décision : on affiche quand même la landing (publique), avec un bouton discret "Accéder à mon arbre" si session active. À implémenter ou non au choix |
-| 7 | Cohérence avec l'app authentifiée | Volontairement distincte : la landing a sa propre identité éditoriale (cream plus chaud, Instrument Serif) qui ne contamine pas l'app |
+| 4 | Accessibilité de l'animation typewriter | `prefers-reduced-motion` désactive l'anim et affiche un état statique ; mobile (<768px) aussi |
+| 5 | RGPD waitlist | **Résolu** : mention inline sous la pill + lien vers `/privacy` (page créée en v1, minimale) |
+| 6 | Visiteurs déjà loggués qui atterrissent sur `/` | **Résolu** : la landing s'affiche toujours, avec switch du CTA topbar vers « Accéder à mon arbre » si session active (calculé en server component) |
+| 7 | Cohérence avec l'app authentifiée | Volontairement distincte : la landing a sa propre identité éditoriale (cream plus chaud, Instrument Serif) et son propre layout sans `theme-context` |
+| 8 | Privacy policy vide au lancement | `/privacy` est créée en v1 comme page statique minimale (mentions RGPD de base) dans la même PR que la landing |
 
 ---
 
@@ -545,8 +618,10 @@ La landing est considérée comme livrée quand :
 3. ✅ La soumission email écrit dans la table Supabase `waitlist_signups` et affiche un état de succès
 4. ✅ Lighthouse Performance ≥ 90, Accessibility ≥ 95, Best Practices ≥ 95, SEO ≥ 95
 5. ✅ Les 3 sources officielles cliquables ouvrent les bonnes URLs en `target="_blank"`
-6. ✅ Le rendu mobile (320px → 768px) reste lisible (le typewriter peut être désactivé en mobile si besoin)
-7. ✅ Les utilisateurs déjà loggués peuvent toujours accéder à `/tree` sans problème
+6. ✅ Le rendu mobile (320px → 768px) reste lisible, avec le typewriter en mode **statique** sous 768px (1er set affiché sans animation)
+7. ✅ Les utilisateurs déjà loggués voient la landing et peuvent cliquer sur « Accéder à mon arbre » dans le topbar (CTA switché côté server component)
+8. ✅ La soumission waitlist : email valide → état `✓ Merci` inline ; email invalide → erreur rouge sous pill ; email déjà inscrit → `✓ Merci` (dédoublonnage silencieux)
+9. ✅ La page `/privacy` existe et est accessible depuis le lien RGPD sous le formulaire et depuis le footer
 
 ---
 
