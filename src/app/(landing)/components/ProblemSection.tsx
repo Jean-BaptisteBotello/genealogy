@@ -22,14 +22,14 @@ const pains = [
     num: 'ii.',
     Visual: SpfMap,
     title: 'Trouver le bon service parmi 100 SPF en France.',
-    body: 'Chaque commune dépend d'un Service de Publicité Foncière différent. Se tromper d'adresse, c'est 6 semaines de perdues — quand on a même une réponse.',
+    body: "Chaque commune dépend d\u2019un Service de Publicité Foncière différent. Se tromper d\u2019adresse, c\u2019est 6 semaines de perdues — quand on a même une réponse.",
     tag: '100 services en France',
   },
   {
     num: 'iii.',
     Visual: CalendarWait,
-    title: 'Trouver le bon canal d'envoi, et attendre sans suivi.',
-    body: 'Messagerie sécurisée impots.gouv, courriel direct au SPF, courrier en deux exemplaires… selon le cas. Pas d'accusé de réception, pas de suivi\u00a0: la réponse arrive en quelques jours — ou plusieurs semaines.',
+    title: "Trouver le bon canal d\u2019envoi, et attendre sans suivi.",
+    body: "Messagerie sécurisée impots.gouv, courriel direct au SPF, courrier en deux exemplaires\u2026 selon le cas. Pas d\u2019accusé de réception, pas de suivi\u00a0: la réponse arrive en quelques jours — ou plusieurs semaines.",
     tag: '10 jours en théorie · variable en pratique',
   },
 ]
