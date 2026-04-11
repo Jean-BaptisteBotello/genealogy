@@ -13,8 +13,8 @@ export function HeroSection() {
       }}
     >
       <div
-        className="grid gap-14 px-9 py-10 md:py-14"
-        style={{ gridTemplateColumns: '1.35fr 1fr', alignItems: 'end', position: 'relative', zIndex: 2 }}
+        className="grid grid-cols-1 gap-10 px-6 py-10 md:gap-14 md:px-9 md:py-14 md:grid-cols-[1.35fr_1fr]"
+        style={{ alignItems: 'end', position: 'relative', zIndex: 2 }}
       >
         {/* Left column */}
         <div>
@@ -29,9 +29,9 @@ export function HeroSection() {
 
           {/* H1 */}
           <h1
+            className="landing-h1"
             style={{
               fontFamily: 'var(--font-instrument-serif)',
-              fontSize: 92,
               lineHeight: 0.92,
               letterSpacing: '-0.025em',
               color: '#1a1815',
@@ -79,7 +79,7 @@ export function HeroSection() {
 
       {/* Footnote */}
       <div
-        className="flex justify-between px-9 py-4 text-[11px] uppercase"
+        className="flex flex-col gap-2 px-6 py-4 text-[11px] uppercase md:flex-row md:justify-between md:gap-0 md:px-9"
         style={{
           letterSpacing: '0.1em',
           color: '#8a8680',

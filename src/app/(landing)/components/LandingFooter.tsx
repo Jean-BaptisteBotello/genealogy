@@ -4,10 +4,10 @@ import { BRAND_NAME } from '../lib/brand'
 export function LandingFooter() {
   return (
     <footer
+      className="px-6 pt-10 pb-8 md:px-14 md:pt-14 md:pb-9"
       style={{
         background: '#f4f1ea',
         borderRadius: 14,
-        padding: '56px 56px 36px',
         border: '1px solid rgba(0,0,0,.06)',
         position: 'relative',
         overflow: 'hidden',
@@ -15,15 +15,10 @@ export function LandingFooter() {
     >
       {/* Grid */}
       <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '2fr 1fr 1fr 1fr',
-          gap: 48,
-          marginBottom: 48,
-        }}
+        className="grid grid-cols-2 gap-8 mb-10 md:grid-cols-[2fr_1fr_1fr_1fr] md:gap-12 md:mb-12"
       >
         {/* Column 1 — Brand */}
-        <div>
+        <div className="col-span-2 md:col-span-1">
           <div
             style={{
               fontFamily: 'var(--font-instrument-serif)',
@@ -168,12 +163,9 @@ export function LandingFooter() {
 
       {/* Footer bottom */}
       <div
+        className="flex flex-col gap-3 pt-7 md:flex-row md:justify-between md:items-center md:gap-0"
         style={{
-          paddingTop: 28,
           borderTop: '1px solid rgba(0,0,0,.08)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
           fontSize: 11,
           color: '#8a8680',
         }}

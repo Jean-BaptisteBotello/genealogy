@@ -30,25 +30,21 @@ export function HowItWorksSection() {
   return (
     <section
       id="comment-ca-marche"
-      className="relative overflow-hidden rounded-[14px]"
+      className="relative overflow-hidden rounded-[14px] px-6 py-12 md:px-14 md:py-20 md:pb-[88px]"
       style={{
         background: '#f4f1ea',
         boxShadow: '0 30px 80px -30px rgba(0,0,0,0.18)',
         backgroundImage: 'radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px)',
         backgroundSize: '22px 22px',
-        padding: '80px 56px 88px',
       }}
     >
       {/* Section head — 2-column: title left, lede right */}
       <div
+        className="grid grid-cols-1 gap-8 mb-10 md:grid-cols-2 md:gap-14 md:mb-16"
         style={{
           position: 'relative',
           zIndex: 2,
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 56,
           alignItems: 'end',
-          marginBottom: 64,
         }}
       >
         {/* Left — eyebrow + H2 */}
@@ -67,9 +63,9 @@ export function HowItWorksSection() {
           </div>
 
           <h2
+            className="landing-h2"
             style={{
               fontFamily: 'var(--font-instrument-serif)',
-              fontSize: 64,
               lineHeight: 0.96,
               letterSpacing: '-0.02em',
               color: '#1a1815',
@@ -102,12 +98,10 @@ export function HowItWorksSection() {
 
       {/* Step cards — 3-column grid */}
       <div
+        className="grid grid-cols-1 gap-5 md:grid-cols-3 md:gap-6"
         style={{
           position: 'relative',
           zIndex: 2,
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: 24,
         }}
       >
         {steps.map(({ num, Visual, h3, body, tag }) => (

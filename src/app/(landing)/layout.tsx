@@ -33,6 +33,19 @@ export default function LandingLayout({ children }: { children: React.ReactNode 
       className={`${instrumentSerif.variable} ${inter.variable} font-[family-name:var(--font-inter)]`}
       style={{ background: '#d9d4c9', minHeight: '100vh' }}
     >
+      <style>{`
+        /* ── Responsive typography ── */
+        .landing-h1 { font-size: 92px; }
+        .landing-h2 { font-size: 64px; }
+        .landing-h2-cta { font-size: 84px; }
+
+        @media (max-width: 767px) {
+          .landing-h1 { font-size: 44px; }
+          .landing-h2 { font-size: 36px; }
+          .landing-h2-cta { font-size: 38px; }
+          .landing-faq-q { font-size: 20px !important; }
+        }
+      `}</style>
       {children}
     </div>
   )

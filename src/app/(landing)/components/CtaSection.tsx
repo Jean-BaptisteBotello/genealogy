@@ -4,13 +4,13 @@ export function CtaSection() {
   return (
     <section
       id="waitlist"
+      className="px-6 py-16 md:px-14 md:py-24 md:pb-[88px]"
       style={{
         background: '#e6dfcf',
         borderRadius: 14,
         overflow: 'hidden',
         boxShadow: '0 30px 80px -30px rgba(0,0,0,.18)',
         position: 'relative',
-        padding: '96px 56px 88px',
         textAlign: 'center',
       }}
     >
@@ -78,12 +78,12 @@ export function CtaSection() {
 
       {/* H2 */}
       <h2
+        className="landing-h2-cta"
         style={{
           position: 'relative',
           zIndex: 2,
           fontFamily: 'var(--font-instrument-serif)',
           fontWeight: 400,
-          fontSize: 84,
           lineHeight: 0.94,
           letterSpacing: '-0.02em',
           margin: '0 auto 22px',
@@ -145,7 +145,8 @@ export function CtaSection() {
           zIndex: 2,
           marginTop: 56,
           display: 'flex',
-          gap: 48,
+          flexWrap: 'wrap',
+          gap: 32,
           justifyContent: 'center',
           alignItems: 'center',
           fontFamily: 'var(--font-instrument-serif)',

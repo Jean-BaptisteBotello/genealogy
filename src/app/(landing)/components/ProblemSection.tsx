@@ -38,13 +38,13 @@ const pains = [
 export function ProblemSection() {
   return (
     <section
+      className="px-6 py-12 md:px-14 md:py-20 md:pb-[88px]"
       style={{
         background: cream,
         borderRadius: 14,
         overflow: 'hidden',
         boxShadow: '0 30px 80px -30px rgba(0,0,0,.18)',
         position: 'relative',
-        padding: '80px 56px 88px',
       }}
     >
       {/* Dot texture overlay */}
@@ -62,14 +62,11 @@ export function ProblemSection() {
 
       {/* ── Section head ─────────────────────────────────────────── */}
       <div
+        className="grid grid-cols-1 gap-8 mb-10 md:grid-cols-2 md:gap-14 md:mb-16"
         style={{
           position: 'relative',
           zIndex: 2,
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 56,
           alignItems: 'end',
-          marginBottom: 64,
         }}
       >
         {/* Left — eyebrow + H2 */}
@@ -104,10 +101,10 @@ export function ProblemSection() {
           </div>
 
           <h2
+            className="landing-h2"
             style={{
               fontFamily: "'Instrument Serif', serif",
               fontWeight: 400,
-              fontSize: 64,
               lineHeight: 0.96,
               letterSpacing: '-0.02em',
               margin: 0,
@@ -140,12 +137,10 @@ export function ProblemSection() {
 
       {/* ── Pain cards grid ──────────────────────────────────────── */}
       <div
+        className="grid grid-cols-1 gap-5 md:grid-cols-3 md:gap-6"
         style={{
           position: 'relative',
           zIndex: 2,
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: 24,
         }}
       >
         {pains.map(({ num, Visual, title, body, tag }) => (
