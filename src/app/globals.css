@@ -1,4 +1,14 @@
 @import "tailwindcss";
 
+@theme {
+  --color-landing-cream: #f4f1ea;
+  --color-landing-cream-deep: #e6dfcf;
+  --color-landing-ink: #1a1815;
+  --color-landing-ink-soft: #4a4641;
+  --color-landing-violet: #7c3aed;
+  --color-landing-violet-soft: #ede9fe;
+  --color-landing-bg: #d9d4c9;
+}
+
 * { box-sizing: border-box; }
 html, body { height: 100%; }
