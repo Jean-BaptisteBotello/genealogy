@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/AppShell'
+import { ThemeProvider } from '@/lib/context/theme-context'
 import type { Person, Branch, Relationship, PersonBranch, Role } from '@/lib/types/database'
 import type { MemberWithUser } from '@/server-actions/members'
 import { getSuggestionsPending } from '@/server-actions/suggestions'
@@ -45,15 +46,17 @@ export default async function AppLayout({
     : (memberCount === 0 ? 'ADMIN' : 'VIEWER')
 
   return (
-    <AppShell
-      userEmail={user.email ?? ''}
-      initialPersons={(persons ?? []) as Person[]}
-      initialBranches={(branches ?? []) as Branch[]}
-      initialRelationships={(relationships ?? []) as Relationship[]}
-      initialPersonBranches={(personBranches ?? []) as PersonBranch[]}
-      currentRole={currentRole}
-      initialMembers={(membersData ?? []) as MemberWithUser[]}
-      initialPendingSuggestions={pendingSuggestionsData}
-    />
+    <ThemeProvider>
+      <AppShell
+        userEmail={user.email ?? ''}
+        initialPersons={(persons ?? []) as Person[]}
+        initialBranches={(branches ?? []) as Branch[]}
+        initialRelationships={(relationships ?? []) as Relationship[]}
+        initialPersonBranches={(personBranches ?? []) as PersonBranch[]}
+        currentRole={currentRole}
+        initialMembers={(membersData ?? []) as MemberWithUser[]}
+        initialPendingSuggestions={pendingSuggestionsData}
+      />
+    </ThemeProvider>
   )
 }
