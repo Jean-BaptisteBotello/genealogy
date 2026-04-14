@@ -15,6 +15,8 @@ export function MiniTree() {
       <svg
         viewBox="0 0 240 130"
         preserveAspectRatio="xMidYMid meet"
+        aria-hidden="true"
+        focusable="false"
         style={{ width: '100%', height: '100%' }}
       >
         {/* Links */}
