@@ -24,14 +24,20 @@ export async function submitWaitlist({
 
   try {
     const supabase = await createClient()
-    await supabase
+    const { error } = await supabase
       .from('waitlist_signups')
-      .upsert(
-        { email: normalized, source: validSource },
-        { onConflict: 'email', ignoreDuplicates: true }
-      )
+      .insert({ email: normalized, source: validSource })
+    if (error) {
+      // 23505 = unique_violation → déjà inscrit, on traite comme un succès silencieux
+      if (error.code === '23505') {
+        return { ok: true }
+      }
+      console.error('[waitlist] supabase error:', error)
+      return { ok: false, error: 'server_error' }
+    }
     return { ok: true }
-  } catch {
+  } catch (err) {
+    console.error('[waitlist] unexpected error:', err)
     return { ok: false, error: 'server_error' }
   }
 }

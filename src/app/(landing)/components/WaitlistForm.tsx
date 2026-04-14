@@ -5,8 +5,11 @@ import { submitWaitlist } from '../lib/waitlist-action'
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 const ERROR_MESSAGES: Record<string, string> = {
-  invalid_email: 'Cet email ne semble pas valide.',
+  empty_email: 'Veuillez indiquer votre adresse email.',
+  invalid_email: 'Cette adresse email ne semble pas valide.',
   server_error: 'Une erreur est survenue, réessayez.',
 }
 
@@ -14,13 +17,27 @@ export function WaitlistForm({ source = 'hero' }: { source?: 'hero' | 'cta' }) {
   const [state, setState] = useState<FormState>('idle')
   const [email, setEmail] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+  const [isHover, setIsHover] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
+
+    const trimmed = email.trim()
+    if (trimmed.length === 0) {
+      setState('error')
+      setErrorMsg(ERROR_MESSAGES.empty_email)
+      return
+    }
+    if (!EMAIL_REGEX.test(trimmed)) {
+      setState('error')
+      setErrorMsg(ERROR_MESSAGES.invalid_email)
+      return
+    }
+
     setState('submitting')
     setErrorMsg('')
 
-    const result = await submitWaitlist({ email, source })
+    const result = await submitWaitlist({ email: trimmed, source })
 
     if (result.ok) {
       setState('success')
@@ -40,15 +57,19 @@ export function WaitlistForm({ source = 'hero' }: { source?: 'hero' | 'cta' }) {
           maxWidth: source === 'cta' ? 480 : 440,
         }}
       >
-        ✓ Merci, on vous écrit dès l'ouverture.
+        ✓ Merci, on vous écrit dès l&apos;ouverture.
       </div>
     )
   }
+
+  const isSubmitting = state === 'submitting'
+  const buttonBg = isSubmitting ? '#1a1815' : isHover ? '#7c3aed' : '#1a1815'
 
   return (
     <div style={{ maxWidth: source === 'cta' ? 480 : 440 }}>
       <form
         onSubmit={handleSubmit}
+        noValidate
         className="flex gap-2 rounded-full border p-1.5"
         style={{
           background: '#fff',
@@ -63,28 +84,44 @@ export function WaitlistForm({ source = 'hero' }: { source?: 'hero' | 'cta' }) {
           id={`waitlist-email-${source}`}
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value)
+            if (state === 'error') {
+              setState('idle')
+              setErrorMsg('')
+            }
+          }}
           placeholder="vous@email.com"
-          required
+          aria-invalid={state === 'error'}
+          aria-describedby={state === 'error' ? `waitlist-error-${source}` : undefined}
           className="flex-1 border-none bg-transparent px-4 py-3 text-sm outline-none"
           style={{ color: '#1a1815', fontFamily: 'var(--font-inter)' }}
         />
         <button
           type="submit"
-          disabled={state === 'submitting'}
+          disabled={isSubmitting}
+          onMouseEnter={() => setIsHover(true)}
+          onMouseLeave={() => setIsHover(false)}
           className="rounded-full px-5 py-3 text-sm font-medium"
           style={{
-            background: '#1a1815',
+            background: buttonBg,
             color: '#f4f1ea',
             fontFamily: 'var(--font-inter)',
-            opacity: state === 'submitting' ? 0.7 : 1,
+            opacity: isSubmitting ? 0.7 : 1,
+            cursor: isSubmitting ? 'wait' : 'pointer',
+            transition: 'background-color 160ms ease',
           }}
         >
-          {state === 'submitting' ? 'Inscription…' : 'Rejoindre la waitlist'}
+          {isSubmitting ? 'Inscription…' : 'Rejoindre la waitlist'}
         </button>
       </form>
       {state === 'error' && (
-        <p className="mt-2 text-xs" style={{ color: '#dc2626', paddingLeft: 18 }}>
+        <p
+          id={`waitlist-error-${source}`}
+          role="alert"
+          className="mt-2 text-xs"
+          style={{ color: '#dc2626', paddingLeft: 18 }}
+        >
           {errorMsg}
         </p>
       )}
