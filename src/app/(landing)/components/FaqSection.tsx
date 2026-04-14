@@ -266,7 +266,7 @@ export function FaqSection() {
           textAlign: 'center',
           fontFamily: 'Inter, sans-serif',
           fontSize: 11,
-          color: '#8a8680',
+          color: '#6b6760',
           letterSpacing: '0.02em',
           lineHeight: 1.6,
         }}

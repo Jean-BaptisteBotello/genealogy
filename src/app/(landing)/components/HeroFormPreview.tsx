@@ -120,7 +120,7 @@ export function HeroFormPreview() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18, paddingBottom: 14, borderBottom: '1px solid #ece9e2' }}>
           <div>
             <div style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 22, color: '#1a1815' }}>Cerfa 3233</div>
-            <div style={{ fontSize: 10, color: '#8a8680', textTransform: 'uppercase', letterSpacing: '0.12em', marginTop: 6 }}>Demande de renseignements</div>
+            <div style={{ fontSize: 10, color: '#6b6760', textTransform: 'uppercase', letterSpacing: '0.12em', marginTop: 6 }}>Demande de renseignements</div>
           </div>
           <span style={{ background: '#ede9fe', color: '#7c3aed', fontSize: 10, padding: '4px 9px', borderRadius: 999, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Pré-rempli</span>
         </div>
@@ -132,7 +132,7 @@ export function HeroFormPreview() {
           { label: 'Immeuble', key: 'immeuble' as const },
         ].map(({ label, key }) => (
           <div key={key} style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#8a8680', marginBottom: 4 }}>{label}</div>
+            <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6b6760', marginBottom: 4 }}>{label}</div>
             <div style={{ fontSize: 13, color: '#7c3aed', fontWeight: 500, background: '#ede9fe', padding: '8px 12px', borderRadius: 5, border: '1px solid #ddd6fe', minHeight: '1.2em' }}>
               {fields[key]}<Caret active={activeCaret === key} />
             </div>
@@ -141,7 +141,7 @@ export function HeroFormPreview() {
 
         {/* Static period field */}
         <div style={{ marginBottom: 12 }}>
-          <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#8a8680', marginBottom: 4 }}>Période de délivrance</div>
+          <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6b6760', marginBottom: 4 }}>Période de délivrance</div>
           <div style={{ fontSize: 13, color: '#1a1815', background: '#faf8f4', padding: '8px 12px', borderRadius: 5, border: '1px solid #ece9e2' }}>depuis le 1er janvier 1956</div>
         </div>
 

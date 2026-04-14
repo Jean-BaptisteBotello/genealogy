@@ -169,7 +169,7 @@ export function HowItWorksSection() {
                 fontSize: 10,
                 textTransform: 'uppercase',
                 letterSpacing: '0.12em',
-                color: '#8a8680',
+                color: '#6b6760',
                 paddingTop: 14,
                 borderTop: '1px solid #ece9e2',
               }}

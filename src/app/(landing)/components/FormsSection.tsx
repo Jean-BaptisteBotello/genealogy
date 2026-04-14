@@ -208,7 +208,7 @@ export function FormsSection() {
                     fontSize: 10,
                     textTransform: 'uppercase',
                     letterSpacing: '0.14em',
-                    color: '#8a8680',
+                    color: '#6b6760',
                     marginTop: 10,
                     fontWeight: 500,
                     fontStyle: 'normal',
@@ -329,7 +329,7 @@ export function FormsSection() {
                 paddingTop: 20,
                 borderTop: '1px solid #ece9e2',
                 fontSize: 11,
-                color: '#8a8680',
+                color: '#6b6760',
                 marginTop: 'auto',
               }}
             >

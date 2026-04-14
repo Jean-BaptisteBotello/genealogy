@@ -82,7 +82,7 @@ export function HeroSection() {
         className="flex flex-col gap-2 px-6 py-4 text-[11px] uppercase md:flex-row md:justify-between md:gap-0 md:px-9"
         style={{
           letterSpacing: '0.1em',
-          color: '#8a8680',
+          color: '#6b6760',
           borderTop: '1px solid rgba(0,0,0,0.08)',
           position: 'relative',
           zIndex: 2,

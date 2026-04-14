@@ -164,7 +164,7 @@ export function CtaSection() {
               fontSize: 11,
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
-              color: '#8a8680',
+              color: '#6b6760',
               marginTop: 8,
             }}
           >
@@ -189,7 +189,7 @@ export function CtaSection() {
               fontSize: 11,
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
-              color: '#8a8680',
+              color: '#6b6760',
               marginTop: 8,
             }}
           >
@@ -214,7 +214,7 @@ export function CtaSection() {
               fontSize: 11,
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
-              color: '#8a8680',
+              color: '#6b6760',
               marginTop: 8,
             }}
           >

@@ -48,19 +48,19 @@ export function LandingFooter() {
 
         {/* Column 2 — Produit */}
         <div>
-          <h4
+          <h3
             style={{
               fontFamily: 'var(--font-inter, Inter, sans-serif)',
               fontSize: 11,
               textTransform: 'uppercase',
               letterSpacing: '0.14em',
-              color: '#8a8680',
+              color: '#6b6760',
               fontWeight: 600,
               margin: '0 0 18px',
             }}
           >
             Produit
-          </h4>
+          </h3>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 11 }}>
             <li>
               <a href="#comment-ca-marche" style={linkStyle}>Comment ça marche</a>
@@ -79,19 +79,19 @@ export function LandingFooter() {
 
         {/* Column 3 — Sources officielles */}
         <div>
-          <h4
+          <h3
             style={{
               fontFamily: 'var(--font-inter, Inter, sans-serif)',
               fontSize: 11,
               textTransform: 'uppercase',
               letterSpacing: '0.14em',
-              color: '#8a8680',
+              color: '#6b6760',
               fontWeight: 600,
               margin: '0 0 18px',
             }}
           >
             Sources officielles
-          </h4>
+          </h3>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 11 }}>
             <li>
               <a
@@ -131,19 +131,19 @@ export function LandingFooter() {
 
         {/* Column 4 — Légal */}
         <div>
-          <h4
+          <h3
             style={{
               fontFamily: 'var(--font-inter, Inter, sans-serif)',
               fontSize: 11,
               textTransform: 'uppercase',
               letterSpacing: '0.14em',
-              color: '#8a8680',
+              color: '#6b6760',
               fontWeight: 600,
               margin: '0 0 18px',
             }}
           >
             Légal
-          </h4>
+          </h3>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 11 }}>
             <li>
               <a href="#" style={linkStyle}>Mentions légales</a>
@@ -167,15 +167,15 @@ export function LandingFooter() {
         style={{
           borderTop: '1px solid rgba(0,0,0,.08)',
           fontSize: 11,
-          color: '#8a8680',
+          color: '#6b6760',
         }}
       >
         <div>© 2026 Genealogy · Hébergé en Allemagne (Frankfurt) · RGPD</div>
         <div style={{ display: 'flex', gap: 22 }}>
-          <a href="mailto:contact@genealogy.fr" style={{ color: '#8a8680', textDecoration: 'none' }}>
+          <a href="mailto:contact@genealogy.fr" style={{ color: '#6b6760', textDecoration: 'none' }}>
             contact@genealogy.fr
           </a>
-          <a href="#" style={{ color: '#8a8680', textDecoration: 'none' }}>
+          <a href="#" style={{ color: '#6b6760', textDecoration: 'none' }}>
             Twitter
           </a>
         </div>
@@ -205,6 +205,6 @@ const linkStyle: React.CSSProperties = {
 const smallStyle: React.CSSProperties = {
   display: 'block',
   fontSize: 10,
-  color: '#8a8680',
+  color: '#6b6760',
   marginTop: 2,
 }
