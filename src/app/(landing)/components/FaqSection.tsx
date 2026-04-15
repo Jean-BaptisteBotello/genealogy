@@ -168,20 +168,26 @@ export function FaqSection() {
         }}
       >
         {faqs.map(({ marker, question, answer }, idx) => (
-          <div
+          <details
             key={marker}
+            className="landing-faq-item"
             style={{
               borderTop: '1px solid rgba(0,0,0,0.1)',
               borderBottom: idx === faqs.length - 1 ? '1px solid rgba(0,0,0,0.1)' : undefined,
-              padding: '28px 0',
-              display: 'grid',
-              gridTemplateColumns: '1fr auto',
-              gap: 24,
-              alignItems: 'start',
+              padding: '0',
             }}
           >
-            {/* Q + A */}
-            <div>
+            <summary
+              style={{
+                listStyle: 'none',
+                cursor: 'pointer',
+                padding: '24px 0',
+                display: 'grid',
+                gridTemplateColumns: '1fr auto auto',
+                gap: 20,
+                alignItems: 'center',
+              }}
+            >
               <h3
                 className="landing-faq-q"
                 style={{
@@ -191,37 +197,55 @@ export function FaqSection() {
                   color: '#1a1815',
                   fontWeight: 400,
                   letterSpacing: '-0.01em',
-                  margin: '0 0 12px',
+                  margin: 0,
                 }}
               >
                 {question}
               </h3>
-              <p
+              <span
+                className="landing-faq-marker"
                 style={{
+                  fontFamily: 'var(--font-instrument-serif)',
+                  fontStyle: 'italic',
+                  color: '#7c3aed',
                   fontSize: 14,
-                  lineHeight: 1.6,
-                  color: '#4a4641',
-                  margin: 0,
-                  maxWidth: 640,
                 }}
               >
-                {answer}
-              </p>
-            </div>
-
-            {/* Roman numeral marker */}
-            <div
+                {marker}
+              </span>
+              <span
+                aria-hidden="true"
+                className="landing-faq-chevron"
+                style={{
+                  display: 'inline-flex',
+                  width: 28,
+                  height: 28,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 999,
+                  border: '1px solid rgba(0,0,0,0.1)',
+                  color: '#4a4641',
+                  transition: 'transform 200ms ease, background 200ms ease',
+                  fontSize: 14,
+                  lineHeight: 1,
+                }}
+              >
+                +
+              </span>
+            </summary>
+            <p
               style={{
-                fontFamily: 'var(--font-instrument-serif)',
-                fontStyle: 'italic',
-                color: '#7c3aed',
                 fontSize: 14,
-                paddingTop: 6,
+                lineHeight: 1.6,
+                color: '#4a4641',
+                margin: 0,
+                padding: '0 0 24px',
+                maxWidth: 640,
               }}
             >
-              {marker}
-            </div>
-          </div>
+              {answer}
+            </p>
+          </details>
         ))}
       </div>
 
@@ -241,7 +265,7 @@ export function FaqSection() {
       >
         Une autre question ?{' '}
         <a
-          href="mailto:hello@genealogy.app"
+          href="mailto:contact@genealogy.fr"
           style={{
             color: '#7c3aed',
             textDecoration: 'underline',

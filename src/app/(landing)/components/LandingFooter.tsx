@@ -71,9 +71,6 @@ export function LandingFooter() {
             <li>
               <a href="#faq" style={linkStyle}>FAQ</a>
             </li>
-            <li>
-              <a href="#" style={linkStyle}>Roadmap</a>
-            </li>
           </ul>
         </div>
 
@@ -146,16 +143,7 @@ export function LandingFooter() {
           </h3>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 11 }}>
             <li>
-              <a href="#" style={linkStyle}>Mentions légales</a>
-            </li>
-            <li>
               <Link href="/privacy" style={linkStyle}>Politique de confidentialité</Link>
-            </li>
-            <li>
-              <a href="#" style={linkStyle}>CGU</a>
-            </li>
-            <li>
-              <a href="#" style={linkStyle}>RGPD</a>
             </li>
           </ul>
         </div>
@@ -174,9 +162,6 @@ export function LandingFooter() {
         <div style={{ display: 'flex', gap: 22 }}>
           <a href="mailto:contact@genealogy.fr" style={{ color: '#6b6760', textDecoration: 'none' }}>
             contact@genealogy.fr
-          </a>
-          <a href="#" style={{ color: '#6b6760', textDecoration: 'none' }}>
-            Twitter
           </a>
         </div>
         <div

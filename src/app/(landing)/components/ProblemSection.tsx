@@ -131,7 +131,7 @@ export function ProblemSection() {
         >
           Aujourd&rsquo;hui, se renseigner auprès des services des impôts pour des recherches
           familiales n&rsquo;a rien d&rsquo;évident — alors même qu&rsquo;ils proposent ce service,
-          via deux formulaires obscurs. La plupart des familles n&rsquo;essayent jamais.
+          via deux formulaires obscurs. La plupart des familles ne tentent jamais la démarche.
         </p>
       </div>
 
