@@ -1,11 +1,14 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import Link from 'next/link'
+import { useEffect, useState, type FormEvent } from 'react'
 import { submitWaitlist } from '../lib/waitlist-action'
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const STORAGE_KEY = 'waitlist_submitted'
+const SUCCESS_EVENT = 'waitlist:success'
 
 const ERROR_MESSAGES: Record<string, string> = {
   empty_email: 'Veuillez indiquer votre adresse email.',
@@ -13,11 +16,69 @@ const ERROR_MESSAGES: Record<string, string> = {
   server_error: 'Une erreur est survenue, réessayez.',
 }
 
-export function WaitlistForm({ source = 'hero' }: { source?: 'hero' | 'cta' }) {
+export function WaitlistForm({
+  source = 'hero',
+  isAuthenticated = false,
+}: {
+  source?: 'hero' | 'cta'
+  isAuthenticated?: boolean
+}) {
   const [state, setState] = useState<FormState>('idle')
   const [email, setEmail] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
   const [isHover, setIsHover] = useState(false)
+
+  // Cross-instance + session-persistent success (localStorage + storage event +
+  // same-tab custom event so both forms flip to success without page reload).
+  useEffect(() => {
+    if (isAuthenticated) return
+    try {
+      if (localStorage.getItem(STORAGE_KEY) === '1') {
+        setState('success')
+      }
+    } catch {}
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY && e.newValue === '1') setState('success')
+    }
+    const onLocal = () => setState('success')
+    window.addEventListener('storage', onStorage)
+    window.addEventListener(SUCCESS_EVENT, onLocal)
+    return () => {
+      window.removeEventListener('storage', onStorage)
+      window.removeEventListener(SUCCESS_EVENT, onLocal)
+    }
+  }, [isAuthenticated])
+
+  // Authenticated users never see the waitlist form — they get a direct path
+  // back to their tree, preserving the "where am I, where am I going" thread.
+  if (isAuthenticated) {
+    return (
+      <div
+        className="flex items-center justify-between gap-3 rounded-full px-5 py-3"
+        style={{
+          background: '#fff',
+          border: '1px solid rgba(0,0,0,0.08)',
+          boxShadow: '0 4px 14px -8px rgba(0,0,0,0.15)',
+          maxWidth: source === 'cta' ? 480 : 440,
+        }}
+      >
+        <span className="text-sm" style={{ color: '#1a1815' }}>
+          Vous êtes connecté·e.
+        </span>
+        <Link
+          href="/tree"
+          className="rounded-full px-4 py-2 text-xs font-medium transition-colors"
+          style={{
+            background: '#1a1815',
+            color: '#f4f1ea',
+            fontFamily: 'var(--font-inter)',
+          }}
+        >
+          Accéder à mon arbre →
+        </Link>
+      </div>
+    )
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -41,6 +102,10 @@ export function WaitlistForm({ source = 'hero' }: { source?: 'hero' | 'cta' }) {
 
     if (result.ok) {
       setState('success')
+      try {
+        localStorage.setItem(STORAGE_KEY, '1')
+      } catch {}
+      window.dispatchEvent(new Event(SUCCESS_EVENT))
     } else {
       setState('error')
       setErrorMsg(ERROR_MESSAGES[result.error] || ERROR_MESSAGES.server_error)
