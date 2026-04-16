@@ -18,6 +18,8 @@ import { SuggestionsPanel } from '@/components/suggestions/SuggestionsPanel'
 import { MySuggestionsPanel } from '@/components/suggestions/MySuggestionsPanel'
 import { Formulaire3233Modal } from '@/components/recherche/Formulaire3233Modal'
 import { Formulaire3236Modal } from '@/components/recherche/Formulaire3236Modal'
+import { useOnboarding } from '@/lib/hooks/useOnboarding'
+import { CoachMark } from '@/components/onboarding/CoachMark'
 
 type View = 'cosmos' | 'sablier' | 'timeline' | 'carte' | 'eventail'
 
@@ -65,6 +67,7 @@ export function AppShell({
   const [showFamily, setShowFamily] = useState(true)
   const [showExtendedFamily, setShowExtendedFamily] = useState(false)
   const [rechercheModal, setRechercheModal] = useState<'3233' | '3236' | null>(null)
+  const onboarding = useOnboarding(initialPersons.length)
 
   const filteredRelationships = initialRelationships.filter(rel => {
     const extended = isExtendedFamilyRelationship(rel)
@@ -138,6 +141,10 @@ export function AppShell({
           activeView={activeView}
           onViewChange={setActiveView}
           selectedPerson={selectedPerson}
+          onboardingStep={onboarding.isActive ? onboarding.step : null}
+          onOnboardingAdvance={onboarding.advance}
+          onOnboardingSkip={onboarding.skip}
+          firstPerson={initialPersons.length > 0 ? initialPersons[0] : null}
           onAddPerson={currentRole !== 'VIEWER' ? openAddPerson : undefined}
           onProposePerson={currentRole === 'VIEWER' ? () => setSuggestionModalMode({ type: 'ADD_PERSON' }) : undefined}
           onSearchOpen={() => setSearchOpen(true)}
@@ -155,6 +162,20 @@ export function AppShell({
           />
           <main className="flex-1 overflow-hidden relative">
             <ViewRouter activeView={activeView} />
+            {onboarding.step === 4 && (
+              <div style={{ position: 'absolute', top: '50%', right: 80, transform: 'translateY(-50%)', zIndex: 40 }}>
+                <CoachMark
+                  step={4}
+                  totalSteps={4}
+                  title="Votre arbre est lancé 🎉"
+                  description="Cliquez sur n'importe qui pour lancer une recherche sur cette personne. Chaque ajout enrichit vos formulaires."
+                  ctaLabel="C'est parti !"
+                  onCtaClick={onboarding.advance}
+                  onSkip={onboarding.skip}
+                  position="left"
+                />
+              </div>
+            )}
           </main>
           {detailOpen && (
             <DetailPanel

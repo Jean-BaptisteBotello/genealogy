@@ -2,7 +2,11 @@
 'use client'
 import { signout } from '@/server-actions/auth'
 import { RechercheDropdown } from '@/components/recherche/RechercheDropdown'
+import { CoachMark } from '@/components/onboarding/CoachMark'
+import { FormPreviewCard } from '@/components/onboarding/FormPreviewCard'
+import '@/components/onboarding/coach-mark.css'
 import type { Person } from '@/lib/types/database'
+import type { OnboardingStep } from '@/lib/hooks/useOnboarding'
 
 type View = 'cosmos' | 'sablier' | 'timeline' | 'carte' | 'eventail'
 
@@ -11,6 +15,10 @@ interface TopbarProps {
   activeView?: View
   onViewChange?: (view: View) => void
   selectedPerson?: Person | null
+  onboardingStep?: OnboardingStep | null
+  onOnboardingAdvance?: () => void
+  onOnboardingSkip?: () => void
+  firstPerson?: Person | null
   onAddPerson?: () => void
   onProposePerson?: () => void
   onSearchOpen?: () => void
@@ -51,6 +59,10 @@ export function Topbar({
   activeView = 'cosmos',
   onViewChange,
   selectedPerson,
+  onboardingStep,
+  onOnboardingAdvance,
+  onOnboardingSkip,
+  firstPerson,
   onAddPerson,
   onProposePerson,
   onSearchOpen,
@@ -127,7 +139,25 @@ export function Topbar({
         </button>
 
         {onOpen3233 && onOpen3236 && (
-          <RechercheDropdown onOpen3233={onOpen3233} onOpen3236={onOpen3236} />
+          <div className={onboardingStep === 2 ? 'coach-pulse' : ''} style={{ position: 'relative', borderRadius: 8 }}>
+            <RechercheDropdown onOpen3233={onOpen3233} onOpen3236={onOpen3236} />
+            {onboardingStep === 2 && onOnboardingAdvance && onOnboardingSkip && firstPerson && (
+              <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 8, zIndex: 40 }}>
+                <CoachMark
+                  step={2}
+                  totalSteps={4}
+                  title="Le formulaire est déjà pré-rempli ✨"
+                  description={`Cliquez sur Recherches pour voir le formulaire 3233 avec les données de ${firstPerson.prenom}.`}
+                  ctaLabel="Voir le formulaire →"
+                  onCtaClick={onOnboardingAdvance}
+                  onSkip={onOnboardingSkip}
+                  position="top"
+                >
+                  <FormPreviewCard person={firstPerson} />
+                </CoachMark>
+              </div>
+            )}
+          </div>
         )}
 
         <form action={signout}>
@@ -142,13 +172,14 @@ export function Topbar({
         </form>
       </header>
 
-      {/* Line 2 — Context bar (visible when person selected or always shows CTA) */}
+      {/* Line 2 — Context bar */}
       <div
         className="flex items-center px-4 gap-2.5"
         style={{
           height: selectedPerson ? 40 : 36,
           background: 'var(--card-bg, #fff)',
           borderTop: '1px solid var(--topbar-border, #e5e2dd)',
+          position: 'relative',
         }}
       >
         {selectedPerson ? (
@@ -186,11 +217,39 @@ export function Topbar({
           <button
             type="button"
             onClick={onAddPerson}
-            className="px-3 py-1 rounded-lg text-xs font-semibold transition-colors"
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors${(onboardingStep === 1 || onboardingStep === 3) ? ' coach-pulse' : ''}`}
             style={{ background: '#7c3aed', color: 'white' }}
           >
             + Ajouter
           </button>
+        )}
+        {onboardingStep === 1 && onOnboardingSkip && onAddPerson && (
+          <div style={{ position: 'absolute', top: '100%', right: 14, marginTop: 8, zIndex: 40 }}>
+            <CoachMark
+              step={1}
+              totalSteps={4}
+              title="Ajoutez votre premier ancêtre"
+              description="Son nom pré-remplira automatiquement les formulaires de recherche foncière."
+              ctaLabel="Ajouter →"
+              onCtaClick={onAddPerson}
+              onSkip={onOnboardingSkip}
+              position="top"
+            />
+          </div>
+        )}
+        {onboardingStep === 3 && onOnboardingSkip && onAddPerson && firstPerson && (
+          <div style={{ position: 'absolute', top: '100%', right: 14, marginTop: 8, zIndex: 40 }}>
+            <CoachMark
+              step={3}
+              totalSteps={4}
+              title="Complétez votre arbre"
+              description={`Ajoutez le père ou la mère de ${firstPerson.prenom}. Plus votre arbre est riche, plus vos recherches seront précises.`}
+              ctaLabel="Ajouter quelqu'un →"
+              onCtaClick={onAddPerson}
+              onSkip={onOnboardingSkip}
+              position="top"
+            />
+          </div>
         )}
         {onProposePerson && (
           <button
