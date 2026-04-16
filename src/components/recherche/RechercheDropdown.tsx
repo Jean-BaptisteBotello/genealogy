@@ -38,13 +38,22 @@ export function RechercheDropdown({ onOpen3233, onOpen3236 }: RechercheDropdownP
       <button
         type="button"
         onClick={() => setIsOpen((v) => !v)}
-        className="px-3 py-1.5 rounded text-xs transition-colors flex items-center gap-1"
-        style={{ color: 'var(--text-secondary)' }}
+        className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5"
+        style={{
+          color: isOpen ? '#fff' : '#7c3aed',
+          background: isOpen ? '#7c3aed' : 'rgba(124,58,237,0.08)',
+          border: '1px solid rgba(124,58,237,0.2)',
+          boxShadow: '0 0 0 3px rgba(124,58,237,0.06)',
+        }}
         aria-haspopup="menu"
         aria-expanded={isOpen}
       >
-        📋 Recherches
-        <span className="text-[10px]">▾</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+        </svg>
+        Recherches
+        <span className="text-[10px]">{isOpen ? '▴' : '▾'}</span>
       </button>
 
       {isOpen && (
