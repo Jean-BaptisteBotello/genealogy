@@ -7,7 +7,7 @@ const steps = [
     num: 'i.',
     Visual: MiniTree,
     h3: 'Construisez ou importez votre arbre.',
-    body: 'Ajoutez vos parents, grands-parents, ancêtres directs ou cousins. Un arbre minimal suffit pour commencer une recherche.',
+    body: 'Ajoutez vos parents, grands-parents, ancêtres directs ou cousins. Un seul ancêtre suffit pour lancer votre première recherche — complétez au fur et à mesure.',
     tag: 'Étape 1 · Votre famille',
   },
   {

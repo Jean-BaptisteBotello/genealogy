@@ -145,6 +145,9 @@ export function LandingFooter() {
             <li>
               <Link href="/privacy" style={linkStyle}>Politique de confidentialité</Link>
             </li>
+            <li>
+              <Link href="/login" style={linkStyle}>Se connecter</Link>
+            </li>
           </ul>
         </div>
       </div>
@@ -158,22 +161,10 @@ export function LandingFooter() {
           color: '#6b6760',
         }}
       >
-        <div>© 2026 Genealogy · Hébergé en Allemagne (Frankfurt) · RGPD</div>
-        <div style={{ display: 'flex', gap: 22 }}>
-          <a href="mailto:contact@genealogy.fr" style={{ color: '#6b6760', textDecoration: 'none' }}>
-            contact@genealogy.fr
-          </a>
-        </div>
-        <div
-          style={{
-            fontFamily: 'var(--font-instrument-serif)',
-            fontStyle: 'italic',
-            color: '#4a4641',
-            fontSize: 12,
-          }}
-        >
-          Fait avec soin en France ·
-        </div>
+        <div>© 2026 Genealogy · Créé en France, hébergé en Allemagne · RGPD conforme</div>
+        <a href="mailto:contact@genealogy.fr" style={{ color: '#6b6760', textDecoration: 'none' }}>
+          contact@genealogy.fr
+        </a>
       </div>
     </footer>
   )

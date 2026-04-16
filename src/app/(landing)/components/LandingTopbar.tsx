@@ -42,22 +42,13 @@ export function LandingTopbar({ isAuthenticated }: LandingTopbarProps) {
           Accéder à mon arbre →
         </Link>
       ) : (
-        <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="text-xs font-medium transition-colors hover:opacity-70"
-            style={{ color: '#1a1815' }}
-          >
-            Se connecter
-          </Link>
-          <a
-            href="#waitlist"
-            className="rounded-full border px-4 py-2 text-xs font-medium"
-            style={{ borderColor: '#1a1815', color: '#1a1815' }}
-          >
-            Rejoindre la waitlist →
-          </a>
-        </div>
+        <a
+          href="#waitlist"
+          className="rounded-full px-5 py-2 text-xs font-medium transition-colors"
+          style={{ background: '#7c3aed', color: '#fff' }}
+        >
+          Rejoindre la waitlist →
+        </a>
       )}
     </header>
   )
