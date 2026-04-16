@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { useTree } from '@/lib/context/tree-context'
+import { useScrollSelectedIntoView } from '@/lib/hooks/useScrollSelectedIntoView'
 import { computeFlowLayout } from './sablierFlowLayout'
 import './sablierFlow.css'
 
@@ -42,6 +43,8 @@ export function SablierFlowView() {
   const [zoom, setZoom] = useState(1)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  useScrollSelectedIntoView(containerRef, selectedPersonId)
 
   // Connections relevant to selected or hovered person
   const activeId = hoveredId ?? centerId
@@ -93,6 +96,7 @@ export function SablierFlowView() {
         onClick={() => selectPerson(nodeId)}
         onMouseEnter={() => setHoveredId(nodeId)}
         onMouseLeave={() => setHoveredId(null)}
+        data-person-id={nodeId}
       >
         {role && <span className="sablier-flow__card-role">{role}</span>}
         <div className="sablier-flow__card-name">
