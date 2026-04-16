@@ -1,6 +1,7 @@
 'use client'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { useTree } from '@/lib/context/tree-context'
+import { useScrollSelectedIntoView } from '@/lib/hooks/useScrollSelectedIntoView'
 import './timeline.css'
 
 const CARD_W = 236 // 220 card + 16 gap
@@ -33,6 +34,8 @@ function resolveOverlaps(arr: PositionedPerson[]): void {
 
 export function TimelineView() {
   const { persons, selectedPersonId, selectPerson, openAddPerson } = useTree()
+  const containerRef = useRef<HTMLDivElement>(null)
+  useScrollSelectedIntoView(containerRef, selectedPersonId)
 
   const withDate = useMemo(() => persons.filter(p => p.date_naissance !== null), [persons])
   const unplaced = useMemo(() => persons.filter(p => p.date_naissance === null), [persons])
@@ -69,6 +72,8 @@ export function TimelineView() {
     return { abovePos: above, belowPos: below, totalWidth: tw, minYear: min, maxYear: max, range: r }
   }, [withDate, selectedPersonId])
 
+  const selectedIsUnplaced = selectedPersonId != null && unplaced.some(p => p.id === selectedPersonId)
+
   if (persons.length === 0) {
     return (
       <div className="timeline__empty">
@@ -103,6 +108,7 @@ export function TimelineView() {
         className={`timeline__unit ${isAbove ? 'timeline__unit--above' : 'timeline__unit--below'}${p.selected ? ' timeline__unit--selected' : ''}`}
         style={{ left: p.x }}
         onClick={() => selectPerson(p.id)}
+        data-person-id={p.id}
       >
         {isAbove ? (
           <>
@@ -140,7 +146,7 @@ export function TimelineView() {
   }
 
   return (
-    <div className="timeline">
+    <div className="timeline" ref={containerRef}>
       <div className="timeline__axis" style={{ minWidth: totalWidth }}>
         {/* Axis line */}
         <div className="timeline__line" />
@@ -160,7 +166,7 @@ export function TimelineView() {
 
       {/* Unplaced badge */}
       {unplaced.length > 0 && (
-        <div className="timeline__unplaced">
+        <div className={`timeline__unplaced${selectedIsUnplaced ? ' timeline__unplaced--highlight' : ''}`}>
           {unplaced.length} non placée{unplaced.length > 1 ? 's' : ''} sur la timeline (sans date de naissance)
         </div>
       )}
