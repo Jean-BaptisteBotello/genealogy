@@ -4,7 +4,13 @@ import type { Person } from '@/lib/types/database'
 import type { SPF } from '@/lib/spf-directory'
 import { PersonSelector } from './PersonSelector'
 import { SPFSelector } from './SPFSelector'
-import { fill3233PDF, downloadPDF } from '@/lib/pdf-filler'
+import { fill3233PDF, downloadPDF, type PaymentMode } from '@/lib/pdf-filler'
+import {
+  loadDemandeurProfile,
+  saveDemandeurProfile,
+  isProfileComplete,
+  type DemandeurProfile,
+} from '@/lib/demandeur-profile'
 
 interface Formulaire3233ModalProps {
   persons: Person[]
@@ -14,6 +20,20 @@ interface Formulaire3233ModalProps {
 
 type TypeRecherche = 'personne' | 'immeuble'
 
+const PAYMENT_OPTIONS: { value: PaymentMode; label: string }[] = [
+  { value: 'carte', label: 'Carte bancaire' },
+  { value: 'virement', label: 'Virement' },
+  { value: 'cheque', label: 'Chèque' },
+  { value: 'cheque_banque', label: 'Chèque de banque' },
+  { value: 'numeraire', label: 'Numéraire' },
+]
+
+const inputStyle = {
+  background: 'var(--card-bg, #fff)',
+  border: '1px solid var(--border, #e5e2dd)',
+  color: 'var(--text-primary)',
+}
+
 export function Formulaire3233Modal({ persons, initialPerson, onClose }: Formulaire3233ModalProps) {
   const [person, setPerson] = useState<Person | null>(initialPerson ?? null)
   const [spf, setSPF] = useState<SPF | null>(null)
@@ -21,19 +41,40 @@ export function Formulaire3233Modal({ persons, initialPerson, onClose }: Formula
   const [commune, setCommune] = useState('')
   const [section, setSection] = useState('')
   const [parcelle, setParcelle] = useState('')
+  const [paymentMode, setPaymentMode] = useState<PaymentMode>('carte')
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Reset SPF when person changes so auto-detect re-runs
+  const [demandeur, setDemandeur] = useState<DemandeurProfile>(() => loadDemandeurProfile())
+  const [showDemandeurForm, setShowDemandeurForm] = useState(false)
+
   useEffect(() => {
-    setSPF(null)
-  }, [person?.id])
+    if (!isProfileComplete(demandeur)) setShowDemandeurForm(true)
+  }, [])
+
+  useEffect(() => { setSPF(null) }, [person?.id])
+
+  const updateDemandeur = (field: keyof DemandeurProfile, value: string) => {
+    setDemandeur(prev => {
+      const next = { ...prev, [field]: value }
+      saveDemandeurProfile(next)
+      return next
+    })
+  }
 
   const canGenerate = useMemo(() => {
     if (!person || !spf) return false
     if (typeRecherche === 'immeuble' && !commune.trim()) return false
+    if (!isProfileComplete(demandeur)) return false
     return true
-  }, [person, spf, typeRecherche, commune])
+  }, [person, spf, typeRecherche, commune, demandeur])
+
+  const cost = useMemo(() => {
+    const expeditionCourriel = !!demandeur.courriel
+    const base = 12
+    const expedition = expeditionCourriel ? 0 : 2
+    return { base, expedition, total: base + expedition }
+  }, [demandeur.courriel])
 
   const handleGenerate = async () => {
     if (!person || !spf) return
@@ -41,6 +82,7 @@ export function Formulaire3233Modal({ persons, initialPerson, onClose }: Formula
     setError(null)
     try {
       const bytes = await fill3233PDF({
+        demandeur,
         nom: person.nom,
         prenoms: person.prenom,
         dateNaissance: person.date_naissance,
@@ -52,6 +94,7 @@ export function Formulaire3233Modal({ persons, initialPerson, onClose }: Formula
         section: section || undefined,
         parcelle: parcelle || undefined,
         spfName: spf.nom,
+        paymentMode,
       })
       const filename = `cerfa-3233_${person.nom}_${person.prenom}.pdf`.replace(/\s+/g, '-')
       downloadPDF(bytes, filename)
@@ -81,29 +124,77 @@ export function Formulaire3233Modal({ persons, initialPerson, onClose }: Formula
               Demande adressée au Service de Publicité Foncière
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-lg leading-none"
-            style={{ color: 'var(--text-secondary)' }}
-            aria-label="Fermer"
-          >
+          <button type="button" onClick={onClose} className="text-lg leading-none" style={{ color: 'var(--text-secondary)' }} aria-label="Fermer">
             ×
           </button>
         </div>
 
         {/* Body */}
         <div className="p-6 flex flex-col gap-5">
+          {/* Demandeur */}
+          <section>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
+                1. Vos coordonnées
+              </label>
+              {isProfileComplete(demandeur) && (
+                <button
+                  type="button"
+                  onClick={() => setShowDemandeurForm(v => !v)}
+                  className="text-[10px] underline"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  {showDemandeurForm ? 'Masquer' : 'Modifier'}
+                </button>
+              )}
+            </div>
+            {showDemandeurForm ? (
+              <div className="flex flex-col gap-2">
+                <input type="text" placeholder="Nom et prénoms (MAJUSCULES) *" value={demandeur.identite}
+                  onChange={e => updateDemandeur('identite', e.target.value)}
+                  className="px-3 py-2 text-sm rounded-lg outline-none" style={inputStyle} />
+                <input type="text" placeholder="Adresse — n° et rue *" value={demandeur.adresseLigne1}
+                  onChange={e => updateDemandeur('adresseLigne1', e.target.value)}
+                  className="px-3 py-2 text-sm rounded-lg outline-none" style={inputStyle} />
+                <input type="text" placeholder="Complément d'adresse" value={demandeur.adresseLigne2}
+                  onChange={e => updateDemandeur('adresseLigne2', e.target.value)}
+                  className="px-3 py-2 text-sm rounded-lg outline-none" style={inputStyle} />
+                <input type="text" placeholder="Code postal + Ville *" value={demandeur.adresseLigne3}
+                  onChange={e => updateDemandeur('adresseLigne3', e.target.value)}
+                  className="px-3 py-2 text-sm rounded-lg outline-none" style={inputStyle} />
+                <div className="grid grid-cols-2 gap-2">
+                  <input type="email" placeholder="Courriel" value={demandeur.courriel}
+                    onChange={e => updateDemandeur('courriel', e.target.value)}
+                    className="px-3 py-2 text-sm rounded-lg outline-none" style={inputStyle} />
+                  <input type="tel" placeholder="Téléphone" value={demandeur.telephone}
+                    onChange={e => updateDemandeur('telephone', e.target.value)}
+                    className="px-3 py-2 text-sm rounded-lg outline-none" style={inputStyle} />
+                </div>
+                <p className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
+                  Sauvegardé localement — réutilisé pour vos prochains formulaires.
+                </p>
+              </div>
+            ) : (
+              <div className="p-3 rounded-lg text-xs" style={{ background: 'var(--card-bg, #fff)', border: '1px solid var(--border, #e5e2dd)', color: 'var(--text-secondary)' }}>
+                <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{demandeur.identite}</span>
+                {' — '}{demandeur.adresseLigne3}
+                {demandeur.courriel && ` · ${demandeur.courriel}`}
+              </div>
+            )}
+          </section>
+
+          {/* Personne concernée */}
           <section>
             <label className="text-xs font-medium uppercase tracking-wider mb-2 block" style={{ color: 'var(--text-secondary)' }}>
-              1. Personne concernée
+              2. Personne concernée
             </label>
             <PersonSelector persons={persons} selectedPerson={person} onSelect={setPerson} />
           </section>
 
+          {/* Type de recherche */}
           <section>
             <label className="text-xs font-medium uppercase tracking-wider mb-2 block" style={{ color: 'var(--text-secondary)' }}>
-              2. Type de recherche
+              3. Type de recherche
             </label>
             <div className="flex gap-2">
               {(['personne', 'immeuble'] as TypeRecherche[]).map((t) => (
@@ -113,10 +204,7 @@ export function Formulaire3233Modal({ persons, initialPerson, onClose }: Formula
                   onClick={() => setTypeRecherche(t)}
                   className="flex-1 px-3 py-2 text-sm rounded-lg transition-colors"
                   style={{
-                    background:
-                      typeRecherche === t
-                        ? 'var(--accent, #7c3aed)'
-                        : 'var(--card-bg, #fff)',
+                    background: typeRecherche === t ? 'var(--accent, #7c3aed)' : 'var(--card-bg, #fff)',
                     color: typeRecherche === t ? '#fff' : 'var(--text-primary)',
                     border: '1px solid var(--border, #e5e2dd)',
                   }}
@@ -129,36 +217,22 @@ export function Formulaire3233Modal({ persons, initialPerson, onClose }: Formula
 
           {typeRecherche === 'immeuble' && (
             <section className="grid grid-cols-3 gap-2">
-              <input
-                type="text"
-                placeholder="Commune *"
-                value={commune}
+              <input type="text" placeholder="Commune *" value={commune}
                 onChange={(e) => setCommune(e.target.value)}
-                className="px-3 py-2 text-sm rounded-lg outline-none"
-                style={{ background: 'var(--card-bg, #fff)', border: '1px solid var(--border, #e5e2dd)', color: 'var(--text-primary)' }}
-              />
-              <input
-                type="text"
-                placeholder="Section"
-                value={section}
+                className="px-3 py-2 text-sm rounded-lg outline-none" style={inputStyle} />
+              <input type="text" placeholder="Section" value={section}
                 onChange={(e) => setSection(e.target.value)}
-                className="px-3 py-2 text-sm rounded-lg outline-none"
-                style={{ background: 'var(--card-bg, #fff)', border: '1px solid var(--border, #e5e2dd)', color: 'var(--text-primary)' }}
-              />
-              <input
-                type="text"
-                placeholder="Parcelle"
-                value={parcelle}
+                className="px-3 py-2 text-sm rounded-lg outline-none" style={inputStyle} />
+              <input type="text" placeholder="Parcelle" value={parcelle}
                 onChange={(e) => setParcelle(e.target.value)}
-                className="px-3 py-2 text-sm rounded-lg outline-none"
-                style={{ background: 'var(--card-bg, #fff)', border: '1px solid var(--border, #e5e2dd)', color: 'var(--text-primary)' }}
-              />
+                className="px-3 py-2 text-sm rounded-lg outline-none" style={inputStyle} />
             </section>
           )}
 
+          {/* SPF */}
           <section>
             <label className="text-xs font-medium uppercase tracking-wider mb-2 block" style={{ color: 'var(--text-secondary)' }}>
-              3. Service de Publicité Foncière
+              4. Service de Publicité Foncière
             </label>
             <SPFSelector
               lieu={person?.lieu_naissance ?? person?.lieu_deces ?? null}
@@ -167,21 +241,60 @@ export function Formulaire3233Modal({ persons, initialPerson, onClose }: Formula
             />
           </section>
 
+          {/* Mode de paiement */}
+          <section>
+            <label className="text-xs font-medium uppercase tracking-wider mb-2 block" style={{ color: 'var(--text-secondary)' }}>
+              5. Mode de paiement
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              {PAYMENT_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setPaymentMode(opt.value)}
+                  className="px-3 py-1.5 text-xs rounded-lg transition-colors"
+                  style={{
+                    background: paymentMode === opt.value ? 'var(--accent, #7c3aed)' : 'var(--card-bg, #fff)',
+                    color: paymentMode === opt.value ? '#fff' : 'var(--text-primary)',
+                    border: '1px solid var(--border, #e5e2dd)',
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Récapitulatif */}
           {person && (
             <section>
               <label className="text-xs font-medium uppercase tracking-wider mb-2 block" style={{ color: 'var(--text-secondary)' }}>
-                4. Données pré-remplies
+                6. Récapitulatif
               </label>
               <div
-                className="p-3 rounded-lg text-xs grid grid-cols-2 gap-2"
+                className="p-3 rounded-lg text-xs flex flex-col gap-1.5"
                 style={{ background: 'var(--card-bg, #fff)', border: '1px solid var(--border, #e5e2dd)', color: 'var(--text-secondary)' }}
               >
-                <div><span className="font-medium" style={{ color: 'var(--text-primary)' }}>Nom :</span> {person.nom}</div>
-                <div><span className="font-medium" style={{ color: 'var(--text-primary)' }}>Prénoms :</span> {person.prenom}</div>
-                <div><span className="font-medium" style={{ color: 'var(--text-primary)' }}>Naissance :</span> {person.date_naissance ?? '—'}</div>
-                <div><span className="font-medium" style={{ color: 'var(--text-primary)' }}>Lieu :</span> {person.lieu_naissance ?? '—'}</div>
-                <div><span className="font-medium" style={{ color: 'var(--text-primary)' }}>Décès :</span> {person.date_deces ?? '—'}</div>
-                <div><span className="font-medium" style={{ color: 'var(--text-primary)' }}>Lieu :</span> {person.lieu_deces ?? '—'}</div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <div><span className="font-medium" style={{ color: 'var(--text-primary)' }}>Nom :</span> {person.nom}</div>
+                  <div><span className="font-medium" style={{ color: 'var(--text-primary)' }}>Prénoms :</span> {person.prenom}</div>
+                  <div><span className="font-medium" style={{ color: 'var(--text-primary)' }}>Naissance :</span> {person.date_naissance ?? '—'}</div>
+                  <div><span className="font-medium" style={{ color: 'var(--text-primary)' }}>Lieu :</span> {person.lieu_naissance ?? '—'}</div>
+                </div>
+                <div className="pt-1.5 mt-1.5" style={{ borderTop: '1px solid var(--border, #e5e2dd)' }}>
+                  <div className="flex justify-between">
+                    <span>Tarif demande (1 personne)</span>
+                    <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{cost.base} €</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Frais d'expédition{demandeur.courriel ? ' (courriel = gratuit)' : ' (courrier)'}</span>
+                    <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{cost.expedition} €</span>
+                  </div>
+                  <div className="flex justify-between pt-1 mt-1 font-medium" style={{ borderTop: '1px solid var(--border, #e5e2dd)', color: 'var(--text-primary)' }}>
+                    <span>Total</span>
+                    <span>{cost.total} €</span>
+                  </div>
+                </div>
               </div>
             </section>
           )}
@@ -198,12 +311,7 @@ export function Formulaire3233Modal({ persons, initialPerson, onClose }: Formula
           className="px-6 py-4 flex items-center justify-end gap-2 sticky bottom-0"
           style={{ background: 'var(--bg, #f8f8f6)', borderTop: '1px solid var(--border, #e5e2dd)' }}
         >
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm rounded-lg transition-colors"
-            style={{ color: 'var(--text-secondary)' }}
-          >
+          <button type="button" onClick={onClose} className="px-4 py-2 text-sm rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }}>
             Annuler
           </button>
           <button
