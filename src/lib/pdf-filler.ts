@@ -19,13 +19,17 @@ export interface Fill3233Data {
   paymentMode?: PaymentMode
 }
 
-export interface Fill3236Data {
-  demandeur?: DemandeurProfile
+export interface Formalite {
+  nature: string
+  date: string
+  sages: string
   volume: string
   numero: string
-  nature?: string
-  dateFormalite?: string
-  sagesOrSpf?: string
+}
+
+export interface Fill3236Data {
+  demandeur?: DemandeurProfile
+  formalites: Formalite[]
   spfName?: string
 }
 
@@ -172,12 +176,16 @@ export async function fill3236PDF(data: Fill3236Data): Promise<Uint8Array> {
   set('a9', String(now.getMonth() + 1).padStart(2, '0'))
   set('a10', String(now.getFullYear()))
 
-  // Formalité 1 : nature(a12), date(a13), SAGES(a14), volume(a15), numéro(a16)
-  set('a12', data.nature ?? '')
-  set('a13', data.dateFormalite ?? '')
-  set('a14', data.sagesOrSpf ?? '')
-  set('a15', data.volume)
-  set('a16', data.numero)
+  // Formalités (up to 7): each row = 5 consecutive fields starting at a12
+  data.formalites.forEach((f, i) => {
+    if (i >= 7) return
+    const base = 12 + i * 5
+    set(`a${base}`, f.nature)
+    set(`a${base + 1}`, f.date)
+    set(`a${base + 2}`, f.sages)
+    set(`a${base + 3}`, f.volume)
+    set(`a${base + 4}`, f.numero)
+  })
 
   // 3236 has a `notice` button that crashes with updateFieldAppearances: true
   return pdf.save({ updateFieldAppearances: false })

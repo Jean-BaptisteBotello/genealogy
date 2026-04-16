@@ -248,8 +248,6 @@ export function AppShell({
       )}
       {rechercheModal === '3236' && (
         <Formulaire3236Modal
-          persons={initialPersons}
-          initialPerson={selectedPerson}
           onClose={() => setRechercheModal(null)}
           onSwitch3233={() => setRechercheModal('3233')}
         />
