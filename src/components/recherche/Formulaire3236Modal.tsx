@@ -5,6 +5,7 @@ import type { SPF } from '@/lib/spf-directory'
 import { PersonSelector } from './PersonSelector'
 import { SPFSelector } from './SPFSelector'
 import { fill3236PDF, downloadPDF } from '@/lib/pdf-filler'
+import { loadDemandeurProfile, isProfileComplete, type DemandeurProfile } from '@/lib/demandeur-profile'
 
 interface Formulaire3236ModalProps {
   persons: Person[]
@@ -28,27 +29,25 @@ export function Formulaire3236Modal({ persons, initialPerson, onClose, onSwitch3
     setSPF(null)
   }, [person?.id])
 
+  const [demandeur] = useState<DemandeurProfile>(() => loadDemandeurProfile())
+
   const canGenerate = useMemo(
-    () => Boolean(person && spf && volume.trim() && numero.trim()),
-    [person, spf, volume, numero]
+    () => Boolean(spf && volume.trim() && numero.trim() && isProfileComplete(demandeur)),
+    [spf, volume, numero, demandeur]
   )
 
   const handleGenerate = async () => {
-    if (!person || !spf) return
+    if (!spf) return
     setIsGenerating(true)
     setError(null)
     try {
       const bytes = await fill3236PDF({
-        nom: person.nom,
-        prenoms: person.prenom,
-        dateNaissance: person.date_naissance,
-        lieuNaissance: person.lieu_naissance,
-        dateDeces: person.date_deces,
-        lieuDeces: person.lieu_deces,
+        demandeur,
         volume: volume.trim(),
         numero: numero.trim(),
+        spfName: spf.nom,
       })
-      const filename = `cerfa-3236_${person.nom}_${person.prenom}.pdf`.replace(/\s+/g, '-')
+      const filename = `cerfa-3236_vol${volume}_n${numero}.pdf`.replace(/\s+/g, '-')
       downloadPDF(bytes, filename)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erreur lors de la génération du PDF')

@@ -60,14 +60,9 @@ describe('PDF filler', () => {
 
   it('fill3236PDF returns a non-empty Uint8Array', async () => {
     const result = await fill3236PDF({
-      nom: 'DUPONT',
-      prenoms: 'Jean Pierre Marcel',
-      dateNaissance: '1860',
-      lieuNaissance: 'Lyon (69)',
-      dateDeces: null,
-      lieuDeces: null,
       volume: '1234',
       numero: '56',
+      spfName: 'SPF de Toulon',
     })
     expect(result).toBeInstanceOf(Uint8Array)
     expect(result.length).toBeGreaterThan(1000)

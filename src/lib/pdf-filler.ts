@@ -20,14 +20,13 @@ export interface Fill3233Data {
 }
 
 export interface Fill3236Data {
-  nom: string
-  prenoms: string
-  dateNaissance: string | null
-  lieuNaissance: string | null
-  dateDeces: string | null
-  lieuDeces: string | null
+  demandeur?: DemandeurProfile
   volume: string
   numero: string
+  nature?: string
+  dateFormalite?: string
+  sagesOrSpf?: string
+  spfName?: string
 }
 
 async function loadPDF(path: string): Promise<PDFDocument> {
@@ -150,13 +149,33 @@ export async function fill3236PDF(data: Fill3236Data): Promise<Uint8Array> {
     } catch { /* field missing or not a text field */ }
   }
 
+  // Demandeur (a1-a7)
+  if (data.demandeur) {
+    const d = data.demandeur
+    set('a1', d.identite.toUpperCase())
+    set('a2', d.adresseLigne1)
+    set('a3', d.adresseLigne2)
+    set('a4', d.adresseLigne3)
+    set('a5', d.courriel)
+    set('a6', d.telephone)
+    if (d.adresseLigne3) {
+      set('a7', d.adresseLigne3.replace(/^\d{5}\s*/, ''))
+    }
+  }
+
+  // SPF destinataire
+  set('a11', data.spfName ?? '')
+
   // Date du jour
   const now = new Date()
   set('a8', String(now.getDate()).padStart(2, '0'))
   set('a9', String(now.getMonth() + 1).padStart(2, '0'))
   set('a10', String(now.getFullYear()))
 
-  // Formalité 1
+  // Formalité 1 : nature(a12), date(a13), SAGES(a14), volume(a15), numéro(a16)
+  set('a12', data.nature ?? '')
+  set('a13', data.dateFormalite ?? '')
+  set('a14', data.sagesOrSpf ?? '')
   set('a15', data.volume)
   set('a16', data.numero)
 
