@@ -51,6 +51,7 @@ export function Formulaire3233Modal({ persons, initialPerson, onClose }: Formula
         commune: commune || undefined,
         section: section || undefined,
         parcelle: parcelle || undefined,
+        spfName: spf.nom,
       })
       const filename = `cerfa-3233_${person.nom}_${person.prenom}.pdf`.replace(/\s+/g, '-')
       downloadPDF(bytes, filename)

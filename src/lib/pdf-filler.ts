@@ -1,4 +1,4 @@
-import { PDFDocument } from 'pdf-lib'
+import { PDFDocument, StandardFonts } from 'pdf-lib'
 
 export interface Fill3233Data {
   nom: string
@@ -11,6 +11,7 @@ export interface Fill3233Data {
   commune?: string
   section?: string
   parcelle?: string
+  spfName?: string
 }
 
 export interface Fill3236Data {
@@ -30,96 +31,56 @@ async function loadPDF(path: string): Promise<PDFDocument> {
   return PDFDocument.load(bytes)
 }
 
-/**
- * Try to fill an AcroForm text field by name, swallowing errors if the
- * field isn't a text field or doesn't exist.
- */
-function trySetText(
-  form: ReturnType<PDFDocument['getForm']>,
-  fieldName: string,
-  value: string
-): boolean {
-  try {
-    const field = form.getTextField(fieldName)
-    field.setText(value)
-    return true
-  } catch {
-    return false
-  }
-}
 
-/**
- * Generic field-name matcher. Iterates through form fields and maps them
- * to the provided data based on substring heuristics on the field name.
- */
-function fillByHeuristics(
-  pdf: PDFDocument,
-  mappings: Array<{ match: (name: string) => boolean; value: string }>
-): boolean {
-  const form = pdf.getForm()
-  const fields = form.getFields()
-  if (fields.length === 0) return false
-
-  for (const field of fields) {
-    const name = field.getName()
-    const lower = name.toLowerCase()
-    for (const { match, value } of mappings) {
-      if (match(lower)) {
-        trySetText(form, name, value)
-        break
-      }
+function formatDateLieu(date: string | null, lieu: string | null): string {
+  const parts: string[] = []
+  if (date) {
+    const d = new Date(date)
+    if (!isNaN(d.getTime())) {
+      parts.push(d.toLocaleDateString('fr-FR'))
+    } else {
+      parts.push(date)
     }
   }
-  return true
-}
-
-/**
- * Fallback: draw text directly onto the first page at approximate positions.
- * Used when the PDF has no AcroForm fields (flattened Cerfa).
- */
-function drawFallback(
-  pdf: PDFDocument,
-  lines: Array<{ label: string; value: string }>
-) {
-  const page = pdf.getPage(0)
-  const { height } = page.getSize()
-  const fontSize = 10
-  const startY = height - 280
-  const lineHeight = 20
-  lines.forEach((line, i) => {
-    if (!line.value) return
-    page.drawText(`${line.label}: ${line.value}`, {
-      x: 200,
-      y: startY - i * lineHeight,
-      size: fontSize,
-    })
-  })
+  if (lieu) {
+    parts.push(parts.length > 0 ? `à ${lieu}` : lieu)
+  }
+  return parts.join(' ')
 }
 
 export async function fill3233PDF(data: Fill3233Data): Promise<Uint8Array> {
   const pdf = await loadPDF('/forms/cerfa-3233-sd.pdf')
+  const form = pdf.getForm()
+  const font = await pdf.embedFont(StandardFonts.Helvetica)
 
-  const hasFields = fillByHeuristics(pdf, [
-    { match: (n) => n.includes('nom') && !n.includes('prenom') && !n.includes('prénom'), value: data.nom },
-    { match: (n) => n.includes('prenom') || n.includes('prénom'), value: data.prenoms },
-    { match: (n) => n.includes('naissance') && n.includes('date'), value: data.dateNaissance ?? '' },
-    { match: (n) => n.includes('naissance') && n.includes('lieu'), value: data.lieuNaissance ?? '' },
-    { match: (n) => (n.includes('deces') || n.includes('décès')) && n.includes('date'), value: data.dateDeces ?? '' },
-    { match: (n) => (n.includes('deces') || n.includes('décès')) && n.includes('lieu'), value: data.lieuDeces ?? '' },
-    { match: (n) => n.includes('commune'), value: data.commune ?? '' },
-    { match: (n) => n.includes('section'), value: data.section ?? '' },
-    { match: (n) => n.includes('parcelle'), value: data.parcelle ?? '' },
-  ])
+  const set = (fieldName: string, value: string) => {
+    if (!value) return
+    try {
+      const field = form.getTextField(fieldName)
+      field.setText(value)
+      field.updateAppearances(font)
+    } catch { /* field missing or not a text field */ }
+  }
 
-  if (!hasFields) {
-    drawFallback(pdf, [
-      { label: 'Nom', value: data.nom },
-      { label: 'Prénoms', value: data.prenoms },
-      { label: 'Date de naissance', value: data.dateNaissance ?? '' },
-      { label: 'Lieu de naissance', value: data.lieuNaissance ?? '' },
-      { label: 'Date de décès', value: data.dateDeces ?? '' },
-      { label: 'Lieu de décès', value: data.lieuDeces ?? '' },
-    ])
+  // SPF destinataire
+  set('a11', data.spfName ?? '')
+
+  // Date du jour (JJ / MM / AAAA)
+  const now = new Date()
+  set('a8', String(now.getDate()).padStart(2, '0'))
+  set('a9', String(now.getMonth() + 1).padStart(2, '0'))
+  set('a10', String(now.getFullYear()))
+
+  // Personne 1
+  set('a12', data.nom.toUpperCase())
+  set('a13', data.prenoms)
+  set('a14', formatDateLieu(data.dateNaissance, data.lieuNaissance))
+
+  // Immeubles (si recherche par immeuble)
+  if (data.typeRecherche === 'immeuble') {
+    set('a21', (data.commune ?? '').toUpperCase())
+    const refs = [data.section, data.parcelle].filter(Boolean).join(' n°')
+    set('a22', refs)
   }
 
   return pdf.save({ updateFieldAppearances: false })
@@ -127,29 +88,29 @@ export async function fill3233PDF(data: Fill3233Data): Promise<Uint8Array> {
 
 export async function fill3236PDF(data: Fill3236Data): Promise<Uint8Array> {
   const pdf = await loadPDF('/forms/cerfa-3236-sd.pdf')
+  const form = pdf.getForm()
+  const font = await pdf.embedFont(StandardFonts.Helvetica)
 
-  const hasFields = fillByHeuristics(pdf, [
-    { match: (n) => n.includes('nom') && !n.includes('prenom') && !n.includes('prénom'), value: data.nom },
-    { match: (n) => n.includes('prenom') || n.includes('prénom'), value: data.prenoms },
-    { match: (n) => n.includes('naissance') && n.includes('date'), value: data.dateNaissance ?? '' },
-    { match: (n) => n.includes('naissance') && n.includes('lieu'), value: data.lieuNaissance ?? '' },
-    { match: (n) => (n.includes('deces') || n.includes('décès')) && n.includes('date'), value: data.dateDeces ?? '' },
-    { match: (n) => (n.includes('deces') || n.includes('décès')) && n.includes('lieu'), value: data.lieuDeces ?? '' },
-    { match: (n) => n.includes('volume'), value: data.volume },
-    { match: (n) => n.includes('numero') || n.includes('numéro') || n.includes('n°'), value: data.numero },
-  ])
-
-  if (!hasFields) {
-    drawFallback(pdf, [
-      { label: 'Nom', value: data.nom },
-      { label: 'Prénoms', value: data.prenoms },
-      { label: 'Date de naissance', value: data.dateNaissance ?? '' },
-      { label: 'Lieu de naissance', value: data.lieuNaissance ?? '' },
-      { label: 'Volume', value: data.volume },
-      { label: 'Numéro', value: data.numero },
-    ])
+  const set = (fieldName: string, value: string) => {
+    if (!value) return
+    try {
+      const field = form.getTextField(fieldName)
+      field.setText(value)
+      field.updateAppearances(font)
+    } catch { /* field missing or not a text field */ }
   }
 
+  // Date du jour
+  const now = new Date()
+  set('a8', String(now.getDate()).padStart(2, '0'))
+  set('a9', String(now.getMonth() + 1).padStart(2, '0'))
+  set('a10', String(now.getFullYear()))
+
+  // Formalité 1
+  set('a15', data.volume)
+  set('a16', data.numero)
+
+  // 3236 has a `notice` button that crashes with updateFieldAppearances: true
   return pdf.save({ updateFieldAppearances: false })
 }
 
