@@ -15,11 +15,34 @@ interface LinkPersonFormProps {
   onClose: () => void
 }
 
+function RoleButton({
+  role, selectedRole, onSelect,
+}: {
+  role: RelationshipRole
+  selectedRole: RelationshipRole | null
+  onSelect: (r: RelationshipRole) => void
+}) {
+  const active = selectedRole === role
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(role)}
+      className="text-[10px] px-2 py-0.5 rounded transition-colors"
+      style={{
+        border: `1px solid ${active ? 'var(--text-link, #3b82f6)' : 'var(--divider, #1e3a5f)'}`,
+        color: active ? 'var(--text-primary, white)' : 'var(--text-secondary, #6b7280)',
+        background: active ? 'var(--accent-hover, rgba(59,130,246,0.15))' : 'transparent',
+      }}
+    >
+      {role}
+    </button>
+  )
+}
+
 export function LinkPersonForm({ currentPersonId, persons, onClose }: LinkPersonFormProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null)
   const [selectedRole, setSelectedRole] = useState<RelationshipRole | null>(null)
-  const [isExtendedOpen, setIsExtendedOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -27,7 +50,6 @@ export function LinkPersonForm({ currentPersonId, persons, onClose }: LinkPerson
     setSearchQuery('')
     setSelectedPersonId(null)
     setSelectedRole(null)
-    setIsExtendedOpen(false)
     setError(null)
     onClose()
   }
@@ -100,55 +122,27 @@ export function LinkPersonForm({ currentPersonId, persons, onClose }: LinkPerson
         </div>
       )}
 
-      <div>
-        <div className="text-[10px] uppercase tracking-widest mb-1" style={{ color: 'var(--section-label, #4b5563)' }}>Son rôle</div>
-        <div className="flex flex-wrap gap-1">
-          {ROLES_FAMILLE_DIRECTE.map(role => (
-            <button
-              key={role}
-              type="button"
-              onClick={() => setSelectedRole(role)}
-              className="text-[10px] px-2 py-0.5 rounded transition-colors"
-              style={{
-                border: `1px solid ${selectedRole === role ? 'var(--text-link, #3b82f6)' : 'var(--divider, #1e3a5f)'}`,
-                color: selectedRole === role ? 'var(--text-primary, white)' : 'var(--text-secondary, #6b7280)',
-                background: selectedRole === role ? 'var(--accent-hover, rgba(59,130,246,0.15))' : 'transparent',
-              }}
-            >
-              {role}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <button
-          type="button"
-          onClick={() => setIsExtendedOpen(v => !v)}
-          className="text-[10px]"
-          style={{ color: 'var(--text-muted, #4b5563)' }}
-        >
-          {isExtendedOpen ? '▾' : '▸'} Famille étendue
-        </button>
-        {isExtendedOpen && (
-          <div className="flex flex-wrap gap-1 mt-1">
-            {ROLES_FAMILLE_ETENDUE.map(role => (
-              <button
-                key={role}
-                type="button"
-                onClick={() => setSelectedRole(role)}
-                className="text-[10px] px-2 py-0.5 rounded transition-colors"
-                style={{
-                  border: `1px solid ${selectedRole === role ? 'var(--text-link, #3b82f6)' : 'var(--divider, #1e3a5f)'}`,
-                  color: selectedRole === role ? 'var(--text-primary, white)' : 'var(--text-secondary, #6b7280)',
-                  background: selectedRole === role ? 'var(--accent-hover, rgba(59,130,246,0.15))' : 'transparent',
-                }}
-              >
-                {role}
-              </button>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <div className="text-[10px] uppercase tracking-widest mb-1" style={{ color: 'var(--section-label, #4b5563)' }}>
+            Directe
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {ROLES_FAMILLE_DIRECTE.map(role => (
+              <RoleButton key={role} role={role} selectedRole={selectedRole} onSelect={setSelectedRole} />
             ))}
           </div>
-        )}
+        </div>
+        <div>
+          <div className="text-[10px] uppercase tracking-widest mb-1" style={{ color: 'var(--section-label, #4b5563)' }}>
+            Étendue
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {ROLES_FAMILLE_ETENDUE.map(role => (
+              <RoleButton key={role} role={role} selectedRole={selectedRole} onSelect={setSelectedRole} />
+            ))}
+          </div>
+        </div>
       </div>
 
       {error && <p className="text-[10px] text-red-500">{error}</p>}

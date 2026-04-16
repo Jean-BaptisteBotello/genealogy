@@ -119,10 +119,8 @@ describe('LinkPersonForm', () => {
     await waitFor(() => expect(screen.getByText(/cycle détecté/i)).toBeInTheDocument())
   })
 
-  it('shows famille étendue roles after expanding', async () => {
+  it('shows famille étendue roles without any interaction', async () => {
     await renderForm()
-    expect(screen.queryByText('grand-père')).not.toBeInTheDocument()
-    await userEvent.click(screen.getByText(/famille étendue/i))
     expect(screen.getByText('grand-père')).toBeInTheDocument()
     expect(screen.getByText('oncle')).toBeInTheDocument()
   })
