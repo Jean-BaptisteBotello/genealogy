@@ -8,8 +8,24 @@ vi.mock('@/server-actions/persons', () => ({
   updatePerson: vi.fn().mockResolvedValue({}),
 }))
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }))
+vi.mock('@/server-actions/relationships', () => ({
+  createRelationship: vi.fn(async () => ({})),
+}))
 
 import { createPerson, updatePerson } from '@/server-actions/persons'
+import { TreeContext } from '@/lib/context/tree-context'
+
+const defaultTreeCtx: any = {
+  persons: [], branches: [], relationships: [], personBranches: [],
+  currentRole: 'ADMIN',
+  selectedPersonId: null, selectPerson: vi.fn(),
+  openAddPerson: vi.fn(), openEditPerson: vi.fn(),
+  pendingSuggestionsCount: 0,
+  showToast: vi.fn(),
+  showFamily: true, setShowFamily: vi.fn(),
+  showExtendedFamily: false, setShowExtendedFamily: vi.fn(),
+  filteredRelationships: [],
+}
 
 const defaultProps = {
   mode: 'add' as const,
@@ -18,7 +34,11 @@ const defaultProps = {
 
 async function renderModal(props = defaultProps) {
   const { PersonModal } = await import('../PersonModal')
-  return render(<PersonModal {...props} />)
+  return render(
+    <TreeContext.Provider value={defaultTreeCtx}>
+      <PersonModal {...props} />
+    </TreeContext.Provider>
+  )
 }
 
 describe('PersonModal', () => {
@@ -46,7 +66,7 @@ describe('PersonModal', () => {
       created_at: '', updated_at: '',
     }
     const { PersonModal } = await import('../PersonModal')
-    render(<PersonModal mode={{ type: 'edit', person: editPerson }} onClose={vi.fn()} />)
+    render(<TreeContext.Provider value={defaultTreeCtx}><PersonModal mode={{ type: 'edit', person: editPerson }} onClose={vi.fn()} /></TreeContext.Provider>)
     expect(screen.getByText(/modifier/i)).toBeInTheDocument()
   })
 
@@ -60,7 +80,7 @@ describe('PersonModal', () => {
       created_at: '', updated_at: '',
     }
     const { PersonModal } = await import('../PersonModal')
-    render(<PersonModal mode={{ type: 'edit', person: editPerson }} onClose={vi.fn()} />)
+    render(<TreeContext.Provider value={defaultTreeCtx}><PersonModal mode={{ type: 'edit', person: editPerson }} onClose={vi.fn()} /></TreeContext.Provider>)
     expect(screen.getByDisplayValue('Marie')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Curie')).toBeInTheDocument()
   })
@@ -96,7 +116,7 @@ describe('PersonModal', () => {
   it('calls onClose when the cancel button is clicked', async () => {
     const onClose = vi.fn()
     const { PersonModal } = await import('../PersonModal')
-    render(<PersonModal mode="add" onClose={onClose} />)
+    render(<TreeContext.Provider value={defaultTreeCtx}><PersonModal mode="add" onClose={onClose} /></TreeContext.Provider>)
     fireEvent.click(screen.getByRole('button', { name: /annuler/i }))
     expect(onClose).toHaveBeenCalled()
   })

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { createPerson, updatePerson } from '@/server-actions/persons'
+import { InlineLinkStep } from './InlineLinkStep'
 import type { Person } from '@/lib/types/database'
 
 type AddMode = 'add'
@@ -19,6 +20,7 @@ export function PersonModal({ mode, onClose }: PersonModalProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const [createdPerson, setCreatedPerson] = useState<{ id: string; prenom: string; nom: string } | null>(null)
 
   const isEdit = mode !== 'add'
   const person = isEdit ? (mode as EditMode).person : null
@@ -27,24 +29,41 @@ export function PersonModal({ mode, onClose }: PersonModalProps) {
     e.preventDefault()
     setError(null)
     const formData = new FormData(e.currentTarget)
+    const prenom = String(formData.get('prenom') ?? '').trim()
+    const nom = String(formData.get('nom') ?? '').trim()
 
     startTransition(async () => {
-      const result = isEdit
-        ? await updatePerson(formData)
-        : await createPerson(formData)
-
-      if (result.error) {
-        setError(result.error)
-        return
+      if (isEdit) {
+        const result = await updatePerson(formData)
+        if (result.error) {
+          setError(result.error)
+          return
+        }
+        router.refresh()
+        onClose()
+      } else {
+        const result = await createPerson(formData)
+        if (result.error) {
+          setError(result.error)
+          return
+        }
+        router.refresh()
+        if (result.id) {
+          setCreatedPerson({ id: result.id, prenom, nom })
+        } else {
+          onClose()
+        }
       }
-      router.refresh()
-      onClose()
     })
   }
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       <div className="bg-[#0d1117] border border-[#1e3a5f] rounded-lg w-full max-w-md p-6 flex flex-col gap-4">
+        {createdPerson ? (
+          <InlineLinkStep createdPerson={createdPerson} onDone={onClose} />
+        ) : (
+        <>
         <h2 className="text-white font-semibold text-base">
           {isEdit ? 'Modifier' : 'Ajouter une personne'}
         </h2>
@@ -135,6 +154,8 @@ export function PersonModal({ mode, onClose }: PersonModalProps) {
             </Button>
           </div>
         </form>
+        </>
+        )}
       </div>
     </div>
   )
