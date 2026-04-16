@@ -25,6 +25,7 @@ describe('TimelineView', () => {
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
+      showFamily: true, setShowFamily: vi.fn(), showExtendedFamily: false, setShowExtendedFamily: vi.fn(), filteredRelationships: [],
     })
     render(<TimelineView />)
     expect(screen.getByText(/votre arbre vous attend/i)).toBeTruthy()
@@ -37,6 +38,7 @@ describe('TimelineView', () => {
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
+      showFamily: true, setShowFamily: vi.fn(), showExtendedFamily: false, setShowExtendedFamily: vi.fn(), filteredRelationships: [],
     })
     render(<TimelineView />)
     expect(screen.getByText('Jean Dupont')).toBeTruthy()
@@ -49,6 +51,7 @@ describe('TimelineView', () => {
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
+      showFamily: true, setShowFamily: vi.fn(), showExtendedFamily: false, setShowExtendedFamily: vi.fn(), filteredRelationships: [],
     })
     render(<TimelineView />)
     expect(screen.getByText('Jean Dupont')).toBeTruthy()
@@ -64,6 +67,7 @@ describe('TimelineView', () => {
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
+      showFamily: true, setShowFamily: vi.fn(), showExtendedFamily: false, setShowExtendedFamily: vi.fn(), filteredRelationships: [],
     })
     render(<TimelineView />)
     expect(screen.getByText('Jean Dupont')).toBeTruthy()
@@ -79,6 +83,7 @@ describe('TimelineView', () => {
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson,
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
+      showFamily: true, setShowFamily: vi.fn(), showExtendedFamily: false, setShowExtendedFamily: vi.fn(), filteredRelationships: [],
     })
     render(<TimelineView />)
     screen.getByText('Jean Dupont').click()

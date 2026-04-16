@@ -3,7 +3,7 @@ import { detectBranches } from '../branch-detection'
 import type { Relationship } from '@/lib/types/database'
 
 const rel = (id: string, a: string, b: string, type: string): Relationship => ({
-  id, person_a_id: a, person_b_id: b, type: type as any, metadata: {}, created_at: ''
+  id, person_a_id: a, person_b_id: b, type: type as any, metadata: {}
 })
 
 describe('detectBranches', () => {

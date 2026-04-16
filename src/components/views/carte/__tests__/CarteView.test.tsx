@@ -46,6 +46,7 @@ describe('CarteView', () => {
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
+      showFamily: true, setShowFamily: vi.fn(), showExtendedFamily: false, setShowExtendedFamily: vi.fn(), filteredRelationships: [],
     })
     render(<CarteView />)
     expect(screen.getByText(/votre arbre vous attend/i)).toBeTruthy()
@@ -58,6 +59,7 @@ describe('CarteView', () => {
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
+      showFamily: true, setShowFamily: vi.fn(), showExtendedFamily: false, setShowExtendedFamily: vi.fn(), filteredRelationships: [],
     })
     render(<CarteView />)
     expect(screen.getByText(/1 lieu non géolocalisé/i)).toBeTruthy()
@@ -70,6 +72,7 @@ describe('CarteView', () => {
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
+      showFamily: true, setShowFamily: vi.fn(), showExtendedFamily: false, setShowExtendedFamily: vi.fn(), filteredRelationships: [],
     })
     render(<CarteView />)
     expect(screen.getByText(/2 lieux non géolocalisés/i)).toBeTruthy()
@@ -82,6 +85,7 @@ describe('CarteView', () => {
       currentRole: 'ADMIN',
       selectedPersonId: null, selectPerson: vi.fn(),
       openAddPerson: vi.fn(), openEditPerson: vi.fn(), showToast: vi.fn(), pendingSuggestionsCount: 0,
+      showFamily: true, setShowFamily: vi.fn(), showExtendedFamily: false, setShowExtendedFamily: vi.fn(), filteredRelationships: [],
     })
     render(<CarteView />)
     expect(screen.getByTestId('dynamic-map')).toBeTruthy()

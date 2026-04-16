@@ -3,7 +3,7 @@ import { computeSablierLayout } from '../sablier/sablierLayout'
 import type { Relationship } from '@/lib/types/database'
 
 const rel = (id: string, a: string, b: string, type: string, meta = {}): Relationship => ({
-  id, person_a_id: a, person_b_id: b, type: type as any, metadata: meta, created_at: ''
+  id, person_a_id: a, person_b_id: b, type: type as any, metadata: meta
 })
 
 describe('computeSablierLayout', () => {

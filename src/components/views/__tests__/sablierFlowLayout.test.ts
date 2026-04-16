@@ -3,7 +3,7 @@ import { computeFlowLayout } from '../sablier/sablierFlowLayout'
 import type { Relationship } from '@/lib/types/database'
 
 const rel = (id: string, a: string, b: string, type: string, meta: Record<string, unknown> = {}): Relationship => ({
-  id, person_a_id: a, person_b_id: b, type: type as any, metadata: meta, created_at: ''
+  id, person_a_id: a, person_b_id: b, type: type as any, metadata: meta
 })
 
 const person = (id: string, prenom: string, nom: string) => ({
