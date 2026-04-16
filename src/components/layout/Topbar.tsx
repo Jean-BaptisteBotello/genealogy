@@ -2,6 +2,7 @@
 'use client'
 import { signout } from '@/server-actions/auth'
 import { RechercheDropdown } from '@/components/recherche/RechercheDropdown'
+import type { Person } from '@/lib/types/database'
 
 type View = 'cosmos' | 'sablier' | 'timeline' | 'carte' | 'eventail'
 
@@ -9,6 +10,7 @@ interface TopbarProps {
   userEmail: string
   activeView?: View
   onViewChange?: (view: View) => void
+  selectedPerson?: Person | null
   onAddPerson?: () => void
   onProposePerson?: () => void
   onSearchOpen?: () => void
@@ -19,17 +21,36 @@ interface TopbarProps {
   onOpen3236?: () => void
 }
 
-const VIEWS: { id: View; label: string; icon: string }[] = [
-  { id: 'cosmos', label: 'Cosmos', icon: '🌌' },
-  { id: 'sablier', label: 'Sablier', icon: '⧖' },
-  { id: 'timeline', label: 'Timeline', icon: '📅' },
-  { id: 'carte', label: 'Carte', icon: '🗺' },
+const VIEWS: { id: View; label: string }[] = [
+  { id: 'cosmos', label: 'Cosmos' },
+  { id: 'sablier', label: 'Sablier' },
+  { id: 'timeline', label: 'Timeline' },
+  { id: 'carte', label: 'Carte' },
 ]
+
+function SearchIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  )
+}
+
+function SuggestionsIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2a7 7 0 015 11.9V17a1 1 0 01-1 1H8a1 1 0 01-1-1v-3.1A7 7 0 0112 2z" />
+      <line x1="9" y1="21" x2="15" y2="21" />
+    </svg>
+  )
+}
 
 export function Topbar({
   userEmail,
   activeView = 'cosmos',
   onViewChange,
+  selectedPerson,
   onAddPerson,
   onProposePerson,
   onSearchOpen,
@@ -40,95 +61,179 @@ export function Topbar({
   onOpen3236,
 }: TopbarProps) {
   const initials = userEmail.slice(0, 2).toUpperCase() || '?'
+  const personInitials = selectedPerson
+    ? (selectedPerson.prenom[0] ?? '') + (selectedPerson.nom[0] ?? '')
+    : ''
+  const personLabel = selectedPerson
+    ? `${selectedPerson.prenom} ${selectedPerson.nom}`
+    : ''
+  const personDates = selectedPerson
+    ? [
+        selectedPerson.date_naissance ? new Date(selectedPerson.date_naissance).getFullYear() : null,
+        selectedPerson.date_deces ? new Date(selectedPerson.date_deces).getFullYear() : null,
+      ].filter(Boolean).join('–')
+    : ''
 
   return (
-    <header className="h-12 flex items-center px-4 gap-4 shrink-0" style={{ background: 'var(--topbar-bg)', borderBottom: '1px solid var(--topbar-border)' }}>
-      <div className="font-bold text-sm tracking-widest uppercase mr-2" style={{ color: 'var(--topbar-text)' }}>
-        🌳 Généalogie
-      </div>
-      <nav className="flex items-center gap-1">
-        {VIEWS.map(view => (
+    <div className="shrink-0" style={{ borderBottom: '1px solid var(--topbar-border)' }}>
+      {/* Line 1 — Navigation */}
+      <header
+        className="h-12 flex items-center px-4 gap-3"
+        style={{ background: 'var(--topbar-bg)' }}
+      >
+        {/* Logo */}
+        <div className="font-bold text-xs tracking-widest uppercase mr-1 flex items-center gap-1.5" style={{ color: 'var(--topbar-text)' }}>
+          <span
+            className="w-1.5 h-1.5 rounded-full inline-block"
+            style={{ background: '#7c3aed' }}
+          />
+          Généalogie
+        </div>
+
+        {/* View pill group */}
+        <nav
+          className="flex rounded-lg p-0.5 gap-px"
+          style={{ background: 'var(--pill-group-bg, #eae7e2)' }}
+        >
+          {VIEWS.map(view => (
+            <button
+              key={view.id}
+              type="button"
+              onClick={() => onViewChange?.(view.id)}
+              aria-pressed={activeView === view.id}
+              className="px-3.5 py-1 rounded-md text-xs font-medium transition-all"
+              style={{
+                background: activeView === view.id ? '#fff' : 'transparent',
+                color: activeView === view.id ? 'var(--text-primary, #1a1a1a)' : 'var(--text-secondary, #8a8580)',
+                boxShadow: activeView === view.id ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+              }}
+            >
+              {view.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="flex-1" />
+
+        {/* Right actions */}
+        <button
+          type="button"
+          onClick={onSearchOpen}
+          className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
+          style={{ color: 'var(--text-secondary)' }}
+          aria-label="Rechercher"
+        >
+          <SearchIcon />
+        </button>
+
+        {onOpen3233 && onOpen3236 && (
+          <RechercheDropdown onOpen3233={onOpen3233} onOpen3236={onOpen3236} />
+        )}
+
+        <form action={signout}>
           <button
-            key={view.id}
-            type="button"
-            onClick={() => onViewChange?.(view.id)}
-            aria-pressed={activeView === view.id}
-            className="px-3 py-1.5 rounded text-xs transition-colors"
+            type="submit"
+            className="w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-colors"
+            style={{ background: 'var(--avatar-bg)', color: 'var(--avatar-text)' }}
+            title={`Déconnexion (${userEmail})`}
+          >
+            {initials}
+          </button>
+        </form>
+      </header>
+
+      {/* Line 2 — Context bar (visible when person selected or always shows CTA) */}
+      <div
+        className="flex items-center px-4 gap-2.5"
+        style={{
+          height: selectedPerson ? 40 : 36,
+          background: 'var(--card-bg, #fff)',
+          borderTop: '1px solid var(--topbar-border, #e5e2dd)',
+        }}
+      >
+        {selectedPerson ? (
+          <div
+            className="flex items-center gap-1.5 px-1 pr-2.5 rounded-md text-xs font-medium"
             style={{
-              background: activeView === view.id ? 'var(--accent-hover)' : 'transparent',
-              color: activeView === view.id ? 'var(--text-primary)' : 'var(--text-secondary)',
+              background: 'rgba(124,58,237,0.06)',
+              border: '1px solid rgba(124,58,237,0.15)',
+              color: 'var(--text-primary, #1a1a1a)',
+              height: 28,
             }}
           >
-            {view.icon} {view.label}
-          </button>
-        ))}
-      </nav>
-      <div className="flex-1" />
-      {onAddPerson && (
-        <button
-          type="button"
-          onClick={onAddPerson}
-          className="px-3 py-1.5 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition-colors"
-        >
-          + Ajouter
-        </button>
-      )}
-      {onProposePerson && (
-        <button
-          type="button"
-          onClick={onProposePerson}
-          className="px-3 py-1.5 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded text-xs hover:bg-blue-500/30 transition-colors"
-        >
-          + Proposer
-        </button>
-      )}
-      {onSuggestionsOpen && (
-        <button
-          type="button"
-          onClick={onSuggestionsOpen}
-          className="relative text-gray-500 hover:text-gray-300 text-sm"
-          aria-label="Suggestions en attente"
-        >
-          💡
-          {(pendingSuggestionsCount ?? 0) > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center">
-              {(pendingSuggestionsCount ?? 0) > 9 ? '9+' : pendingSuggestionsCount}
+            <span
+              className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-semibold shrink-0"
+              style={{ background: '#7c3aed', color: 'white' }}
+            >
+              {personInitials}
             </span>
-          )}
-        </button>
-      )}
-      {onMySuggestionsOpen && (
-        <button
-          type="button"
-          onClick={onMySuggestionsOpen}
-          className="text-gray-500 hover:text-gray-300 text-xs"
-          aria-label="Mes propositions"
-        >
-          📋
-        </button>
-      )}
-      <button
-        type="button"
-        onClick={onSearchOpen}
-        className="text-sm transition-colors"
-        style={{ color: 'var(--text-secondary)' }}
-        aria-label="Rechercher"
-      >
-        🔍
-      </button>
-      {onOpen3233 && onOpen3236 && (
-        <RechercheDropdown onOpen3233={onOpen3233} onOpen3236={onOpen3236} />
-      )}
-      <form action={signout}>
-        <button
-          type="submit"
-          className="w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-colors"
-          style={{ background: 'var(--avatar-bg)', color: 'var(--avatar-text)' }}
-          title={`Déconnexion (${userEmail})`}
-        >
-          {initials}
-        </button>
-      </form>
-    </header>
+            {personLabel}
+            {personDates && (
+              <span className="text-[10px] font-normal" style={{ color: 'var(--text-secondary, #8a8580)' }}>
+                · {personDates}
+              </span>
+            )}
+          </div>
+        ) : (
+          <span className="text-xs" style={{ color: 'var(--text-secondary, #8a8580)' }}>
+            Aucune personne sélectionnée
+          </span>
+        )}
+
+        <div className="flex-1" />
+
+        {onAddPerson && (
+          <button
+            type="button"
+            onClick={onAddPerson}
+            className="px-3 py-1 rounded-lg text-xs font-semibold transition-colors"
+            style={{ background: '#7c3aed', color: 'white' }}
+          >
+            + Ajouter
+          </button>
+        )}
+        {onProposePerson && (
+          <button
+            type="button"
+            onClick={onProposePerson}
+            className="px-3 py-1 rounded-lg text-xs font-medium transition-colors"
+            style={{
+              background: 'rgba(124,58,237,0.08)',
+              color: '#7c3aed',
+              border: '1px solid rgba(124,58,237,0.2)',
+            }}
+          >
+            + Proposer
+          </button>
+        )}
+        {onSuggestionsOpen && (
+          <button
+            type="button"
+            onClick={onSuggestionsOpen}
+            className="relative w-7 h-7 flex items-center justify-center rounded-lg transition-colors"
+            style={{ color: 'var(--text-secondary)' }}
+            aria-label="Suggestions en attente"
+          >
+            <SuggestionsIcon />
+            {(pendingSuggestionsCount ?? 0) > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] rounded-full w-3.5 h-3.5 flex items-center justify-center font-bold">
+                {(pendingSuggestionsCount ?? 0) > 9 ? '9+' : pendingSuggestionsCount}
+              </span>
+            )}
+          </button>
+        )}
+        {onMySuggestionsOpen && (
+          <button
+            type="button"
+            onClick={onMySuggestionsOpen}
+            className="w-7 h-7 flex items-center justify-center rounded-lg transition-colors"
+            style={{ color: 'var(--text-secondary)' }}
+            aria-label="Mes propositions"
+          >
+            <SuggestionsIcon />
+          </button>
+        )}
+      </div>
+    </div>
   )
 }

@@ -137,6 +137,7 @@ export function AppShell({
           userEmail={userEmail}
           activeView={activeView}
           onViewChange={setActiveView}
+          selectedPerson={selectedPerson}
           onAddPerson={currentRole !== 'VIEWER' ? openAddPerson : undefined}
           onProposePerson={currentRole === 'VIEWER' ? () => setSuggestionModalMode({ type: 'ADD_PERSON' }) : undefined}
           onSearchOpen={() => setSearchOpen(true)}
