@@ -126,4 +126,19 @@ describe('CosmosView', () => {
     const { container } = render(<CosmosView />)
     expect(container.querySelector('.shadow-line')).toBeTruthy()
   })
+
+  describe('selection glow', () => {
+    it('center group carries data-testid="cosmos-center" and a drop-shadow style', () => {
+      vi.mocked(useTree).mockReturnValue({
+        ...baseTree,
+        persons: [mockPerson('p1', 'Jean', 'Dupont')],
+        relationships: [], filteredRelationships: [],
+        selectedPersonId: 'p1', selectPerson: vi.fn(),
+      })
+      const { container } = render(<CosmosView />)
+      const centerGroup = container.querySelector('[data-testid="cosmos-center"]')
+      expect(centerGroup).toBeTruthy()
+      expect(centerGroup?.getAttribute('style')).toContain('drop-shadow')
+    })
+  })
 })

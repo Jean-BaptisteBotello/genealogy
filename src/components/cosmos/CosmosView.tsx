@@ -381,7 +381,11 @@ export function CosmosView() {
         {/* Center node */}
         {centerPerson && (
           <g
-            style={{ cursor: 'pointer' }}
+            data-testid="cosmos-center"
+            style={{
+              cursor: 'pointer',
+              filter: 'drop-shadow(0 0 6px rgba(124, 58, 237, 0.35))',
+            }}
             onClick={() => selectPerson(centerPerson.id)}
           >
             <circle
@@ -389,8 +393,9 @@ export function CosmosView() {
               cy="50%"
               r={18}
               fill="none"
-              stroke="rgba(124,58,237,0.3)"
-              strokeWidth={1}
+              stroke="#7c3aed"
+              strokeOpacity={0.9}
+              strokeWidth={2}
             />
             <circle
               cx="50%"
