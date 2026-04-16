@@ -8,8 +8,18 @@ interface LandingTopbarProps {
 export function LandingTopbar({ isAuthenticated }: LandingTopbarProps) {
   return (
     <header
-      className="flex items-center justify-between px-6 py-4 md:px-9 md:py-5"
-      style={{ position: 'relative', zIndex: 10 }}
+      className="flex items-center justify-between px-6 py-4 md:px-9 md:py-3"
+      style={{
+        position: 'sticky',
+        top: 8,
+        zIndex: 20,
+        background: 'rgba(217, 212, 201, 0.72)',
+        backdropFilter: 'saturate(140%) blur(10px)',
+        WebkitBackdropFilter: 'saturate(140%) blur(10px)',
+        border: '1px solid rgba(0, 0, 0, 0.06)',
+        borderRadius: 999,
+        margin: '8px 0 0',
+      }}
     >
       <div
         className="text-2xl"

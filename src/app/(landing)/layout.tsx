@@ -45,6 +45,16 @@ export default function LandingLayout({ children }: { children: React.ReactNode 
           .landing-h2-cta { font-size: 38px; }
           .landing-faq-q { font-size: 20px !important; }
         }
+
+        /* ── FAQ accordion ── */
+        .landing-faq-item summary::-webkit-details-marker { display: none; }
+        .landing-faq-item summary::marker { content: ''; }
+        .landing-faq-item[open] .landing-faq-chevron {
+          transform: rotate(45deg);
+          background: #7c3aed;
+          border-color: #7c3aed;
+          color: #fff;
+        }
       `}</style>
       {children}
     </div>

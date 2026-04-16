@@ -100,7 +100,7 @@ function Caret({ active }: { active: boolean }) {
   )
 }
 
-export function HeroFormPreview() {
+export function HeroFormPreview({ compact = false }: { compact?: boolean }) {
   const { fields, activeCaret } = useTypewriterCycle()
 
   return (
@@ -110,10 +110,10 @@ export function HeroFormPreview() {
         style={{
           background: '#fff',
           borderRadius: 10,
-          padding: '22px 22px 26px',
+          padding: compact ? '18px 18px 20px' : '22px 22px 26px',
           border: '1px solid rgba(0,0,0,0.07)',
           boxShadow: '0 30px 60px -30px rgba(0,0,0,0.18), 0 8px 24px -12px rgba(124,58,237,0.18)',
-          transform: 'rotate(-1.4deg)',
+          transform: compact ? 'none' : 'rotate(-1.4deg)',
         }}
       >
         {/* Header */}

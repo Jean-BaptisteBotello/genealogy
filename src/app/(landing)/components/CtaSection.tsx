@@ -1,6 +1,12 @@
 import { WaitlistForm } from './WaitlistForm'
 
-export function CtaSection() {
+export function CtaSection({
+  isAuthenticated = false,
+  waitlistCount,
+}: {
+  isAuthenticated?: boolean
+  waitlistCount?: number
+}) {
   return (
     <section
       id="waitlist"
@@ -116,9 +122,9 @@ export function CtaSection() {
         juste une notification quand ce sera prêt.
       </p>
 
-      {/* Waitlist form */}
+      {/* Waitlist form (auth-aware) */}
       <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'center' }}>
-        <WaitlistForm source="cta" />
+        <WaitlistForm source="cta" isAuthenticated={isAuthenticated} />
       </div>
 
       {/* Meta */}
@@ -152,30 +158,34 @@ export function CtaSection() {
           fontFamily: 'var(--font-instrument-serif)',
         }}
       >
-        <div style={{ textAlign: 'center' }}>
-          <div
-            style={{ fontSize: 44, lineHeight: 1, color: '#7c3aed', fontStyle: 'italic' }}
-          >
-            2
-          </div>
-          <div
-            style={{
-              fontFamily: 'var(--font-inter)',
-              fontSize: 11,
-              textTransform: 'uppercase',
-              letterSpacing: '0.12em',
-              color: '#6b6760',
-              marginTop: 8,
-            }}
-          >
-            formulaires officiels
-          </div>
-        </div>
+        {typeof waitlistCount === 'number' && waitlistCount > 0 && (
+          <>
+            <div style={{ textAlign: 'center' }}>
+              <div
+                style={{ fontSize: 44, lineHeight: 1, color: '#7c3aed', fontStyle: 'italic' }}
+              >
+                {waitlistCount.toLocaleString('fr-FR')}
+              </div>
+              <div
+                style={{
+                  fontFamily: 'var(--font-inter)',
+                  fontSize: 11,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.12em',
+                  color: '#6b6760',
+                  marginTop: 8,
+                }}
+              >
+                {waitlistCount > 1 ? 'déjà inscrits' : 'déjà inscrit'}
+              </div>
+            </div>
 
-        <div
-          aria-hidden="true"
-          style={{ width: 1, height: 48, background: 'rgba(0,0,0,.1)', flexShrink: 0 }}
-        />
+            <div
+              aria-hidden="true"
+              style={{ width: 1, height: 48, background: 'rgba(0,0,0,.1)', flexShrink: 0 }}
+            />
+          </>
+        )}
 
         <div style={{ textAlign: 'center' }}>
           <div

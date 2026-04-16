@@ -1,7 +1,7 @@
 import { HeroFormPreview } from './HeroFormPreview'
 import { WaitlistForm } from './WaitlistForm'
 
-export function HeroSection() {
+export function HeroSection({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
   return (
     <section
       className="relative overflow-hidden rounded-[14px]"
@@ -53,17 +53,19 @@ export function HeroSection() {
             propriétaires.
           </p>
 
-          {/* Waitlist form */}
-          <WaitlistForm source="hero" />
+          {/* Waitlist form (auth-aware) */}
+          <WaitlistForm source="hero" isAuthenticated={isAuthenticated} />
 
-          {/* RGPD mention */}
-          <p className="mt-2 text-xs" style={{ color: '#4a4641', paddingLeft: 18 }}>
-            En vous inscrivant, vous acceptez notre{' '}
-            <a href="/privacy" className="underline underline-offset-4" style={{ textDecorationColor: 'rgba(124,58,237,0.35)' }}>
-              politique de confidentialité
-            </a>
-            .
-          </p>
+          {/* RGPD mention — hidden when the authenticated shortcut replaces the form */}
+          {!isAuthenticated && (
+            <p className="mt-2 text-xs" style={{ color: '#4a4641', paddingLeft: 18 }}>
+              En vous inscrivant, vous acceptez notre{' '}
+              <a href="/privacy" className="underline underline-offset-4" style={{ textDecorationColor: 'rgba(124,58,237,0.35)' }}>
+                politique de confidentialité
+              </a>
+              .
+            </p>
+          )}
 
           {/* Micro-benefits */}
           <p className="mt-3 text-[12px]" style={{ color: '#7a7670', paddingLeft: 18, letterSpacing: '0.02em' }}>
@@ -71,9 +73,12 @@ export function HeroSection() {
           </p>
         </div>
 
-        {/* Right column — Form preview */}
+        {/* Right column — Form preview (animated ≥ md, static compact < md) */}
         <div className="hidden md:block">
           <HeroFormPreview />
+        </div>
+        <div className="md:hidden" style={{ marginTop: 8 }}>
+          <HeroFormPreview compact />
         </div>
       </div>
 
