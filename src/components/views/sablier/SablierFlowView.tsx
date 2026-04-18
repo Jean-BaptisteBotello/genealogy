@@ -118,10 +118,10 @@ export function SablierFlowView() {
     <div className="sablier-flow" ref={containerRef} onWheel={handleWheel}>
       {/* Zoom controls */}
       <div className="sablier-flow__zoom-controls">
-        <button type="button" onClick={() => setZoom(prev => Math.min(2, prev + 0.15))}>+</button>
-        <span>{Math.round(zoom * 100)}%</span>
-        <button type="button" onClick={() => setZoom(prev => Math.max(0.3, prev - 0.15))}>−</button>
-        <button type="button" onClick={() => setZoom(1)} style={{ fontSize: 10, marginLeft: 4 }}>Reset</button>
+        <button type="button" onClick={() => setZoom(prev => Math.min(2, prev + 0.15))} aria-label="Zoom avant">+</button>
+        <span style={{ minWidth: 40, textAlign: 'center' }}>{Math.round(zoom * 100)}%</span>
+        <button type="button" onClick={() => setZoom(prev => Math.max(0.3, prev - 0.15))} aria-label="Zoom arrière">−</button>
+        <button type="button" onClick={() => setZoom(1)} style={{ fontSize: 11, padding: '0 8px' }} aria-label="Réinitialiser le zoom">↺</button>
       </div>
       <div
         className="sablier-flow__canvas"
