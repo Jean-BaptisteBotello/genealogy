@@ -1,6 +1,7 @@
 'use client'
 import { useEffect } from 'react'
 import { useTree } from '@/lib/context/tree-context'
+import { EmptyTreeState } from '@/components/shared/EmptyTreeState'
 import type { Person, Relationship } from '@/lib/types/database'
 
 const CX = 350
@@ -62,22 +63,7 @@ export function EventailView() {
   }, [persons, selectedPersonId, selectPerson])
 
   if (persons.length === 0) {
-    return (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-5xl mb-4">🌀</div>
-          <h2 className="text-xl font-semibold text-white mb-2">Votre arbre vous attend</h2>
-          <p className="text-sm text-gray-500 mb-6">Commencez par ajouter la première personne.</p>
-          <button
-            type="button"
-            onClick={openAddPerson}
-            className="px-4 py-2 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 transition-colors"
-          >
-            + Ajouter une personne
-          </button>
-        </div>
-      </div>
-    )
+    return <EmptyTreeState onAddPerson={openAddPerson} />
   }
 
   const centerId = selectedPersonId ?? persons[0].id

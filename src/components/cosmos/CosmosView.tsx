@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useMemo, useCallback, createRef } from 're
 import { useTree } from '@/lib/context/tree-context'
 import { computeCosmosLayout, ORBIT_RADII } from './cosmosLayout'
 import { CosmosNode } from './CosmosNode'
+import { EmptyTreeState } from '@/components/shared/EmptyTreeState'
 import { CosmosTooltip } from './CosmosTooltip'
 import type { RelationshipType } from '@/lib/types/database'
 
@@ -220,37 +221,8 @@ export function CosmosView() {
     })
   }, [])
 
-  // Empty state
   if (persons.length === 0) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          gap: 16,
-          background: BG_COLOR,
-        }}
-      >
-        <div style={{ fontSize: 18, color: '#3a3a3a' }}>Votre arbre vous attend</div>
-        <button
-          onClick={openAddPerson}
-          style={{
-            padding: '8px 16px',
-            background: '#ef4444',
-            color: 'white',
-            border: 'none',
-            borderRadius: 6,
-            cursor: 'pointer',
-            fontSize: 14,
-          }}
-        >
-          + Ajouter une personne
-        </button>
-      </div>
-    )
+    return <EmptyTreeState onAddPerson={openAddPerson} />
   }
 
   const centerPerson = centerId ? persons.find(p => p.id === centerId) : null

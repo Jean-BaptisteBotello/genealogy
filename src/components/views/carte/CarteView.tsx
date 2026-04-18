@@ -1,6 +1,7 @@
 'use client'
 import dynamic from 'next/dynamic'
 import { useTree } from '@/lib/context/tree-context'
+import { EmptyTreeState } from '@/components/shared/EmptyTreeState'
 import type { Person } from '@/lib/types/database'
 
 const CarteViewInner = dynamic(() => import('./CarteViewInner'), { ssr: false })
@@ -16,22 +17,7 @@ export function CarteView() {
   const { persons, selectedPersonId, selectPerson, openAddPerson } = useTree()
 
   if (persons.length === 0) {
-    return (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-5xl mb-4">🗺</div>
-          <h2 className="text-xl font-semibold text-white mb-2">Votre arbre vous attend</h2>
-          <p className="text-sm text-gray-500 mb-6">Commencez par ajouter la première personne.</p>
-          <button
-            type="button"
-            onClick={openAddPerson}
-            className="px-4 py-2 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 transition-colors"
-          >
-            + Ajouter une personne
-          </button>
-        </div>
-      </div>
-    )
+    return <EmptyTreeState onAddPerson={openAddPerson} />
   }
 
   const geoPoints: GeoPoint[] = []

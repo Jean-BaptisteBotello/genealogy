@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { useTree } from '@/lib/context/tree-context'
 import { useScrollSelectedIntoView } from '@/lib/hooks/useScrollSelectedIntoView'
 import { computeFlowLayout } from './sablierFlowLayout'
+import { EmptyTreeState } from '@/components/shared/EmptyTreeState'
 import './sablierFlow.css'
 
 const GEN_LABELS: Record<number, string> = {
@@ -64,22 +65,7 @@ export function SablierFlowView() {
   }, [])
 
   if (persons.length === 0) {
-    return (
-      <div className="sablier-flow__empty">
-        <div className="sablier-flow__empty-inner">
-          <div className="sablier-flow__empty-icon">⧖</div>
-          <h2 className="sablier-flow__empty-title">Votre arbre vous attend</h2>
-          <p className="sablier-flow__empty-text">Commencez par ajouter la première personne.</p>
-          <button
-            type="button"
-            onClick={openAddPerson}
-            className="px-4 py-2 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 transition-colors"
-          >
-            + Ajouter une personne
-          </button>
-        </div>
-      </div>
-    )
+    return <EmptyTreeState onAddPerson={openAddPerson} />
   }
 
   const renderCard = (nodeId: string, x: number, y: number, role?: string, isSelected?: boolean) => {

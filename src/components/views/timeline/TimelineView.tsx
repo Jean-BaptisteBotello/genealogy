@@ -2,6 +2,7 @@
 import { useMemo, useRef } from 'react'
 import { useTree } from '@/lib/context/tree-context'
 import { useScrollSelectedIntoView } from '@/lib/hooks/useScrollSelectedIntoView'
+import { EmptyTreeState } from '@/components/shared/EmptyTreeState'
 import './timeline.css'
 
 const CARD_W = 236 // 220 card + 16 gap
@@ -75,22 +76,7 @@ export function TimelineView() {
   const selectedIsUnplaced = selectedPersonId != null && unplaced.some(p => p.id === selectedPersonId)
 
   if (persons.length === 0) {
-    return (
-      <div className="timeline__empty">
-        <div className="timeline__empty-inner">
-          <div className="timeline__empty-icon">📅</div>
-          <h2 className="timeline__empty-title">Votre arbre vous attend</h2>
-          <p className="timeline__empty-text">Commencez par ajouter la première personne.</p>
-          <button
-            type="button"
-            onClick={openAddPerson}
-            className="px-4 py-2 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 transition-colors"
-          >
-            + Ajouter une personne
-          </button>
-        </div>
-      </div>
-    )
+    return <EmptyTreeState onAddPerson={openAddPerson} />
   }
 
   // Year markers every 25 years
