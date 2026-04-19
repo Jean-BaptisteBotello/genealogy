@@ -144,7 +144,7 @@ export function CtaSection({
         </strong>
       </p>
 
-      {/* Counters */}
+      {/* Counters — two groups */}
       <div
         style={{
           position: 'relative',
@@ -152,83 +152,38 @@ export function CtaSection({
           marginTop: 56,
           display: 'flex',
           flexWrap: 'wrap',
-          gap: 32,
+          gap: 48,
           justifyContent: 'center',
-          alignItems: 'center',
+          alignItems: 'flex-start',
           fontFamily: 'var(--font-instrument-serif)',
         }}
       >
+        {/* Social proof */}
         {typeof waitlistCount === 'number' && waitlistCount > 0 && (
-          <>
-            <div style={{ textAlign: 'center' }}>
-              <div
-                style={{ fontSize: 44, lineHeight: 1, color: '#7c3aed', fontStyle: 'italic' }}
-              >
-                {waitlistCount.toLocaleString('fr-FR')}
-              </div>
-              <div
-                style={{
-                  fontFamily: 'var(--font-inter)',
-                  fontSize: 11,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.12em',
-                  color: '#6b6760',
-                  marginTop: 8,
-                }}
-              >
-                {waitlistCount > 1 ? 'déjà inscrits' : 'déjà inscrit'}
-              </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 44, lineHeight: 1, color: '#7c3aed', fontStyle: 'italic' }}>
+              {waitlistCount.toLocaleString('fr-FR')}
             </div>
-
-            <div
-              aria-hidden="true"
-              style={{ width: 1, height: 48, background: 'rgba(0,0,0,.1)', flexShrink: 0 }}
-            />
-          </>
+            <div style={{ fontFamily: 'var(--font-inter)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#6b6760', marginTop: 8 }}>
+              {waitlistCount > 1 ? 'déjà inscrits' : 'déjà inscrit'}
+            </div>
+          </div>
         )}
 
-        <div style={{ textAlign: 'center' }}>
-          <div
-            style={{ fontSize: 44, lineHeight: 1, color: '#7c3aed', fontStyle: 'italic' }}
-          >
-            100
+        {/* Couverture */}
+        <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 44, lineHeight: 1, color: '#1a1815', fontStyle: 'italic' }}>100</div>
+            <div style={{ fontFamily: 'var(--font-inter)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#6b6760', marginTop: 8 }}>
+              SPF couverts
+            </div>
           </div>
-          <div
-            style={{
-              fontFamily: 'var(--font-inter)',
-              fontSize: 11,
-              textTransform: 'uppercase',
-              letterSpacing: '0.12em',
-              color: '#6b6760',
-              marginTop: 8,
-            }}
-          >
-            SPF couverts
-          </div>
-        </div>
-
-        <div
-          aria-hidden="true"
-          style={{ width: 1, height: 48, background: 'rgba(0,0,0,.1)', flexShrink: 0 }}
-        />
-
-        <div style={{ textAlign: 'center' }}>
-          <div
-            style={{ fontSize: 44, lineHeight: 1, color: '#7c3aed', fontStyle: 'italic' }}
-          >
-            1956
-          </div>
-          <div
-            style={{
-              fontFamily: 'var(--font-inter)',
-              fontSize: 11,
-              textTransform: 'uppercase',
-              letterSpacing: '0.12em',
-              color: '#6b6760',
-              marginTop: 8,
-            }}
-          >
-            depuis cette année
+          <div aria-hidden="true" style={{ width: 1, height: 40, background: 'rgba(0,0,0,.1)' }} />
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 44, lineHeight: 1, color: '#1a1815', fontStyle: 'italic' }}>1956</div>
+            <div style={{ fontFamily: 'var(--font-inter)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#6b6760', marginTop: 8 }}>
+              depuis cette année
+            </div>
           </div>
         </div>
       </div>
