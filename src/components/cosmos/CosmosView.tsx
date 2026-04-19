@@ -5,6 +5,7 @@ import { useTree } from '@/lib/context/tree-context'
 import { computeCosmosLayout, ORBIT_RADII } from './cosmosLayout'
 import { CosmosNode } from './CosmosNode'
 import { EmptyTreeState } from '@/components/shared/EmptyTreeState'
+import { OrphanPanel } from '@/components/shared/OrphanPanel'
 import { CosmosTooltip } from './CosmosTooltip'
 import type { RelationshipType } from '@/lib/types/database'
 
@@ -416,25 +417,7 @@ export function CosmosView() {
         />
       )}
 
-      {/* Orphan badge */}
-      {orphans.length > 0 && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 16,
-            right: 16,
-            background: '#ffffff',
-            color: '#8a8580',
-            border: '1px solid #e5e2dd',
-            borderRadius: 6,
-            padding: '4px 10px',
-            fontSize: 12,
-            backdropFilter: 'blur(8px)',
-          }}
-        >
-          {orphans.length} non connecté{orphans.length > 1 ? 's' : ''}
-        </div>
-      )}
+      <OrphanPanel orphanIds={orphans} persons={persons} onSelectPerson={selectPerson} />
     </div>
   )
 }

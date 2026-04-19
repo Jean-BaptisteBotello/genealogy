@@ -72,7 +72,7 @@ describe('TimelineView', () => {
     render(<TimelineView />)
     expect(screen.getByText('Jean Dupont')).toBeTruthy()
     expect(screen.queryByText('Marie Martin')).toBeNull()
-    expect(screen.getByText(/1 non placée/i)).toBeTruthy()
+    expect(screen.getByText(/1 sans date de naissance/i)).toBeTruthy()
   })
 
   it('calls selectPerson when a person label is clicked', () => {

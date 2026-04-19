@@ -4,6 +4,7 @@ import { useTree } from '@/lib/context/tree-context'
 import { useScrollSelectedIntoView } from '@/lib/hooks/useScrollSelectedIntoView'
 import { computeFlowLayout } from './sablierFlowLayout'
 import { EmptyTreeState } from '@/components/shared/EmptyTreeState'
+import { OrphanPanel } from '@/components/shared/OrphanPanel'
 import './sablierFlow.css'
 
 const GEN_LABELS: Record<number, string> = {
@@ -173,25 +174,7 @@ export function SablierFlowView() {
         {layout.siblings.map(s => renderCard(s.id, s.x, s.y, 'Fratrie', false))}
       </div>
 
-      {/* Orphan badge */}
-      {layout.orphans.length > 0 && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 16,
-            left: 16,
-            background: '#fff',
-            border: '1px solid #e5e2dd',
-            borderRadius: 8,
-            padding: '6px 12px',
-            fontSize: 12,
-            color: '#8a8580',
-            zIndex: 10,
-          }}
-        >
-          {layout.orphans.length} non connecté{layout.orphans.length > 1 ? 's' : ''}
-        </div>
-      )}
+      <OrphanPanel orphanIds={layout.orphans} persons={persons} onSelectPerson={selectPerson} />
     </div>
   )
 }

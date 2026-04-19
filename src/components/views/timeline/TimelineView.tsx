@@ -3,6 +3,7 @@ import { useMemo, useRef } from 'react'
 import { useTree } from '@/lib/context/tree-context'
 import { useScrollSelectedIntoView } from '@/lib/hooks/useScrollSelectedIntoView'
 import { EmptyTreeState } from '@/components/shared/EmptyTreeState'
+import { OrphanPanel } from '@/components/shared/OrphanPanel'
 import './timeline.css'
 
 const CARD_W = 236 // 220 card + 16 gap
@@ -150,12 +151,12 @@ export function TimelineView() {
         {belowPos.map(p => renderCard(p, false))}
       </div>
 
-      {/* Unplaced badge */}
-      {unplaced.length > 0 && (
-        <div className={`timeline__unplaced${selectedIsUnplaced ? ' timeline__unplaced--highlight' : ''}`}>
-          {unplaced.length} non placée{unplaced.length > 1 ? 's' : ''} sur la timeline (sans date de naissance)
-        </div>
-      )}
+      <OrphanPanel
+        orphanIds={unplaced.map(p => p.id)}
+        persons={persons}
+        onSelectPerson={selectPerson}
+        label={`${unplaced.length} sans date de naissance`}
+      />
     </div>
   )
 }
