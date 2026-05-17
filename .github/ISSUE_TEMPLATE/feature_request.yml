@@ -1,0 +1,60 @@
+name: ✨ Feature request
+description: Proposer une nouvelle fonctionnalité ou amélioration
+labels: ['enhancement', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci pour ta suggestion. Commence par décrire le **besoin utilisateur** avant la solution technique — ça permet d'explorer plusieurs approches.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Quel problème utilisateur ça résout ?
+      description: Décris la frustration ou le besoin réel
+      placeholder: Quand je fais X, je rencontre Y, ce qui m'empêche de...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution proposée
+      description: Comment tu imagines la fonctionnalité (UI, comportement, etc.)
+      placeholder: J'aimerais que l'app...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives envisagées
+      description: D'autres solutions au même problème ? Pourquoi celle-ci est meilleure ?
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Périmètre estimé
+      options:
+        - Petit (quelques heures)
+        - Moyen (1-2 jours)
+        - Gros (semaine+)
+        - Je ne sais pas
+    validations:
+      required: true
+
+  - type: textarea
+    id: mockup
+    attributes:
+      label: Mockup / inspiration (optionnel)
+      description: Capture d'autres apps, sketch, lien Figma, etc.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Vérifications préalables
+      options:
+        - label: J'ai cherché dans les issues existantes pour éviter les doublons
+          required: true
+        - label: Cette feature est cohérente avec l'esprit du projet (généalogie collaborative, hébergement EU, RGPD)
+          required: true
