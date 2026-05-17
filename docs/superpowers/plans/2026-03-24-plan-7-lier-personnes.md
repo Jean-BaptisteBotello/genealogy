@@ -309,7 +309,7 @@ describe('LinkPersonForm', () => {
 
   it('excludes the current person from the list', async () => {
     await renderForm()
-    expect(screen.queryByText(/jean-baptiste/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/pierre/i)).not.toBeInTheDocument()
     expect(screen.getByText(/pierre/i)).toBeInTheDocument()
   })
 

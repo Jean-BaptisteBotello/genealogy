@@ -40,6 +40,13 @@ yarn-error.log*
 # supabase CLI local state (contient project-ref, pooler-url, etc.)
 supabase/.temp/
 
+# brainstorm artifacts (mockups locaux, contient parfois des données de test perso)
+.superpowers/
+public/*-mockup.html
+public/design-system-proposals.html
+public/theme-proposals.html
+public/cosmos-nodes-comparison.html
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

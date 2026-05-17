@@ -114,7 +114,7 @@ describe('DetailPanel — lier une personne', () => {
       type: 'PARENT_CHILD' as const,
       metadata: { role: 'grand-père' },
     }
-    const p2 = { ...mockPerson, id: 'p2', prenom: 'Pierre', nom: 'Dupont' }
+    const p2 = { ...mockPerson, id: 'p2', prenom: 'Paul', nom: 'Dupont' }
     const { DetailPanel } = await import('../DetailPanel')
     render(
       <DetailPanel

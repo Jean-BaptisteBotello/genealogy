@@ -24,7 +24,7 @@ const persons = [
     notes: null, created_at: '', updated_at: '',
   },
   {
-    id: OTHER_ID, prenom: 'Pierre', nom: 'Dupont',
+    id: OTHER_ID, prenom: 'Paul', nom: 'Dupont',
     date_naissance: '1960-01-01', lieu_naissance: null,
     lat_naissance: null, lon_naissance: null,
     date_deces: null, lieu_deces: null,
@@ -58,15 +58,15 @@ describe('LinkPersonForm', () => {
     await renderForm()
     const input = screen.getByPlaceholderText(/rechercher/i)
     await userEvent.type(input, 'dupont')
-    expect(screen.queryByText(/jean-baptiste/i)).not.toBeInTheDocument()
-    expect(screen.getByText(/pierre/i)).toBeInTheDocument()
+    expect(screen.queryByText(/pierre/i)).not.toBeInTheDocument()
+    expect(screen.getByText(/paul/i)).toBeInTheDocument()
   })
 
   it('filters persons by search query', async () => {
     await renderForm()
     const input = screen.getByPlaceholderText(/rechercher/i)
     await userEvent.type(input, 'zzz')
-    expect(screen.queryByText(/pierre/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/paul/i)).not.toBeInTheDocument()
   })
 
   it('submit button is disabled until both person and role are selected', async () => {
@@ -74,8 +74,8 @@ describe('LinkPersonForm', () => {
     const btn = screen.getByRole('button', { name: /lier/i })
     expect(btn).toBeDisabled()
 
-    await userEvent.type(screen.getByPlaceholderText(/rechercher/i), 'pierre')
-    await userEvent.click(screen.getByText(/pierre/i))
+    await userEvent.type(screen.getByPlaceholderText(/rechercher/i), 'paul')
+    await userEvent.click(screen.getByText(/paul/i))
     expect(btn).toBeDisabled()
 
     await userEvent.click(screen.getByText('père'))
@@ -84,8 +84,8 @@ describe('LinkPersonForm', () => {
 
   it('calls createRelationship with correct FormData on submit', async () => {
     await renderForm()
-    await userEvent.type(screen.getByPlaceholderText(/rechercher/i), 'pierre')
-    await userEvent.click(screen.getByText(/pierre/i))
+    await userEvent.type(screen.getByPlaceholderText(/rechercher/i), 'paul')
+    await userEvent.click(screen.getByText(/paul/i))
     await userEvent.click(screen.getByText('père'))
     await userEvent.click(screen.getByRole('button', { name: /lier/i }))
 
@@ -102,8 +102,8 @@ describe('LinkPersonForm', () => {
   it('calls onClose after successful submit', async () => {
     const onClose = vi.fn()
     await renderForm(onClose)
-    await userEvent.type(screen.getByPlaceholderText(/rechercher/i), 'pierre')
-    await userEvent.click(screen.getByText(/pierre/i))
+    await userEvent.type(screen.getByPlaceholderText(/rechercher/i), 'paul')
+    await userEvent.click(screen.getByText(/paul/i))
     await userEvent.click(screen.getByText('père'))
     await userEvent.click(screen.getByRole('button', { name: /lier/i }))
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce())
@@ -112,8 +112,8 @@ describe('LinkPersonForm', () => {
   it('shows error message when createRelationship returns error', async () => {
     vi.mocked(createRelationship).mockResolvedValueOnce({ error: 'Cycle détecté' })
     await renderForm()
-    await userEvent.type(screen.getByPlaceholderText(/rechercher/i), 'pierre')
-    await userEvent.click(screen.getByText(/pierre/i))
+    await userEvent.type(screen.getByPlaceholderText(/rechercher/i), 'paul')
+    await userEvent.click(screen.getByText(/paul/i))
     await userEvent.click(screen.getByText('père'))
     await userEvent.click(screen.getByRole('button', { name: /lier/i }))
     await waitFor(() => expect(screen.getByText(/cycle détecté/i)).toBeInTheDocument())
@@ -137,8 +137,8 @@ describe('LinkPersonForm', () => {
     const { unmount } = await renderForm()
 
     // trigger an error
-    await userEvent.type(screen.getByPlaceholderText(/rechercher/i), 'pierre')
-    await userEvent.click(screen.getByText(/pierre/i))
+    await userEvent.type(screen.getByPlaceholderText(/rechercher/i), 'paul')
+    await userEvent.click(screen.getByText(/paul/i))
     await userEvent.click(screen.getByText('père'))
     await userEvent.click(screen.getByRole('button', { name: /lier/i }))
     await waitFor(() => expect(screen.getByText(/cycle détecté/i)).toBeInTheDocument())
